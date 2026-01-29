@@ -1,7 +1,10 @@
-/* Recursion button (image only) */
+/* Recursion / image buttons */
 .image-button {
-    -fx-padding: 0;                 /* image fills full button */
-    -fx-background-color: transparent;  /* optional */
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+}
+.image-button:hover {
+    -fx-opacity: 0.85;
 }
 
 /* Normal buttons */
@@ -12,7 +15,15 @@
     -fx-padding: 10 20;
 }
 
-/* Hover effect for all buttons */
-.button:hover {
-    -fx-opacity: 0.85;
+/* Light / Dark theme classes */
+.root.light-mode {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #000000;
+}
+.root.dark-mode {
+    -fx-background-color: #2b2b2b;
+    -fx-text-fill: #ffffff;
+}
+.root.dark-mode .button {
+    -fx-background-color: #444444;
 }

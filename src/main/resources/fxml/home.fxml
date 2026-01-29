@@ -24,16 +24,14 @@
     <center>
         <GridPane hgap="30" vgap="30" alignment="CENTER">
 
-            <!-- Recursion Button with image (no text) -->
+            <!-- Recursion (image only) -->
             <Button onAction="#openModule"
                     GridPane.rowIndex="0" GridPane.columnIndex="0"
-                    prefWidth="300" prefHeight="240"
-                    styleClass="image-button">
+                    prefWidth="300" prefHeight="260"
+                    styleClass="image-button"
+                    userData="Recursion">
                 <graphic>
-                    <ImageView fx:id="recursionIcon"
-                               fitWidth="300"
-                               fitHeight="240"
-                               preserveRatio="true">
+                    <ImageView fitWidth="300" fitHeight="260" preserveRatio="true">
                         <image>
                             <Image url="@/images/recursion.png"/>
                         </image>
@@ -41,14 +39,110 @@
                 </graphic>
             </Button>
 
-            <!-- Other buttons without image -->
-            <Button text="Array" onAction="#openModule" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-            <Button text="Graph" onAction="#openModule" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
-            <Button text="BST" onAction="#openModule" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-            <Button text="Linked List" onAction="#openModule" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-            <Button text="Stack" onAction="#openModule" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
-            <Button text="Queue" onAction="#openModule" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-            <Button text="Sorting" onAction="#openModule" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+            <!-- Array -->
+            <Button onAction="#openModule"
+                    GridPane.rowIndex="0" GridPane.columnIndex="1"
+                    prefWidth="300" prefHeight="260"
+                    styleClass="image-button"
+                    userData="Array">
+                <graphic>
+                    <ImageView fitWidth="300" fitHeight="260" preserveRatio="true">
+                        <image>
+                            <Image url="@/images/array.png"/>
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
+
+            <!-- Graph -->
+            <Button onAction="#openModule"
+                    GridPane.rowIndex="0" GridPane.columnIndex="2"
+                    prefWidth="300" prefHeight="260"
+                    styleClass="image-button"
+                    userData="Graph">
+                <graphic>
+                    <ImageView fitWidth="300" fitHeight="260" preserveRatio="true">
+                        <image>
+                            <Image url="@/images/graph.png"/>
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
+
+            <!-- BST -->
+            <Button onAction="#openModule"
+                    GridPane.rowIndex="0" GridPane.columnIndex="3"
+                    prefWidth="300" prefHeight="260"
+                    styleClass="image-button"
+                    userData="BST">
+                <graphic>
+                    <ImageView fitWidth="300" fitHeight="260" preserveRatio="true">
+                        <image>
+                            <Image url="@/images/BST.png"/>
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
+
+            <!-- Linked List -->
+            <Button onAction="#openModule"
+                    GridPane.rowIndex="1" GridPane.columnIndex="0"
+                    prefWidth="300" prefHeight="260"
+                    styleClass="image-button"
+                    userData="Linked List">
+                <graphic>
+                    <ImageView fitWidth="300" fitHeight="260" preserveRatio="true">
+                        <image>
+                            <Image url="@/images/Linked list.png"/>
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
+
+            <!-- Stack -->
+            <Button onAction="#openModule"
+                    GridPane.rowIndex="1" GridPane.columnIndex="1"
+                    prefWidth="300" prefHeight="260"
+                    styleClass="image-button"
+                    userData="Stack">
+                <graphic>
+                    <ImageView fitWidth="300" fitHeight="260" preserveRatio="true">
+                        <image>
+                            <Image url="@/images/stack.png"/>
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
+
+            <!-- Queue -->
+            <Button onAction="#openModule"
+                    GridPane.rowIndex="1" GridPane.columnIndex="2"
+                    prefWidth="300" prefHeight="260"
+                    styleClass="image-button"
+                    userData="Queue">
+                <graphic>
+                    <ImageView fitWidth="300" fitHeight="260" preserveRatio="true">
+                        <image>
+                            <Image url="@/images/queue.png"/>
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
+
+            <!-- Sorting -->
+            <Button onAction="#openModule"
+                    GridPane.rowIndex="1" GridPane.columnIndex="3"
+                    prefWidth="300" prefHeight="260"
+                    styleClass="image-button"
+                    userData="Sorting">
+                <graphic>
+                    <ImageView fitWidth="300" fitHeight="260" preserveRatio="true">
+                        <image>
+                            <Image url="@/images/sorting.png"/>
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
 
         </GridPane>
     </center>
