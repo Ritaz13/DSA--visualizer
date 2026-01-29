@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml">
+
+    <top>
+        <HBox alignment="CENTER_RIGHT">
+            <ToggleButton text="Dark Mode"
+                          onAction="#"/>
+        </HBox>
+    </top>
+
+    <center>
+        <TextArea promptText="Write description here..."
+                  wrapText="true"/>
+    </center>
+
+</BorderPane>
