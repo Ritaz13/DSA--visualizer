@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.geometry.Insets?>
+
+<VBox alignment="CENTER"
+      spacing="20"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.example.dsavisualizer.Page1Controller">
+
+    <padding>
+        <Insets top="20" bottom="20" left="20" right="20"/>
+    </padding>
+
+    <Label text="This is Page 1" style="-fx-font-size: 24px;"/>
+
+    <Button text="Back to Home" onAction="#goBack"/>
+
+</VBox>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Label?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml">
+
+    <top>
+        <HBox alignment="TOP_RIGHT">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <VBox spacing="8" alignment="TOP_RIGHT">
+                <Button fx:id="themeBtn" text="Dark Mode" />
+                <Button fx:id="backBtn" text="Back" />
+            </VBox>
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="15">
+            <padding>
+                <Insets top="25" right="25" bottom="25" left="25"/>
+            </padding>
+
+            <Label fx:id="titleLabel" styleClass="module-title"/>
+
+            <TextArea fx:id="descArea" editable="false" wrapText="true" style="-fx-control-inner-background: #e8f4f8; -fx-text-fill: #333; -fx-font-size: 13;"/>
+            <TextArea fx:id="storyArea" editable="false" wrapText="true" style="-fx-control-inner-background: #fff3e0; -fx-text-fill: #333; -fx-font-size: 13;"/>
+
+            <VBox fx:id="moduleControls" />
+
+            <!-- Visualization and controls -->
+            <HBox spacing="20">
+                <VBox>
+                    <Label text="Visualization:" style="-fx-font-weight:bold;"/>
+                    <HBox fx:id="vizArea" spacing="10" style="-fx-border-color:gray; -fx-padding:10; -fx-min-width:300; -fx-min-height:120;"/>
+                </VBox>
+
+                <VBox spacing="8" alignment="TOP_LEFT">
+                    <TextField fx:id="pushField" promptText="value"/>
+                    <Button fx:id="pushBtn" text="Push"/>
+                    <Button fx:id="popBtn" text="Pop"/>
+                </VBox>
+            </HBox>
+
+            <Button fx:id="showCodeBtn" text="Show Code"/>
+
+            <VBox fx:id="codeBox" visible="false" spacing="5">
+                <TextArea fx:id="codeArea" text="Code will appear here..." wrapText="true"/>
+            </VBox>
+
+        </VBox>
+    </center>
+</BorderPane>

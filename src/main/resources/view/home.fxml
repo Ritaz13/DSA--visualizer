@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.dsavisualizer.controller.HomeController">
+
+    <!-- TOP RIGHT THEME BUTTON -->
+    <top>
+        <HBox alignment="TOP_RIGHT">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <Button fx:id="themeBtn" text="Dark Mode" onAction="#toggleTheme"/>
+        </HBox>
+    </top>
+
+
+    <!-- CENTER GRID 2x4 -->
+    <center>
+        <GridPane alignment="CENTER" hgap="30" vgap="30">
+
+            <!-- Row 1 -->
+            <Button fx:id="arrayBtn" onAction="#openModule" prefWidth="300" prefHeight="260" GridPane.rowIndex="0" GridPane.columnIndex="0">
+                <graphic><ImageView fitWidth="300" fitHeight="260"><image><Image url="@/images/array.png"/></image></ImageView></graphic>
+            </Button>
+
+            <Button fx:id="recursionBtn" onAction="#openModule" prefWidth="300" prefHeight="260" GridPane.rowIndex="0" GridPane.columnIndex="1">
+                <graphic><ImageView fitWidth="300" fitHeight="260"><image><Image url="@/images/recursion.png"/></image></ImageView></graphic>
+            </Button>
+
+            <Button fx:id="graphBtn" onAction="#openModule" prefWidth="300" prefHeight="260" GridPane.rowIndex="0" GridPane.columnIndex="2">
+                <graphic><ImageView fitWidth="300" fitHeight="260"><image><Image url="@/images/graph.png"/></image></ImageView></graphic>
+            </Button>
+
+            <Button fx:id="bstBtn" onAction="#openModule" prefWidth="300" prefHeight="260" GridPane.rowIndex="0" GridPane.columnIndex="3">
+                <graphic><ImageView fitWidth="300" fitHeight="260"><image><Image url="@/images/bst.png"/></image></ImageView></graphic>
+            </Button>
+
+            <!-- Row 2 -->
+            <Button fx:id="linkedBtn" onAction="#openModule" prefWidth="300" prefHeight="260" GridPane.rowIndex="1" GridPane.columnIndex="0">
+                <graphic><ImageView fitWidth="300" fitHeight="260"><image><Image url="@/images/linkedlist.png"/></image></ImageView></graphic>
+            </Button>
+
+            <Button fx:id="stackBtn" onAction="#openModule" prefWidth="300" prefHeight="260" GridPane.rowIndex="1" GridPane.columnIndex="1">
+                <graphic><ImageView fitWidth="300" fitHeight="260"><image><Image url="@/images/stack.png"/></image></ImageView></graphic>
+            </Button>
+
+            <Button fx:id="queueBtn" onAction="#openModule" prefWidth="300" prefHeight="260" GridPane.rowIndex="1" GridPane.columnIndex="2">
+                <graphic><ImageView fitWidth="300" fitHeight="260"><image><Image url="@/images/queue.png"/></image></ImageView></graphic>
+            </Button>
+
+            <Button fx:id="sortingBtn" onAction="#openModule" prefWidth="300" prefHeight="260" GridPane.rowIndex="1" GridPane.columnIndex="3">
+                <graphic><ImageView fitWidth="300" fitHeight="260"><image><Image url="@/images/sorting.png"/></image></ImageView></graphic>
+            </Button>
+
+        </GridPane>
+    </center>
+
+</BorderPane>

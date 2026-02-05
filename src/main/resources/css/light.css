@@ -1,8 +1,27 @@
 .root {
     -fx-background-color: white;
+    -fx-text-fill: black;
+}
+.button {
+    -fx-font-size: 14px;
+    -fx-background-radius: 15;
+    -fx-padding: 10;
 }
 
-.button {
-    -fx-background-radius: 12;
-    -fx-font-size: 14px;
+.module-title {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: black;
+}
+/* Description and Story boxes styling */
+#descArea {
+    -fx-control-inner-background: #e8f4f8;
+    -fx-text-fill: #1e3a5f;
+    -fx-font-size: 13;
+}
+
+#storyArea {
+    -fx-control-inner-background: #fff3e0;
+    -fx-text-fill: #4a3728;
+    -fx-font-size: 13;
 }

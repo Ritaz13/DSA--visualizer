@@ -1,0 +1,52 @@
+// Binary Search Tree Implementation
+class Node {
+    int val;
+    Node left, right;
+    
+    Node(int val) {
+        this.val = val;
+    }
+}
+
+class BST {
+    private Node root;
+    
+    // Insert value into BST
+    public void insert(int val) {
+        root = insertHelper(root, val);
+    }
+    
+    private Node insertHelper(Node node, int val) {
+        if (node == null) return new Node(val);
+        if (val < node.val) {
+            node.left = insertHelper(node.left, val);
+        } else {
+            node.right = insertHelper(node.right, val);
+        }
+        return node;
+    }
+    
+    // Search for value in BST
+    public boolean search(int val) {
+        return searchHelper(root, val);
+    }
+    
+    private boolean searchHelper(Node node, int val) {
+        if (node == null) return false;
+        if (val == node.val) return true;
+        if (val < node.val) return searchHelper(node.left, val);
+        return searchHelper(node.right, val);
+    }
+    
+    // In-order traversal (Left, Root, Right)
+    public void inorder() {
+        inorderHelper(root);
+    }
+    
+    private void inorderHelper(Node node) {
+        if (node == null) return;
+        inorderHelper(node.left);
+        System.out.print(node.val + " ");
+        inorderHelper(node.right);
+    }
+}
