@@ -26,7 +26,7 @@ public class SceneManager {
             ThemeManager.applyTheme(scene);
 
             stage.setScene(scene);
-            stage.setMaximized(true);
+            stage.setFullScreen(true);
             stage.show();
 
         } catch (Exception e) {

@@ -4,10 +4,13 @@ import com.example.dsavisualizer.controller.ModuleController;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.util.Duration;
@@ -25,6 +28,7 @@ public class RecursionController extends ModuleController {
     private List<Event> events = new ArrayList<>();
     private int eventIndex = 0;
     private Timeline player;
+
 
     @Override
     public void initialize() {
@@ -45,10 +49,29 @@ public class RecursionController extends ModuleController {
 
         buildControls();
 
-        // recursion module doesn't need generic push/pop controls
         if (pushBtn != null) pushBtn.setVisible(false);
         if (popBtn != null) popBtn.setVisible(false);
         if (pushField != null) pushField.setVisible(false);
+
+        if (vizArea != null) {
+            vizArea.setPrefSize(800, 400);
+            vizArea.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+            VBox.setVgrow(vizArea, Priority.ALWAYS);
+            vizArea.setStyle("-fx-border-color: gray; " + "-fx-padding: 10; " + "-fx-background-color: white;");
+
+
+        }
+//        if (vizArea != null) {
+//            vizArea.setPrefWidth(400);
+//            vizArea.setMaxWidth(400); // 👉 width fixed 400px
+//            vizArea.setPrefHeight(400); // default height
+//            vizArea.setMaxHeight(Double.MAX_VALUE); // 👉 vertically expand করবে
+//            //VBox.setVgrow(vizArea, Priority.ALWAYS); // parent VBox অনুযায়ী নিচ পর্যন্ত যাবে
+//
+//            vizArea.setStyle("-fx-border-color: gray; -fx-padding: 10; -fx-background-color: white;");
+//        }
+
+
     }
 
     private void buildControls() {
@@ -61,23 +84,41 @@ public class RecursionController extends ModuleController {
         opChoice = new ChoiceBox<>();
         opChoice.getItems().addAll("Factorial", "Fibonacci", "Reverse String");
         opChoice.setValue("Factorial");
+        opChoice.setStyle("-fx-font-size: 16; -fx-padding: 6 12;");
 
         inputField = new TextField();
         inputField.setPromptText("n or string");
-        inputField.setPrefWidth(120);
+        inputField.setPrefWidth(150);
+        inputField.setStyle("-fx-font-size: 16; -fx-padding: 6 12;");
 
         startBtn = new Button("Start");
+        startBtn.setStyle("-fx-font-size: 16; -fx-padding: 8 16;");
         pauseBtn = new Button("Pause");
+        pauseBtn.setStyle("-fx-font-size: 16; -fx-padding: 8 16;");
         stepBtn = new Button("Step");
+        stepBtn.setStyle("-fx-font-size: 16; -fx-padding: 8 16;");
         clearBtn = new Button("Clear");
+        clearBtn.setStyle("-fx-font-size: 16; -fx-padding: 8 16;");
 
-        speedSlider = new Slider(100, 2000, 500); // ms per step - lower=faster, higher=slower
-        speedSlider.setPrefWidth(200);
+        speedSlider = new Slider(100, 1000, 500);
+        speedSlider.setPrefWidth(250);
+        speedSlider.setStyle("-fx-font-size: 16;");
 
-        row.getChildren().addAll(new Label("Operation:"), opChoice,
-                new Label("Input:"), inputField,
+        row.getChildren().addAll(
+                new Label("Operation:") {{
+                    setStyle("-fx-font-size: 16;");
+                }},
+                opChoice,
+                new Label("Input:") {{
+                    setStyle("-fx-font-size: 16;");
+                }},
+                inputField,
                 startBtn, pauseBtn, stepBtn, clearBtn,
-                new Label("Speed:"), speedSlider);
+                new Label("Speed:") {{
+                    setStyle("-fx-font-size: 16;");
+                }},
+                speedSlider
+        );
 
         moduleControls.getChildren().add(row);
 
@@ -90,16 +131,16 @@ public class RecursionController extends ModuleController {
 
         player = new Timeline();
         player.setCycleCount(Timeline.INDEFINITE);
-        player.getKeyFrames().add(new KeyFrame(Duration.millis(speedSlider.getValue()), ev -> {
-            step();
-        }));
+        player.getKeyFrames().add(new KeyFrame(Duration.millis(speedSlider.getValue()), ev -> step()));
 
-        // adapt speed when slider changes
         speedSlider.valueProperty().addListener((obs, oldV, newV) -> {
             if (player != null) {
+                boolean wasRunning = player.getStatus() == Timeline.Status.RUNNING;
                 player.stop();
-                player.getKeyFrames().setAll(new KeyFrame(Duration.millis(newV.doubleValue()), ev -> step()));
-                if (!pauseBtn.isDisabled() && player != null && player.getStatus() == Timeline.Status.RUNNING) player.play();
+                double speedFactor = newV.doubleValue();
+                double delay = 2000 / speedFactor;
+                player.getKeyFrames().setAll(new KeyFrame(Duration.millis(delay), ev -> step()));
+                if (wasRunning) player.play();
             }
         });
     }
@@ -109,6 +150,7 @@ public class RecursionController extends ModuleController {
         pauseBtn.setDisable(false);
         startBtn.setDisable(true);
         stepBtn.setDisable(true);
+        clearBtn.setDisable(true);
         player.play();
     }
 
@@ -117,26 +159,27 @@ public class RecursionController extends ModuleController {
         pauseBtn.setDisable(true);
         startBtn.setDisable(false);
         stepBtn.setDisable(false);
+        clearBtn.setDisable(true);
     }
 
     private void step() {
-        if (events == null || events.isEmpty() || eventIndex >= events.size()) {
-            player.stop();
+
+        if (events == null || events.isEmpty()) return;
+        if (eventIndex < events.size()) {
+            Event ev = events.get(eventIndex++);
+            applyEvent(ev);
+        } else if (eventIndex == events.size()) {
+            showFinalAnswer();
             pauseBtn.setDisable(true);
             startBtn.setDisable(false);
             stepBtn.setDisable(false);
-            return;
+        } else {
+            stepBtn.setDisable(false);
+            Event lastEv = events.getLast();
+            applyEvent(lastEv);
         }
-
-        Event ev = events.get(eventIndex++);
-        applyEvent(ev);
     }
 
-    // Reverse events list so first function calls appear first (bottom-up visualization)
-    @Override
-    protected void setContent(String title, String desc, String story) {
-        super.setContent(title, desc, story);
-    }
 
     private void clear() {
         events.clear();
@@ -154,29 +197,27 @@ public class RecursionController extends ModuleController {
         if (op.equals("Reverse String")) {
             String s = inputField.getText();
             if (s == null) return false;
-            if (s.length() > 10) s = s.substring(0, 10); // limit
+            if (s.length() > 10) s = s.substring(0, 10);
             buildReverseEvents(s, events);
         } else {
             String in = inputField.getText();
             if (in == null || in.trim().isEmpty()) return false;
             int n;
-            try { n = Integer.parseInt(in.trim()); }
-            catch (NumberFormatException ex) { return false; }
+            try {
+                n = Integer.parseInt(in.trim());
+            } catch (NumberFormatException ex) {
+                return false;
+            }
             if (n < 0) return false;
-            if (n > 20) n = 20; // limit to avoid explosion
+            if (n > 20) n = 20;
 
             if (op.equals("Factorial")) buildFactorialEvents(n, events);
             else if (op.equals("Fibonacci")) {
-                // Find the largest Fibonacci index <= input value
                 int idxForValue = findFibIndexForValue(n);
-                if (idxForValue == -1) {
-                    // input is not a Fibonacci value; find previous Fibonacci number
-                    idxForValue = findPrevFibIndex(n);
-                }
+                if (idxForValue == -1) idxForValue = findPrevFibIndex(n);
                 if (idxForValue >= 0) {
                     buildFibonacciEvents(idxForValue, events);
-                    // Always show the sequence up to that index
-                    java.util.List<Long> seq = new java.util.ArrayList<>();
+                    List<Long> seq = new ArrayList<>();
                     seq.add(0L);
                     if (idxForValue >= 1) seq.add(1L);
                     for (int i = 2; i <= idxForValue; i++) {
@@ -188,10 +229,8 @@ public class RecursionController extends ModuleController {
         }
         eventIndex = 0;
         return !events.isEmpty();
-
     }
 
-    // helper: return index i if fib(i) == value, else -1
     private int findFibIndexForValue(int value) {
         if (value < 0) return -1;
         if (value == 0) return 0;
@@ -206,7 +245,6 @@ public class RecursionController extends ModuleController {
         return -1;
     }
 
-    // helper: find the largest Fibonacci index where fib(i) <= value
     private int findPrevFibIndex(int value) {
         if (value < 0) return -1;
         if (value == 0) return 0;
@@ -218,9 +256,7 @@ public class RecursionController extends ModuleController {
                 long c = a + b;
                 a = b;
                 b = c;
-            } else {
-                break;
-            }
+            } else break;
         }
         return lastIdx;
     }
@@ -230,17 +266,23 @@ public class RecursionController extends ModuleController {
             switch (ev.type) {
                 case ENTER:
                     Label lbl = makeFrameLabel(ev.label);
-                    vizArea.getChildren().add(lbl); // append to end, not beginning
+                    lbl.setWrapText(true);//new
+
+                    HBox.setHgrow(lbl, Priority.NEVER);
+                    vizArea.getChildren().add(lbl);
                     break;
                 case RETURN:
                     if (!vizArea.getChildren().isEmpty()) {
-                        Label top = (Label) vizArea.getChildren().get(vizArea.getChildren().size() - 1);
+                        Label top = (Label) vizArea.getChildren().getLast();
+
+                        top.setWrapText(true);
+
+
                         top.setText(top.getText() + " => " + ev.result);
                         top.setStyle(top.getStyle() + " -fx-background-color: lightgreen;");
                     }
                     break;
                 case INFO:
-                    // For INFO, show the provided data (e.g., Fibonacci sequence) clearly
                     vizArea.getChildren().clear();
                     if (ev.result instanceof java.util.List) {
                         @SuppressWarnings("unchecked")
@@ -249,13 +291,19 @@ public class RecursionController extends ModuleController {
                         seqBox.setPadding(new Insets(8));
                         for (Object o : list) {
                             Label v = new Label(String.valueOf(o));
-                            v.setStyle("-fx-border-color:#444; -fx-padding:6; -fx-background-color:lightblue; -fx-border-radius:4; -fx-background-radius:4;");
+                            v.setWrapText(true);
+                            v.setStyle("-fx-font-size: 18; -fx-border-color:#444; -fx-padding:6; "
+                                    + "-fx-background-color:lightblue; -fx-border-radius:4; -fx-background-radius:4;");
                             seqBox.getChildren().add(v);
                         }
                         vizArea.getChildren().add(seqBox);
                     } else {
                         Label info = new Label(String.valueOf(ev.result));
-                        info.setStyle("-fx-border-color:#444; -fx-padding:6; -fx-background-color:lightblue; -fx-border-radius:4; -fx-background-radius:4;");
+                        info.setWrapText(true);
+
+
+                        info.setStyle("-fx-border-color:#444; -fx-padding:6; -fx-background-color:lightblue; "
+                                + "-fx-border-radius:4; -fx-background-radius:4;");
                         vizArea.getChildren().add(info);
                     }
                     break;
@@ -263,11 +311,15 @@ public class RecursionController extends ModuleController {
         });
     }
 
+
     private Label makeFrameLabel(String text) {
         Label l = new Label(text);
-        l.setFont(Font.font(14));
+        l.setFont(Font.font(18));
         l.setPadding(new Insets(8));
-        l.setStyle("-fx-border-color: #333; -fx-background-color: lightyellow; -fx-border-radius:4; -fx-background-radius:4;");
+        l.setWrapText(true);
+        l.setMaxWidth(Double.MAX_VALUE);
+        l.setStyle("-fx-border-color: #333; -fx-background-color: lightyellow; "
+                + "-fx-border-radius:4; -fx-background-radius:4;");
         return l;
     }
 
@@ -314,19 +366,59 @@ public class RecursionController extends ModuleController {
         return res;
     }
 
-    private enum EventType { ENTER, RETURN, INFO }
+    private void showFinalAnswer() {
+        vizArea.getChildren().clear();
+
+        String op = opChoice.getValue();
+        Event last = events.getLast();
+
+        if (op.equals("Factorial") || op.equals("Reverse String")) {
+            Label finalLbl = new Label("Final Answer: " + last.result);
+            finalLbl.setStyle("-fx-font-size: 18; -fx-text-fill: navy; -fx-font-weight: bold; "
+                    + "-fx-padding: 10; -fx-background-color: #e6f0ff; "
+                    + "-fx-border-color:#333; -fx-border-radius:4; -fx-background-radius:4;");
+            vizArea.getChildren().add(finalLbl);
+        } else if (op.equals("Fibonacci")) {
+            Event infoEvent = null;
+            for (Event ev : events) {
+                if (ev.type == EventType.INFO) {
+                    infoEvent = ev;
+                    break;
+                }
+            }
+            if (infoEvent != null && infoEvent.result instanceof java.util.List) {
+                @SuppressWarnings("unchecked")
+                java.util.List<Object> list = (java.util.List<Object>) infoEvent.result;
+                HBox seqBox = new HBox(8);
+                seqBox.setPadding(new Insets(8));
+                for (Object o : list) {
+                    Label v = new Label(String.valueOf(o));
+                    v.setStyle("-fx-font-size: 18; -fx-text-fill: navy; -fx-font-weight: bold; "
+                            + "-fx-border-color:#444; -fx-padding:6; -fx-background-color:#e6f0ff; "
+                            + "-fx-border-radius:4; -fx-background-radius:4;");
+                    seqBox.getChildren().add(v);
+                }
+                vizArea.getChildren().add(seqBox);
+            }
+        }
+    }
+
+    private enum EventType {ENTER, RETURN, INFO}
 
     private static class Event {
         EventType type;
         String label;
-        Object result; // number or string or list
+        Object result;
 
         Event(EventType type, String label) {
-            this.type = type; this.label = label;
+            this.type = type;
+            this.label = label;
         }
 
         Event(EventType type, String label, Object result) {
-            this.type = type; this.label = label; this.result = result;
+            this.type = type;
+            this.label = label;
+            this.result = result;
         }
     }
 }
