@@ -1,85 +1,156 @@
 package com.example.dsavisualizer.controller.modules;
 
 import com.example.dsavisualizer.controller.ModuleController;
+
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.util.Duration;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RecursionController extends ModuleController {
 
     private ChoiceBox<String> opChoice;
+    @FXML
     private TextField inputField;
+    @FXML
     private Button startBtn, pauseBtn, stepBtn, clearBtn;
     private Slider speedSlider;
+    @FXML
+    private VBox vizArea;
 
     private List<Event> events = new ArrayList<>();
     private int eventIndex = 0;
     private Timeline player;
+    @FXML private Button showCodeBtn;
+    @FXML private Button copyCodeBtn;
+    @FXML private TextArea codeArea;
 
 
     @Override
-    public void initialize() {
+    protected void initialize() {
         super.initialize();
-
-        setContent(
-                "Recursion",
-                "Visualize recursion (factorial, fibonacci, reverse string)",
-                """
-                        Imagine you’re cutting a big cake into equal slices.
-                        
-                        You don’t cut the whole cake at once. Instead, you cut it into two halves.
-                        
-                        Then you take one half and cut it again into two smaller halves.
-                        
-                        You keep repeating this process until the piece is small enough (the base case) that you don’t need to cut anymore."""
-        );
+        titleLabel.setText("Recursion");
+        storyArea.setText("""
+            Imagine you’re cutting a big cake into equal slices.
+            You don’t cut the whole cake at once. Instead, you cut it into two halves.
+            Then you take one half and cut it again into two smaller halves.
+            You keep repeating this process until the piece is small enough (the base case) that you don’t need to cut anymore.""");
 
         buildControls();
-
-        if (pushBtn != null) pushBtn.setVisible(false);
-        if (popBtn != null) popBtn.setVisible(false);
-        if (pushField != null) pushField.setVisible(false);
-
         if (vizArea != null) {
             vizArea.setPrefSize(800, 400);
             vizArea.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
             VBox.setVgrow(vizArea, Priority.ALWAYS);
             vizArea.setStyle("-fx-border-color: gray; " + "-fx-padding: 10; " + "-fx-background-color: white;");
-
-
         }
-//        if (vizArea != null) {
-//            vizArea.setPrefWidth(400);
-//            vizArea.setMaxWidth(400); // 👉 width fixed 400px
-//            vizArea.setPrefHeight(400); // default height
-//            vizArea.setMaxHeight(Double.MAX_VALUE); // 👉 vertically expand করবে
-//            //VBox.setVgrow(vizArea, Priority.ALWAYS); // parent VBox অনুযায়ী নিচ পর্যন্ত যাবে
-//
-//            vizArea.setStyle("-fx-border-color: gray; -fx-padding: 10; -fx-background-color: white;");
-//        }
+        startBtn.setOnAction(e -> start());
+        pauseBtn.setOnAction(e -> pause());
+        stepBtn.setOnAction(e -> step());
+        clearBtn.setOnAction(e -> clear());
 
+        showCodeBtn.setOnAction(e -> toggleCodeArea());
+
+        copyCodeBtn.setOnAction(e -> copyCode());
+        loadCodeFile();
 
     }
-
+    private void copyCode() {
+        String code = codeArea.getText();
+        javafx.scene.input.Clipboard clipboard = javafx.scene.input.Clipboard.getSystemClipboard();
+        javafx.scene.input.ClipboardContent cc = new javafx.scene.input.ClipboardContent();
+        cc.putString(code);
+        clipboard.setContent(cc);
+//        showAlert("Code copied to clipboard!");
+    }
+    private void loadCodeFile() {
+        try (InputStream is = getClass().getResourceAsStream("/codes/recursion.txt")) {
+            if (is != null) {
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        sb.append(line).append('\n');
+                    }
+                    codeArea.setText(sb.toString());
+                    codeArea.setVisible(false);
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+    private void toggleCodeArea() {
+        codeArea.setVisible(!codeArea.isVisible());
+    }
     private void buildControls() {
         if (moduleControls == null) return;
         moduleControls.getChildren().clear();
 
-        HBox row = new HBox(10);
-        row.setAlignment(Pos.CENTER_LEFT);
+        VBox controlsBox = new VBox(10);
+        controlsBox.setAlignment(Pos.CENTER_LEFT);
+
+        // ChoiceBox
+        opChoice = new ChoiceBox<>();
+        opChoice.getItems().addAll("Factorial", "Fibonacci", "Reverse String");
+        opChoice.setValue("Factorial");
+        opChoice.setStyle("-fx-font-size: 16; -fx-padding: 6 12;");
+
+        Label opLabel = new Label("Operation:");
+        opLabel.setStyle("-fx-font-size: 16;");
+
+        // Speed slider
+        speedSlider = new Slider(100, 1000, 500);
+        speedSlider.setPrefWidth(250);
+        speedSlider.setStyle("-fx-font-size: 16;");
+
+        Label speedLabel = new Label("Speed:");
+        speedLabel.setStyle("-fx-font-size: 16;");
+
+        controlsBox.getChildren().addAll(opLabel, opChoice, speedLabel, speedSlider);
+
+        moduleControls.getChildren().add(controlsBox);
+
+        pauseBtn.setDisable(true);
+
+        player = new Timeline();
+        player.setCycleCount(Timeline.INDEFINITE);
+        player.getKeyFrames().add(new KeyFrame(Duration.millis(speedSlider.getValue()), ev -> step()));
+
+        speedSlider.valueProperty().addListener((obs, oldV, newV) -> {
+            if (player != null) {
+                boolean wasRunning = player.getStatus() == Timeline.Status.RUNNING;
+                player.stop();
+                double speedFactor = newV.doubleValue();
+                double delay = 2000 / speedFactor;
+                player.getKeyFrames().setAll(new KeyFrame(Duration.millis(delay), ev -> step()));
+                if (wasRunning) player.play();
+            }
+        });
+    }
+
+
+    /*private void buildControls() {
+        if (moduleControls == null) return;
+        moduleControls.getChildren().clear();
+        VBox controlsBox = new VBox(10);
+        controlsBox.setAlignment(Pos.CENTER_LEFT);
+
 
         opChoice = new ChoiceBox<>();
         opChoice.getItems().addAll("Factorial", "Fibonacci", "Reverse String");
@@ -91,14 +162,8 @@ public class RecursionController extends ModuleController {
         inputField.setPrefWidth(150);
         inputField.setStyle("-fx-font-size: 16; -fx-padding: 6 12;");
 
-        startBtn = new Button("Start");
-        startBtn.setStyle("-fx-font-size: 16; -fx-padding: 8 16;");
-        pauseBtn = new Button("Pause");
-        pauseBtn.setStyle("-fx-font-size: 16; -fx-padding: 8 16;");
-        stepBtn = new Button("Step");
-        stepBtn.setStyle("-fx-font-size: 16; -fx-padding: 8 16;");
-        clearBtn = new Button("Clear");
-        clearBtn.setStyle("-fx-font-size: 16; -fx-padding: 8 16;");
+        Label opLabel = new Label("Operation:");
+        opLabel.setStyle("-fx-font-size: 16;");
 
         speedSlider = new Slider(100, 1000, 500);
         speedSlider.setPrefWidth(250);
@@ -122,10 +187,6 @@ public class RecursionController extends ModuleController {
 
         moduleControls.getChildren().add(row);
 
-        startBtn.setOnAction(e -> start());
-        pauseBtn.setOnAction(e -> pause());
-        stepBtn.setOnAction(e -> step());
-        clearBtn.setOnAction(e -> clear());
 
         pauseBtn.setDisable(true);
 
@@ -144,7 +205,7 @@ public class RecursionController extends ModuleController {
             }
         });
     }
-
+*/
     private void start() {
         if (!prepareEvents()) return;
         pauseBtn.setDisable(false);
@@ -175,7 +236,7 @@ public class RecursionController extends ModuleController {
             stepBtn.setDisable(false);
         } else {
             stepBtn.setDisable(false);
-            Event lastEv = events.getLast();
+            Event lastEv = events.get(events.size() - 1);
             applyEvent(lastEv);
         }
     }
@@ -184,7 +245,7 @@ public class RecursionController extends ModuleController {
     private void clear() {
         events.clear();
         eventIndex = 0;
-        vizArea.getChildren().clear();
+        if (vizArea != null) vizArea.getChildren().clear();
         startBtn.setDisable(false);
         stepBtn.setDisable(false);
         pauseBtn.setDisable(true);
@@ -273,10 +334,10 @@ public class RecursionController extends ModuleController {
                     break;
                 case RETURN:
                     if (!vizArea.getChildren().isEmpty()) {
-                        Label top = (Label) vizArea.getChildren().getLast();
+                        int lastIndex = vizArea.getChildren().size() - 1;
+                        Label top = (Label) vizArea.getChildren().get(lastIndex);
 
                         top.setWrapText(true);
-
 
                         top.setText(top.getText() + " => " + ev.result);
                         top.setStyle(top.getStyle() + " -fx-background-color: lightgreen;");
@@ -370,7 +431,7 @@ public class RecursionController extends ModuleController {
         vizArea.getChildren().clear();
 
         String op = opChoice.getValue();
-        Event last = events.getLast();
+        Event last = events.get(events.size() - 1);
 
         if (op.equals("Factorial") || op.equals("Reverse String")) {
             Label finalLbl = new Label("Final Answer: " + last.result);

@@ -1,0 +1,58 @@
+// GRAPH DATA STRUCTURE
+class Graph {
+    private Map<Integer, List<Integer>> adjList;
+    private boolean directed;
+    
+    public Graph(boolean directed) {
+        this.directed = directed;
+        adjList = new HashMap<>();
+    }
+    
+    // Add vertex
+    public void addVertex(int vertex) {
+        adjList.putIfAbsent(vertex, new ArrayList<>());
+    }
+    
+    // Add edge
+    public void addEdge(int u, int v, int weight) {
+        adjList.get(u).add(v);
+        if (!directed) {
+            adjList.get(v).add(u);
+        }
+    }
+    
+    // DFS Traversal
+    public void dfs(int start) {
+        Set<Integer> visited = new HashSet<>();
+        dfsHelper(start, visited);
+    }
+    
+    private void dfsHelper(int vertex, Set<Integer> visited) {
+        visited.add(vertex);
+        System.out.print(vertex + " ");
+        for (int neighbor : adjList.get(vertex)) {
+            if (!visited.contains(neighbor)) {
+                dfsHelper(neighbor, visited);
+            }
+        }
+    }
+    
+    // BFS Traversal
+    public void bfs(int start) {
+        Set<Integer> visited = new HashSet<>();
+        Queue<Integer> queue = new LinkedList<>();
+        queue.add(start);
+        visited.add(start);
+        
+        while (!queue.isEmpty()) {
+            int vertex = queue.poll();
+            System.out.print(vertex + " ");
+            for (int neighbor : adjList.get(vertex)) {
+                if (!visited.contains(neighbor)) {
+                    queue.add(neighbor);
+                    visited.add(neighbor);
+                }
+            }
+        }
+    }
+}

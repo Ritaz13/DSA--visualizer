@@ -2,100 +2,79 @@ package com.example.dsavisualizer.controller.modules;
 
 import com.example.dsavisualizer.controller.ModuleController;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
+import javafx.scene.control.*;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 public class BSTController extends ModuleController {
 
-    @FXML
-    private HBox vizArea;
+    @FXML private TextField inputField;
+    @FXML private TextField opField;
+    @FXML private Button buildBtn;
+    @FXML private Button insertBtn;
+    @FXML private Button deleteBtn;
+    @FXML private Button searchBtn;
+    @FXML private Button inOrderBtn;
+    @FXML private Button preOrderBtn;
+    @FXML private Button postOrderBtn;
+    @FXML private CheckBox heightCheck;
+    @FXML private CheckBox balanceCheck;
+    @FXML private StackPane vizArea;
+    @FXML private TextArea codeArea;
+    @FXML private Button showCodeBtn;
+    @FXML private Button copyCodeBtn;
+    @FXML private TextArea storyArea;
 
-    @FXML
-    private javafx.scene.control.TextField pushField;
-
-    private BST bst;
-
-    public void initialize() {
+    @Override
+    protected void initialize() {
         super.initialize();
-
-        setContent(
-                "Binary Search Tree",
-                "BST is a tree data structure where left < root < right.",
-                "Used for sorted data and fast lookups."
-        );
-
-        bst = new BST();
-
-        // sample code
-        codeArea.setText("// Simple BST implementation\nclass Node {\n    int val;\n    Node left, right;\n    Node(int val) { this.val = val; }\n}\n\nclass BST {\n    Node root;\n    void insert(int val) {\n        root = insertHelper(root, val);\n    }\n    private Node insertHelper(Node node, int val) {\n        if (node == null) return new Node(val);\n        if (val < node.val) node.left = insertHelper(node.left, val);\n        else node.right = insertHelper(node.right, val);\n        return node;\n    }\n}");
+        titleLabel.setText("Binary Search Tree");
+        storyArea.setText("BST: left < parent < right.\nUsed for sorted data and fast lookups.");
+        buildBtn.setOnAction(e -> showAlert("Build feature coming soon"));
+        insertBtn.setOnAction(e -> showAlert("Insert feature coming soon"));
+        deleteBtn.setOnAction(e -> showAlert("Delete feature coming soon"));
+        searchBtn.setOnAction(e -> showAlert("Search feature coming soon"));
+        inOrderBtn.setOnAction(e -> showAlert("In-Order traversal coming soon"));
+        preOrderBtn.setOnAction(e -> showAlert("Pre-Order traversal coming soon"));
+        postOrderBtn.setOnAction(e -> showAlert("Post-Order traversal coming soon"));
+        showCodeBtn.setOnAction(e -> toggleCode());
+        copyCodeBtn.setOnAction(e -> copyCode());
+        loadCodeFile();
     }
 
-    @FXML
-    protected void push() {
-        if (pushField == null || pushField.getText().trim().isEmpty()) return;
-        String val = pushField.getText().trim();
+    @Override
+    protected void toggleCode() { codeArea.setVisible(!codeArea.isVisible()); }
 
-        try {
-            int num = Integer.parseInt(val);
-            bst.insert(num);
-            redraw();
-            pushField.clear();
-        } catch (NumberFormatException e) {
-            // ignore non-numeric input
-        }
+    private void copyCode() {
+        String code = codeArea.getText();
+        javafx.scene.input.Clipboard clipboard = javafx.scene.input.Clipboard.getSystemClipboard();
+        javafx.scene.input.ClipboardContent cc = new javafx.scene.input.ClipboardContent();
+        cc.putString(code);
+        clipboard.setContent(cc);
+        showAlert("Code copied to clipboard!");
     }
 
-    @FXML
-    protected void pop() {
-        if (bst.root == null) return;
-        // For demo, remove the last inserted node (would need more complex logic for true deletion)
-        bst = new BST();
-        redraw();
-    }
-
-    private void redraw() {
-        vizArea.getChildren().clear();
-        if (bst.root != null) {
-            drawNode(bst.root, vizArea);
-        }
-    }
-
-    private void drawNode(BST.Node node, HBox parent) {
-        if (node == null) return;
-
-        VBox nodeView = new VBox();
-        Label lbl = new Label(String.valueOf(node.val));
-        lbl.setStyle("-fx-border-color: #333; -fx-padding: 8; -fx-background-color: lightgreen; -fx-border-radius: 5; -fx-background-radius: 5;");
-        lbl.setFont(Font.font(12));
-        nodeView.getChildren().add(lbl);
-
-        parent.getChildren().add(nodeView);
-    }
-
-    // Simple BST implementation
-    private static class BST {
-        Node root;
-
-        void insert(int val) {
-            root = insertHelper(root, val);
-        }
-
-        private Node insertHelper(Node node, int val) {
-            if (node == null) return new Node(val);
-            if (val < node.val) node.left = insertHelper(node.left, val);
-            else node.right = insertHelper(node.right, val);
-            return node;
-        }
-
-        static class Node {
-            int val;
-            Node left, right;
-
-            Node(int val) {
-                this.val = val;
+    private void loadCodeFile() {
+        try (InputStream is = getClass().getResourceAsStream("/codes/bst.txt")) {
+            if (is != null) {
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = br.readLine()) != null) sb.append(line).append('\n');
+                    codeArea.setText(sb.toString());
+                    codeArea.setVisible(false);
+                }
             }
-        }
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    private void showAlert(String msg) {
+        Alert a = new Alert(Alert.AlertType.INFORMATION, msg, ButtonType.OK);
+        a.showAndWait();
     }
 }

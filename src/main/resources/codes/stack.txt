@@ -1,0 +1,51 @@
+// STACK DATA STRUCTURE
+class Stack {
+    private int[] stack;
+    private int top;
+    private int capacity;
+    
+    public Stack(int capacity) {
+        this.capacity = capacity;
+        stack = new int[capacity];
+        top = -1;
+    }
+    
+    // Push element
+    public void push(int value) {
+        if (top == capacity - 1) {
+            System.out.println("Stack Overflow");
+            return;
+        }
+        stack[++top] = value;
+    }
+    
+    // Pop element
+    public int pop() {
+        if (isEmpty()) {
+            System.out.println("Stack Underflow");
+            return -1;
+        }
+        return stack[top--];
+    }
+    
+    // Peek top element
+    public int peek() {
+        if (isEmpty()) return -1;
+        return stack[top];
+    }
+    
+    // Check if empty
+    public boolean isEmpty() {
+        return top == -1;
+    }
+    
+    // Check if full
+    public boolean isFull() {
+        return top == capacity - 1;
+    }
+    
+    // Clear stack
+    public void clear() {
+        top = -1;
+    }
+}

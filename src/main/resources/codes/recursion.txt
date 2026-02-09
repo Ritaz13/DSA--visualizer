@@ -1,0 +1,45 @@
+// RECURSION EXAMPLES
+class Recursion {
+    
+    // Factorial: n!
+    public static int factorial(int n) {
+        if (n == 0 || n == 1) return 1;  // Base case
+        return n * factorial(n - 1);      // Recursive case
+    }
+    
+    // Fibonacci: 0, 1, 1, 2, 3, 5, 8...
+    public static int fibonacci(int n) {
+        if (n <= 1) return n;  // Base case
+        return fibonacci(n - 1) + fibonacci(n - 2);  // Recursive case
+    }
+    
+    // Reverse a string
+    public static String reverseString(String str, int index) {
+        if (index == 0) return "" + str.charAt(0);  // Base case
+        return reverseString(str, index - 1) + str.charAt(index);  // Recursive
+    }
+    
+    // Sum of n numbers
+    public static int sumUpToN(int n) {
+        if (n == 0) return 0;  // Base case
+        return n + sumUpToN(n - 1);  // Recursive case
+    }
+    
+    // Power: x^n
+    public static int power(int x, int n) {
+        if (n == 0) return 1;  // Base case
+        return x * power(x, n - 1);  // Recursive case
+    }
+    
+    // Binary Search (recursive)
+    public static int binarySearch(int[] arr, int target, int left, int right) {
+        if (left > right) return -1;  // Base case: not found
+        int mid = left + (right - left) / 2;
+        if (arr[mid] == target) return mid;  // Base case: found
+        if (arr[mid] > target) {
+            return binarySearch(arr, target, left, mid - 1);  // Search left
+        } else {
+            return binarySearch(arr, target, mid + 1, right);  // Search right
+        }
+    }
+}

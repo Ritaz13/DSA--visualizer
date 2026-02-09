@@ -4,23 +4,22 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
+<!-- Unified template for all 8 modules -->
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.example.dsavisualizer.controller.modules.RecursionController"
-            style="-fx-font-family: 'Segoe UI'; -fx-font-size: 12;">
+            style="-fx-min-height: 100vh;">
 
     <!-- Top: Title centered, Theme & Home buttons top-right -->
     <top>
         <BorderPane style="-fx-padding: 15 20 10 20; -fx-border-color: #cccccc; -fx-border-width: 0 0 1 0;">
             <center>
-                <Label fx:id="titleLabel" text="Recursion" 
+                <Label fx:id="titleLabel" text="Module Title" 
                        style="-fx-font-size: 32; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
             </center>
             <right>
@@ -32,7 +31,7 @@
         </BorderPane>
     </top>
 
-    <!-- Main content: Left panel + Center visualization -->
+    <!-- Main content: Left panel + Center visualization + Right panel -->
     <center>
         <HBox spacing="15" style="-fx-padding: 15;">
             
@@ -47,33 +46,33 @@
                           prefHeight="150"
                           style="-fx-control-inner-background: #ffffff; -fx-font-size: 12;"/>
                 
-                <!-- Module controls will be injected here by controller -->
-                <TextField fx:id="inputField" promptText="n or string"
-                           style="-fx-font-size: 14; -fx-padding: 8;"/>
-
-                <VBox fx:id="moduleControls" spacing="8" VBox.vgrow="ALWAYS"/>
-                <VBox spacing="8">
-                    <Button fx:id="startBtn" text="Start" style="-fx-font-size: 14; -fx-padding: 10 15; -fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"/>
-                    <Button fx:id="pauseBtn" text="Pause" style="-fx-font-size: 14; -fx-padding: 10 15; -fx-background-color: #f0ad4e; -fx-text-fill: white; -fx-font-weight: bold;"/>
-                    <Button fx:id="stepBtn" text="Step" style="-fx-font-size: 14; -fx-padding: 10 15; -fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold;"/>
-                    <Button fx:id="clearBtn" text="Clear" style="-fx-font-size: 14; -fx-padding: 10 15; -fx-background-color: #f44336; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                <!-- Operations Section -->
+                <VBox fx:id="operationsSection" spacing="8">
+                    <!-- This will be filled by individual controllers -->
                 </VBox>
-                <!-- Show Code Button with Copy (kept) -->
+
+                <!-- Show Code Button -->
                 <HBox spacing="8">
-                    <Button fx:id="showCodeBtn" text="Show Code" style="-fx-font-size: 13; -fx-padding: 10 15; -fx-font-weight: bold; -fx-background-color: #3F51B5; -fx-text-fill: white;" HBox.hgrow="ALWAYS"/>
-                    <Button fx:id="copyCodeBtn" text="Copy" style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #607D8B; -fx-text-fill: white; -fx-font-weight: bold;" prefWidth="70"/>
+                    <Button fx:id="showCodeBtn" text="Show Code" style="-fx-font-size: 12; -fx-padding: 8 15; -fx-font-weight: bold;" HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="copyCodeBtn" text="Copy" style="-fx-font-size: 12; -fx-padding: 8 15;" prefWidth="60"/>
+                </HBox>
+                
+                <!-- Previous/Next Navigation (if needed) -->
+                <HBox fx:id="navBox" spacing="8" visible="false" managed="false">
+                    <Button fx:id="prevBtn" text="← Previous" HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="nextBtn" text="Next →" HBox.hgrow="ALWAYS"/>
                 </HBox>
             </VBox>
 
-            <!-- CENTER/RIGHT PANEL: Visualization + Code -->
+            <!-- CENTER/RIGHT PANEL: Visualization + Code + Info -->
             <VBox spacing="12" HBox.hgrow="ALWAYS">
                 
                 <!-- Visualization Area -->
                 <VBox spacing="8" VBox.vgrow="ALWAYS">
-                    <Label text="Execution Trace" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+                    <Label text="Visualization" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
                     <StackPane style="-fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 10; -fx-background-color: #f5f5f5;" VBox.vgrow="ALWAYS">
                         <ScrollPane fx:id="vizScroll" fitToHeight="true" fitToWidth="true">
-                            <VBox fx:id="vizArea" spacing="5" style="-fx-padding:10;"/>
+                            <VBox fx:id="vizArea" spacing="10" style="-fx-padding: 10;"/>
                         </ScrollPane>
                     </StackPane>
                 </VBox>
@@ -87,6 +86,16 @@
                               prefHeight="200"
                               style="-fx-control-inner-background: #1e1e1e; -fx-text-fill: #d4d4d4; -fx-font-family: 'Courier New'; -fx-font-size: 11; -fx-padding: 10;"/>
                 </VBox>
+            </VBox>
+
+            <!-- RIGHT SIDEBAR: Properties/Adjacency List (for graph) -->
+            <VBox fx:id="rightSidebar" spacing="10" style="-fx-padding: 10; -fx-min-width: 280; -fx-max-width: 320; -fx-border-color: #e0e0e0; -fx-border-radius: 5; -fx-background-color: #f9f9f9;" visible="false" managed="false">
+                <Label text="Properties" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+                <TextArea fx:id="propsArea" 
+                          editable="false" 
+                          wrapText="true" 
+                          prefHeight="300"
+                          style="-fx-control-inner-background: #ffffff; -fx-font-size: 13; -fx-padding: 8;"/>
             </VBox>
         </HBox>
     </center>

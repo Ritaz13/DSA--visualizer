@@ -1,54 +1,124 @@
 package com.example.dsavisualizer.controller.modules;
 
 import com.example.dsavisualizer.controller.ModuleController;
+import javafx.animation.*;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
+import javafx.scene.layout.VBox;
+import javafx.util.Duration;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.Stack;
+import java.util.Optional;
 
 public class StackController extends ModuleController {
 
-    @FXML
-    private HBox vizArea;
+    @FXML private TextField inputField;
+    @FXML private Button pushBtn;
+    @FXML private Button popBtn;
+    @FXML private Button peekBtn;
+    @FXML private Button topBtn;
+    @FXML private Button clearBtn;
+    @FXML private VBox vizArea;
+    @FXML private TextArea codeArea;
+    @FXML private Button showCodeBtn;
+    @FXML private Button copyCodeBtn;
+    @FXML private TextArea storyArea;
 
-    @FXML
-    private javafx.scene.control.TextField pushField;
+    private final Stack<Integer> stack = new Stack<>();
 
-    public void initialize() {
+    @Override
+    protected void initialize() {
         super.initialize();
-
-        setContent(
-                "Stack",
-                "Stack is a LIFO (Last In First Out) data structure.\nUse push to add an item and pop to remove the top item.",
-                "A stack is like a stack of plates: you put on top and take from the top."
-        );
-
-        // sample code
-        codeArea.setText("// Simple stack using an array\nclass Stack {\n    int[] a = new int[100];\n    int top = -1;\n\n    void push(int v) { a[++top] = v; }\n    int pop() { return a[top--]; }\n}");
+        titleLabel.setText("Stack");
+        storyArea.setText("Stack is LIFO (Last In First Out).\nPush adds to top, Pop removes from top.\nThink of a stack of plates.");
+        pushBtn.setOnAction(e -> pushElement());
+        popBtn.setOnAction(e -> popElement());
+        peekBtn.setOnAction(e -> peekElement());
+        topBtn.setOnAction(e -> showTop());
+        clearBtn.setOnAction(e -> clearStack());
+        showCodeBtn.setOnAction(e -> toggleCode());
+        copyCodeBtn.setOnAction(e -> copyCode());
+        loadCodeFile();
     }
 
-    @FXML
-    protected void push() {
-        if (pushField == null || pushField.getText().trim().isEmpty()) return;
-        String val = pushField.getText().trim();
+    protected void toggleCode() { codeArea.setVisible(!codeArea.isVisible()); }
 
-        Label lbl = new Label(val);
-        lbl.setStyle("-fx-border-color: #333; -fx-padding: 10; -fx-background-color: -fx-control-inner-background;");
-        lbl.setFont(Font.font(14));
-
-        // add as first child so it appears as the top
-        vizArea.getChildren().add(0, lbl);
-
-        pushField.clear();
+    private void copyCode() {
+        String code = codeArea.getText();
+        javafx.scene.input.Clipboard clipboard = javafx.scene.input.Clipboard.getSystemClipboard();
+        javafx.scene.input.ClipboardContent cc = new javafx.scene.input.ClipboardContent();
+        cc.putString(code);
+        clipboard.setContent(cc);
+        showAlert("Code copied to clipboard!");
     }
 
-    @FXML
-    protected void pop() {
-        if (vizArea == null || vizArea.getChildren().isEmpty()) return;
+    private void loadCodeFile() {
+        try (InputStream is = getClass().getResourceAsStream("/codes/stack.txt")) {
+            if (is != null) {
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = br.readLine()) != null) sb.append(line).append('\n');
+                    codeArea.setText(sb.toString());
+                    codeArea.setVisible(false);
+                }
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+    }
 
-        // remove the top (first child)
-        vizArea.getChildren().remove(0);
+    private void pushElement() {
+        String text = inputField.getText().trim();
+        if (text.isEmpty()) return;
+        try {
+            int val = Integer.parseInt(text);
+            stack.push(val);
+            renderStack();
+            inputField.clear();
+        } catch (NumberFormatException e) {
+            showAlert("Enter a valid number");
+        }
+    }
+
+    private void popElement() {
+        if (stack.isEmpty()) {
+            showAlert("Stack underflow");
+            return;
+        }
+        stack.pop();
+        renderStack();
+    }
+
+    private void peekElement() {
+        if (stack.isEmpty()) {
+            showAlert("Stack is empty");
+            return;
+        }
+        showAlert("Top element: " + stack.peek());
+    }
+
+    private void showTop() { peekElement(); }
+
+    private void clearStack() {
+        stack.clear();
+        renderStack();
+    }
+
+    private void renderStack() {
+        vizArea.getChildren().clear();
+        for (int i = stack.size() - 1; i >= 0; i--) {
+            Label lbl = new Label(String.valueOf(stack.get(i)));
+            lbl.setStyle("-fx-border-color:black; -fx-border-width:2; -fx-padding:10; -fx-background-color:#ffcccc; -fx-font-size:14; -fx-font-weight:bold;");
+            vizArea.getChildren().add(lbl);
+        }
+    }
+
+    private void showAlert(String msg) {
+        Alert a = new Alert(Alert.AlertType.INFORMATION, msg, ButtonType.OK);
+        a.showAndWait();
     }
 }
-

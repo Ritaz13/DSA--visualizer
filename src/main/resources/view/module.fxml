@@ -7,21 +7,22 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Label?>
 <?import javafx.geometry.Insets?>
-
 <?import javafx.scene.control.ScrollPane?>
+
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml">
 
     <top>
         <BorderPane>
-            <!-- Title more centered -->
+            <!-- Title centered -->
             <center>
                 <Label fx:id="titleLabel" styleClass="module-title"
+                       style="-fx-font-size: 28; -fx-font-weight: bold;"
                        BorderPane.alignment="CENTER"
                 />
             </center>
 
-            <!-- Buttons with margin from edge -->
+            <!-- Buttons at top right -->
             <right>
                 <VBox spacing="8" alignment="TOP_RIGHT"
                       style="-fx-padding:0 20 0 0;">
@@ -38,35 +39,34 @@
                 <Insets top="10" right="25" bottom="25" left="25"/>
             </padding>
 
-
-            <TextArea fx:id="descArea" editable="false" wrapText="true"
-                      style="-fx-control-inner-background: #e8f4f8; -fx-text-fill: #333; -fx-font-size: 13;"/>
-            <TextArea fx:id="storyArea" editable="false" wrapText="true"
-                      style="-fx-control-inner-background: #fff3e0; -fx-text-fill: #333; -fx-font-size: 13;"/>
-
-            <VBox fx:id="moduleControls"/>
-
-            <!-- Visualization and controls -->
-            <HBox spacing="20">
-                <VBox>
-                    <Label text="Visualization:" style="-fx-font-weight:bold;"/>
-
-
-                    <HBox fx:id="vizArea" spacing="10"
-                          style="-fx-border-color:gray; -fx-padding:10; -fx-min-width:300; -fx-min-height:120;"/>
-
-
-                </VBox>
-
-
+            <!-- Hidden descriptions - only used for other modules -->
+            <HBox spacing="15" visible="false" managed="false">
+                <TextArea fx:id="descArea" editable="false" wrapText="true" visible="false" managed="false"
+                          VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS"
+                          style="-fx-control-inner-background: #e8f4f8; -fx-text-fill: #333; -fx-font-size: 13;"/>
+                <TextArea fx:id="storyArea" editable="false" wrapText="true"
+                          VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS"
+                          style="-fx-control-inner-background: #fff3e0; -fx-text-fill: #333; -fx-font-size: 13;"/>
             </HBox>
 
-            <Button fx:id="showCodeBtn" text="Show Code" style="-fx-font-size: 18; -fx-padding: 10 20;"/>
+            <!-- Module-specific controls -->
+            <VBox fx:id="moduleControls" VBox.vgrow="ALWAYS"/>
 
-            <VBox fx:id="codeBox" visible="false" spacing="5">
-                <TextArea fx:id="codeArea" editable="false" text="Code will appear here..." wrapText="true"/>
+            <!-- Hidden visualization area - used only for non-graph modules -->
+            <HBox spacing="20" visible="false" managed="false">
+                <VBox spacing="15" VBox.vgrow="ALWAYS">
+                    <Label text="Visualization:" style="-fx-font-weight:bold;"/>
+                    <HBox fx:id="vizArea" spacing="10" VBox.vgrow="ALWAYS" maxHeight="Infinity"
+                          style="-fx-border-color:gray; -fx-padding:10; -fx-min-width:300; -fx-min-height:120;"/>
+                </VBox>
+            </HBox>
+
+            <!-- Hidden show code button - used only for non-graph modules -->
+            <Button fx:id="showCodeBtn" text="Show Code" visible="false" managed="false"
+                    style="-fx-font-size: 18; -fx-padding: 10 20;"/>
+
+            <VBox fx:id="codeBox" visible="false" managed="false" spacing="5">
             </VBox>
-
         </VBox>
     </center>
 </BorderPane>

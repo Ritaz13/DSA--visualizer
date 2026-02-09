@@ -57,9 +57,6 @@ public class ModuleController {
             Button popB = (Button) moduleRoot.lookup("#popBtn");
             if (popB != null) popBtn = popB;
 
-            HBox v = (HBox) moduleRoot.lookup("#vizArea");
-            if (v != null) vizArea = v;
-
             TextField pf = (TextField) moduleRoot.lookup("#pushField");
             if (pf != null) pushField = pf;
 
@@ -82,7 +79,7 @@ public class ModuleController {
     }
 
     // Optional visualization fields available to modules
-    @FXML protected HBox vizArea;
+    // (vizArea type varies by module - declared in subclasses)
     @FXML protected TextField pushField;
 
     protected void setContent(String title, String desc, String story) {

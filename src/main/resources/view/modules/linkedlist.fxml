@@ -1,11 +1,113 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 
-<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.dsavisualizer.controller.modules.LinkedListController"
+            style="-fx-font-family: 'Segoe UI'; -fx-font-size: 12;">
 
-<StackPane xmlns="http://javafx.com/javafx/21"
-           xmlns:fx="http://javafx.com/fxml"
-           fx:controller="com.example.dsavisualizer.controller.modules.LinkedListController">
+    <!-- Top: Title centered, Theme & Home buttons top-right -->
+    <top>
+        <BorderPane style="-fx-padding: 15 20 10 20; -fx-border-color: #cccccc; -fx-border-width: 0 0 1 0;">
+            <center>
+                <Label fx:id="titleLabel" text="Linked List" 
+                       style="-fx-font-size: 32; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+            </center>
+            <right>
+                <HBox spacing="10" alignment="TOP_RIGHT">
+                    <Button fx:id="themeBtn" text="Dark Mode" style="-fx-font-size: 12; -fx-padding: 8 15;"/>
+                    <Button fx:id="backBtn" text="Home" style="-fx-font-size: 12; -fx-padding: 8 15;"/>
+                </HBox>
+            </right>
+        </BorderPane>
+    </top>
 
-    <fx:include fx:id="moduleRoot" source="../module.fxml"/>
+    <!-- Main content: Left panel + Center visualization -->
+    <center>
+        <HBox spacing="15" style="-fx-padding: 15;">
+            
+            <!-- LEFT PANEL: Story and Operations -->
+            <VBox spacing="12" style="-fx-padding: 10; -fx-min-width: 280; -fx-max-width: 320; -fx-border-color: #e0e0e0; -fx-border-radius: 5; -fx-background-color: #f9f9f9;">
+                
+                <!-- Story/Notes Box -->
+                <Label text="📖 Story" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+                <TextArea fx:id="storyArea" 
+                          editable="false" 
+                          wrapText="true" 
+                          prefHeight="120"
+                          style="-fx-control-inner-background: #ffffff; -fx-font-size: 12;"/>
+                
+                <!-- List Type -->
+                <Label text="List Type" style="-fx-font-weight: bold; -fx-padding: 8 0 0 0; -fx-font-size: 13;"/>
+                <VBox spacing="4">
+                    <CheckBox fx:id="doublyCheck" text="Doubly Linked List" style="-fx-font-size: 12;"/>
+                </VBox>
 
-</StackPane>
+                <!-- Input Section -->
+                <VBox spacing="6">
+                    <Label text="Input (comma separated)" style="-fx-font-weight: bold; -fx-font-size: 13;"/>
+                    <TextField fx:id="inputField" promptText="e.g. 5,3,8,1" style="-fx-font-size: 13; -fx-padding: 8;"/>
+                    <HBox spacing="8">
+                        <Button fx:id="buildBtn" text="Build" style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Operations Section -->
+                <Label text="Operations" style="-fx-font-weight: bold; -fx-padding: 8 0 0 0; -fx-font-size: 13;"/>
+                <VBox spacing="6">
+                    <HBox spacing="6">
+                        <Button fx:id="insertBtn" text="Insert" style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold;" HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="deleteBtn" text="Delete" style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #f44336; -fx-text-fill: white; -fx-font-weight: bold;" HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="searchBtn" text="Search" style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-weight: bold;" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                    <HBox spacing="6">
+                        <Button fx:id="reverseBtn" text="Reverse" style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #9C27B0; -fx-text-fill: white; -fx-font-weight: bold;" HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="updateBtn" text="Update" style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #00BCD4; -fx-text-fill: white; -fx-font-weight: bold;" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Show Code Button with Copy -->
+                <HBox spacing="8">
+                    <Button fx:id="showCodeBtn" text="Show Code" style="-fx-font-size: 13; -fx-padding: 10 15; -fx-font-weight: bold; -fx-background-color: #3F51B5; -fx-text-fill: white;" HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="copyCodeBtn" text="Copy" style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #607D8B; -fx-text-fill: white; -fx-font-weight: bold;" prefWidth="70"/>
+                </HBox>
+            </VBox>
+
+            <!-- CENTER/RIGHT PANEL: Visualization + Code -->
+            <VBox spacing="12" HBox.hgrow="ALWAYS">
+                
+                <!-- Visualization Area -->
+                <VBox spacing="8" VBox.vgrow="ALWAYS">
+                    <Label text="Visualization" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+                    <StackPane style="-fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 10; -fx-background-color: #f5f5f5;" VBox.vgrow="ALWAYS">
+                        <ScrollPane fx:id="vizScroll" fitToHeight="true" fitToWidth="true">
+                            <HBox fx:id="vizArea" spacing="15" style="-fx-padding:10;" alignment="CENTER_LEFT"/>
+                        </ScrollPane>
+                    </StackPane>
+                </VBox>
+
+                <!-- Code Box -->
+                <VBox spacing="5">
+                    <Label text="Code" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+                    <TextArea fx:id="codeArea" 
+                              editable="false" 
+                              wrapText="false" 
+                              prefHeight="200"
+                              style="-fx-control-inner-background: #1e1e1e; -fx-text-fill: #d4d4d4; -fx-font-family: 'Courier New'; -fx-font-size: 11; -fx-padding: 10;"/>
+                </VBox>
+            </VBox>
+        </HBox>
+    </center>
+
+</BorderPane>
