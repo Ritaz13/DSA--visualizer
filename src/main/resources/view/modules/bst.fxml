@@ -21,7 +21,7 @@
     <top>
         <BorderPane style="-fx-padding: 15 20 10 20; -fx-border-color: #cccccc; -fx-border-width: 0 0 1 0;">
             <center>
-                <Label fx:id="titleLabel" text="Binary Search Tree" 
+                <Label fx:id="titleLabel" text="Binary Search Tree"
                        style="-fx-font-size: 32; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
             </center>
             <right>
@@ -36,24 +36,36 @@
     <!-- Main content: Left panel + Center visualization -->
     <center>
         <HBox spacing="15" style="-fx-padding: 15;">
-            
+
             <!-- LEFT PANEL: Story and Operations -->
-            <VBox spacing="12" style="-fx-padding: 10; -fx-min-width: 280; -fx-max-width: 320; -fx-border-color: #e0e0e0; -fx-border-radius: 5; -fx-background-color: #f9f9f9;">
-                
+            <VBox spacing="12"
+                  style="-fx-padding: 10; -fx-min-width: 280; -fx-max-width: 320; -fx-border-color: #e0e0e0; -fx-border-radius: 5; -fx-background-color: #f9f9f9;">
+
                 <!-- Story/Notes Box -->
                 <Label text="📖 Story" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
-                <TextArea fx:id="storyArea" 
-                          editable="false" 
-                          wrapText="true" 
+                <TextArea fx:id="storyArea"
+                          editable="false"
+                          wrapText="true"
                           prefHeight="120"
-                          style="-fx-control-inner-background: #ffffff; -fx-font-size: 12;"/>
-                
+                          style="-fx-font-size: 14;-fx-font-family: 'Consolas'; -fx-control-inner-background: #e7f5ff;"/>
+
                 <!-- Input Section -->
                 <VBox spacing="6">
                     <Label text="Input Numbers" style="-fx-font-weight: bold; -fx-font-size: 13;"/>
-                    <TextField fx:id="inputField" promptText="e.g. 5,3,8,1,9" style="-fx-font-size: 13; -fx-padding: 8;"/>
+                    <TextField fx:id="inputField" promptText="e.g. 5,3,8,1,9"
+                               style="-fx-font-size: 13; -fx-padding: 8;"/>
                     <HBox spacing="8">
-                        <Button fx:id="buildBtn" text="Build Tree" style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;" HBox.hgrow="ALWAYS"/>
+
+                        <Button fx:id="randomBtn" text="Random BST"
+                                style="-fx-font-size: 13; -fx-padding: 10 15;
+                   -fx-background-color: #FF5722;
+                   -fx-text-fill: white;
+                   -fx-font-weight: bold;"/>
+
+
+                        <Button fx:id="buildBtn" text="Build Tree"
+                                style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"
+                                HBox.hgrow="ALWAYS"/>
                     </HBox>
                 </VBox>
 
@@ -62,53 +74,122 @@
                 <VBox spacing="6">
                     <TextField fx:id="opField" promptText="Value" style="-fx-font-size: 13; -fx-padding: 8;"/>
                     <HBox spacing="6">
-                        <Button fx:id="insertBtn" text="Insert" style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold;" HBox.hgrow="ALWAYS"/>
-                        <Button fx:id="deleteBtn" text="Delete" style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #f44336; -fx-text-fill: white; -fx-font-weight: bold;" HBox.hgrow="ALWAYS"/>
-                        <Button fx:id="searchBtn" text="Search" style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-weight: bold;" HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="insertBtn" text="Insert"
+                                style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold;"
+                                HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="deleteBtn" text="Delete"
+                                style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #f44336; -fx-text-fill: white; -fx-font-weight: bold;"
+                                HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="searchBtn" text="Search"
+                                style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-weight: bold;"
+                                HBox.hgrow="ALWAYS"/>
                     </HBox>
                 </VBox>
 
                 <!-- Traversal Section -->
                 <Label text="Traversal" style="-fx-font-weight: bold; -fx-padding: 8 0 0 0; -fx-font-size: 13;"/>
                 <VBox spacing="6">
-                    <Button fx:id="inOrderBtn" text="In-Order" style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #9C27B0; -fx-text-fill: white; -fx-font-weight: bold;" />
-                    <Button fx:id="preOrderBtn" text="Pre-Order" style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #9C27B0; -fx-text-fill: white; -fx-font-weight: bold;" />
-                    <Button fx:id="postOrderBtn" text="Post-Order" style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #9C27B0; -fx-text-fill: white; -fx-font-weight: bold;" />
+                    <HBox spacing="6" >
+                        <Button fx:id="startBtn" text="▶ Start"
+                                style="-fx-font-size: 13; -fx-padding: 8 12; -fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                        <Button fx:id="stopBtn" text="■ Stop"
+                                style="-fx-font-size: 13; -fx-padding: 8 12; -fx-background-color: #f44336; -fx-text-fill: white; -fx-font-weight: bold;"/>
+
+
+
+
+                        <Button fx:id="prevBtn" text="◀ Prev"
+                                style="-fx-font-size: 13; -fx-padding: 8 12; -fx-background-color: #607D8B; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                        <Button fx:id="nextBtn" text="Next ▶"
+                                style="-fx-font-size: 13; -fx-padding: 8 12; -fx-background-color: #607D8B; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                    </HBox>
+                    <HBox spacing="6">
+                        <Button fx:id="inOrderBtn" text="In-Order"
+                                style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #9C27B0; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                        <Button fx:id="preOrderBtn" text="Pre-Order"
+                                style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #9C27B0; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                    </HBox>
+                    <HBox spacing="6">
+                        <Button fx:id="postOrderBtn" text="Post-Order"
+                                style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #9C27B0; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                        <Button fx:id="levelOrderBtn" text="Level-Order"
+                                style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #9C27B0; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                    </HBox>
+                </VBox>
+                <!-- Successor / Predecessor Section -->
+                <Label text="Extra Operations" style="-fx-font-weight: bold; -fx-padding: 8 0 0 0; -fx-font-size: 13;"/>
+                <VBox spacing="6">
+                    <Button fx:id="successorBtn" text="Find Successor"
+                            style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #009688; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                    <Button fx:id="predecessorBtn" text="Find Predecessor"
+                            style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #009688; -fx-text-fill: white; -fx-font-weight: bold;"/>
                 </VBox>
 
-                <!-- Display Options -->
-                <Label text="Display" style="-fx-font-weight: bold; -fx-padding: 8 0 0 0; -fx-font-size: 13;"/>
-                <VBox spacing="4">
-                    <CheckBox fx:id="heightCheck" text="Show Height" style="-fx-font-size: 12;"/>
-                    <CheckBox fx:id="balanceCheck" text="Show Balance Factor" style="-fx-font-size: 12;"/>
-                </VBox>
 
                 <!-- Show Code Button with Copy -->
                 <HBox spacing="8">
-                    <Button fx:id="showCodeBtn" text="Show Code" style="-fx-font-size: 13; -fx-padding: 10 15; -fx-font-weight: bold; -fx-background-color: #3F51B5; -fx-text-fill: white;" HBox.hgrow="ALWAYS"/>
-                    <Button fx:id="copyCodeBtn" text="Copy" style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #607D8B; -fx-text-fill: white; -fx-font-weight: bold;" prefWidth="70"/>
+                    <Button fx:id="showCodeBtn" text="Show Code"
+                            style="-fx-font-size: 13; -fx-padding: 10 15; -fx-font-weight: bold; -fx-background-color: #3F51B5; -fx-text-fill: white;"
+                            HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="copyCodeBtn" text="Copy"
+                            style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #607D8B; -fx-text-fill: white; -fx-font-weight: bold;"
+                            prefWidth="70"/>
                 </HBox>
             </VBox>
 
             <!-- CENTER/RIGHT PANEL: Visualization + Code -->
             <VBox spacing="12" HBox.hgrow="ALWAYS">
-                
+
                 <!-- Visualization Area -->
                 <VBox spacing="8" VBox.vgrow="ALWAYS">
                     <Label text="Visualization" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
-                    <StackPane style="-fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 10; -fx-background-color: #f5f5f5;" VBox.vgrow="ALWAYS">
+                    <StackPane
+                            style="-fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 10; -fx-background-color: #f5f5f5;"
+                            VBox.vgrow="ALWAYS">
                         <ScrollPane fx:id="vizScroll" fitToHeight="true" fitToWidth="true">
-                            <StackPane fx:id="vizArea" />
+                            <StackPane fx:id="vizArea"/>
                         </ScrollPane>
+
                     </StackPane>
+                    <Label fx:id="statusLabel" text=""
+                           style="-fx-font-size: 14; -fx-text-fill: darkred; -fx-padding: 6;"/>
+                </VBox>
+
+                <!-- Traversal Results -->
+                <VBox spacing="5">
+                    <Label text="Traversal Results" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+                    <HBox spacing="10">
+                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                            <Label text="In-Order:" style="-fx-font-weight: bold; -fx-font-size: 12;"/>
+                            <TextArea fx:id="inOrderResult" editable="false" wrapText="true" prefHeight="50"
+                                      style="-fx-control-inner-background: #ffffcc; -fx-font-family: 'Courier New'; -fx-font-size: 11; -fx-padding: 6;"/>
+                        </VBox>
+                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                            <Label text="Pre-Order:" style="-fx-font-weight: bold; -fx-font-size: 12;"/>
+                            <TextArea fx:id="preOrderResult" editable="false" wrapText="true" prefHeight="50"
+                                      style="-fx-control-inner-background: #e8f5e9; -fx-font-family: 'Courier New'; -fx-font-size: 11; -fx-padding: 6;"/>
+                        </VBox>
+                    </HBox>
+                    <HBox spacing="10">
+                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                            <Label text="Post-Order:" style="-fx-font-weight: bold; -fx-font-size: 12;"/>
+                            <TextArea fx:id="postOrderResult" editable="false" wrapText="true" prefHeight="50"
+                                      style="-fx-control-inner-background: #e3f2fd; -fx-font-family: 'Courier New'; -fx-font-size: 11; -fx-padding: 6;"/>
+                        </VBox>
+                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                            <Label text="Level-Order:" style="-fx-font-weight: bold; -fx-font-size: 12;"/>
+                            <TextArea fx:id="levelOrderResult" editable="false" wrapText="true" prefHeight="50"
+                                      style="-fx-control-inner-background: #f3e5f5; -fx-font-family: 'Courier New'; -fx-font-size: 11; -fx-padding: 6;"/>
+                        </VBox>
+                    </HBox>
                 </VBox>
 
                 <!-- Code Box -->
                 <VBox spacing="5">
                     <Label text="Code" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
-                    <TextArea fx:id="codeArea" 
-                              editable="false" 
-                              wrapText="false" 
+                    <TextArea fx:id="codeArea"
+                              editable="false"
+                              wrapText="false"
                               prefHeight="200"
                               style="-fx-control-inner-background: #1e1e1e; -fx-text-fill: #d4d4d4; -fx-font-family: 'Courier New'; -fx-font-size: 11; -fx-padding: 10;"/>
                 </VBox>

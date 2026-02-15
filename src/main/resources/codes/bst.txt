@@ -1,52 +1,56 @@
 // Binary Search Tree Implementation
+
 class Node {
     int val;
     Node left, right;
-    
-    Node(int val) {
-        this.val = val;
-    }
+    Node(int v) { val = v; }
 }
 
 class BST {
-    private Node root;
-    
-    // Insert value into BST
-    public void insert(int val) {
-        root = insertHelper(root, val);
+    Node root;
+
+    // Insert a node
+    void insert(int val) {
+        root = insertRec(root, val);
     }
-    
-    private Node insertHelper(Node node, int val) {
+    Node insertRec(Node node, int val) {
         if (node == null) return new Node(val);
-        if (val < node.val) {
-            node.left = insertHelper(node.left, val);
-        } else {
-            node.right = insertHelper(node.right, val);
+        if (val < node.val) node.left = insertRec(node.left, val);
+        else if (val > node.val) node.right = insertRec(node.right, val);
+        return node;
+    }
+
+    // Search a node
+    boolean search(Node node, int val) {
+        if (node == null) return false;
+        if (val == node.val) return true;
+        return val < node.val ? search(node.left, val) : search(node.right, val);
+    }
+
+    // Delete a node
+    Node delete(Node node, int val) {
+        if (node == null) return null;
+        if (val < node.val) node.left = delete(node.left, val);
+        else if (val > node.val) node.right = delete(node.right, val);
+        else {
+            if (node.left == null) return node.right;
+            if (node.right == null) return node.left;
+            Node succ = minNode(node.right);
+            node.val = succ.val;
+            node.right = delete(node.right, succ.val);
         }
         return node;
     }
-    
-    // Search for value in BST
-    public boolean search(int val) {
-        return searchHelper(root, val);
+    Node minNode(Node node) {
+        while (node.left != null) node = node.left;
+        return node;
     }
-    
-    private boolean searchHelper(Node node, int val) {
-        if (node == null) return false;
-        if (val == node.val) return true;
-        if (val < node.val) return searchHelper(node.left, val);
-        return searchHelper(node.right, val);
-    }
-    
-    // In-order traversal (Left, Root, Right)
-    public void inorder() {
-        inorderHelper(root);
-    }
-    
-    private void inorderHelper(Node node) {
+
+    // Inorder Traversal
+    void inorder(Node node) {
         if (node == null) return;
-        inorderHelper(node.left);
+        inorder(node.left);
         System.out.print(node.val + " ");
-        inorderHelper(node.right);
+        inorder(node.right);
     }
 }

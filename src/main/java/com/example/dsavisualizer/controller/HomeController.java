@@ -11,7 +11,7 @@ public class HomeController {
 
     @FXML private Button themeBtn;
 
-    @FXML private Button arrayBtn, recursionBtn, graphBtn, bstBtn,
+    @FXML private Button heapBtn, recursionBtn, graphBtn, bstBtn,
             linkedBtn, stackBtn, queueBtn, sortingBtn;
 
     @FXML
@@ -19,7 +19,7 @@ public class HomeController {
 
         Button btn = (Button) e.getSource();
 
-        if (btn == arrayBtn) SceneManager.switchScene("modules/array.fxml");
+        if (btn == heapBtn) SceneManager.switchScene("modules/heap.fxml");
         else if (btn == recursionBtn) SceneManager.switchScene("modules/recursion.fxml");
         else if (btn == graphBtn) SceneManager.switchScene("modules/graph.fxml");
         else if (btn == bstBtn) SceneManager.switchScene("modules/bst.fxml");

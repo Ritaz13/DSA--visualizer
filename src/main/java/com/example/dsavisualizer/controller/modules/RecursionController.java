@@ -465,7 +465,11 @@ public class RecursionController extends ModuleController {
     }
 
     private enum EventType {ENTER, RETURN, INFO}
-
+    protected void showAlert(String msg) {
+        if (statusLabel != null) {
+            statusLabel.setText(msg);
+        }
+    }
     private static class Event {
         EventType type;
         String label;

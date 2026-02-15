@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextArea?>
@@ -13,14 +14,14 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.example.dsavisualizer.controller.modules.StackController"
+            fx:controller="com.example.dsavisualizer.controller.modules.HeapController"
             style="-fx-font-family: 'Segoe UI'; -fx-font-size: 12;">
 
     <!-- Top: Title centered, Theme & Home buttons top-right -->
     <top>
         <BorderPane style="-fx-padding: 15 20 10 20; -fx-border-color: #cccccc; -fx-border-width: 0 0 1 0;">
             <center>
-                <Label fx:id="titleLabel" text="Stack"
+                <Label fx:id="titleLabel" text="Heap"
                        style="-fx-font-size: 32; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
             </center>
             <right>
@@ -45,55 +46,47 @@
                 <TextArea fx:id="storyArea"
                           editable="false"
                           wrapText="true"
-                          prefHeight="120"
+                          prefHeight="100"
                           style="-fx-font-size: 14;-fx-font-family: 'Consolas'; -fx-control-inner-background: #e7f5ff;"/>
+
+                <!-- Heap Type Selection -->
+                <VBox spacing="6">
+                    <Label text="Heap Type" style="-fx-font-weight: bold; -fx-font-size: 13;"/>
+                    <HBox spacing="10">
+                        <CheckBox fx:id="maxHeapCheck" text="Max Heap" selected="true"/>
+                    </HBox>
+                </VBox>
 
                 <!-- Input Section -->
                 <VBox spacing="6">
-                    <Label text="Input Number" style="-fx-font-weight: bold; -fx-font-size: 13;"/>
-                    <TextField fx:id="inputField" promptText="Enter value" style="-fx-font-size: 13; -fx-padding: 8;"/>
+                    <Label text="Input" style="-fx-font-weight: bold; -fx-font-size: 13;"/>
+                    <TextField fx:id="inputField" promptText="e.g. 5 or 5,3,8,1,9"
+                               style="-fx-font-size: 13; -fx-padding: 8;"/>
                     <HBox spacing="8">
-                        <Button fx:id="pushBtn" text="Push"
+                        <Button fx:id="insertBtn" text="Insert"
                                 style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"
                                 HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="randomBtn" text="Random"
+                                style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #FF5722; -fx-text-fill: white; -fx-font-weight: bold;"
+                                HBox.hgrow="ALWAYS"/>
                     </HBox>
+                    <Button fx:id="buildBtn" text="Build Heap"
+                            style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold;"
+                            HBox.hgrow="ALWAYS"/>
                 </VBox>
 
                 <!-- Operations Section -->
                 <Label text="Operations" style="-fx-font-weight: bold; -fx-padding: 8 0 0 0; -fx-font-size: 13;"/>
                 <VBox spacing="6">
-                    <HBox spacing="6">
-                        <Button fx:id="popBtn" text="Pop"
-                                style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #f44336; -fx-text-fill: white; -fx-font-weight: bold;"/>
-                        <Button fx:id="peekBtn" text="Peek"
-                                style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-weight: bold;"/>
-                    </HBox>
-                    <HBox spacing="6">
-                        <Button fx:id="topBtn" text="Top"
-                                style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold;"/>
-                        <Button fx:id="clearBtn" text="Clear"
-                                style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #9C27B0; -fx-text-fill: white; -fx-font-weight: bold;"/>
-                    </HBox>
-                </VBox>
-
-                <!-- Special Utilities -->
-                <Label text="Special" style="-fx-font-weight: bold; -fx-padding: 8 0 0 0; -fx-font-size: 13;"/>
-                <VBox spacing="6">
-                    <TextField fx:id="parenField" promptText="e.g. ({[]})" style="-fx-font-size: 13; -fx-padding: 8;"/>
-                    <Button fx:id="checkParenBtn" text="Check Parentheses"
-                            style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold;"/>
-
-                    <TextField fx:id="convertField" promptText="e.g. a+b*c" style="-fx-font-size: 13; -fx-padding: 8;"/>
-                    <HBox spacing="6">
-                        <Button fx:id="toPostfixBtn" text="To Postfix"
-                                style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-weight: bold;"
-                                HBox.hgrow="ALWAYS"/>
-                        <Button fx:id="toPrefixBtn" text="To Prefix"
-                                style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-weight: bold;"
-                                HBox.hgrow="ALWAYS"/>
-                    </HBox>
-                    <TextArea fx:id="conversionResult" editable="false" wrapText="true" prefHeight="60"
-                              style="-fx-control-inner-background: #ffffcc; -fx-font-family: 'Courier New'; -fx-font-size: 11; -fx-padding: 6;"/>
+                    <Button fx:id="extractBtn" text="Extract Root"
+                            style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-weight: bold;"
+                            HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="deleteBtn" text="Delete Min/Max"
+                            style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #f44336; -fx-text-fill: white; -fx-font-weight: bold;"
+                            HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="clearBtn" text="Clear Heap"
+                            style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #9C27B0; -fx-text-fill: white; -fx-font-weight: bold;"
+                            HBox.hgrow="ALWAYS"/>
                 </VBox>
 
                 <!-- Show Code Button with Copy -->
@@ -105,6 +98,15 @@
                             style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #607D8B; -fx-text-fill: white; -fx-font-weight: bold;"
                             prefWidth="70"/>
                 </HBox>
+                <!-- Heap Array Representation -->
+                <VBox spacing="5" prefHeight="240">
+                    <Label  style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+                    <TextArea fx:id="heapArrayArea"
+                              editable="false"
+                              wrapText="true"
+                              prefHeight="100"
+                              style="-fx-control-inner-background: #fffacd; -fx-font-family: 'Courier New'; -fx-font-size: 20; -fx-padding: 10;"/>
+                </VBox>
             </VBox>
 
             <!-- CENTER/RIGHT PANEL: Visualization + Code -->
@@ -112,18 +114,17 @@
 
                 <!-- Visualization Area -->
                 <VBox spacing="8" VBox.vgrow="ALWAYS">
-                    <Label text="Visualization (Stack in Horizontal)"
-                           style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+                    <Label text="Visualization" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
                     <StackPane
                             style="-fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 10; -fx-background-color: #f5f5f5;"
                             VBox.vgrow="ALWAYS">
-                        <ScrollPane fx:id="vizScroll" fitToHeight="true" fitToWidth="true">
-                            <VBox fx:id="vizArea" spacing="5" style="-fx-padding:10;"/>
-                        </ScrollPane>
+                        <StackPane fx:id="vizArea"/>
                     </StackPane>
-                    <Label fx:id="statusLabel" text="Stack ready"
-                           style="-fx-font-size: 14; -fx-text-fill: darkblue; -fx-padding: 6;"/>
+                    <Label fx:id="statusLabel" text="Ready to visualize heap"
+                           style="-fx-font-size: 14; -fx-text-fill: darkgreen; -fx-padding: 6;"/>
                 </VBox>
+
+
 
                 <!-- Code Box -->
                 <VBox spacing="5">
@@ -131,7 +132,7 @@
                     <TextArea fx:id="codeArea"
                               editable="false"
                               wrapText="false"
-                              prefHeight="200"
+                              prefHeight="150"
                               style="-fx-control-inner-background: #1e1e1e; -fx-text-fill: #d4d4d4; -fx-font-family: 'Courier New'; -fx-font-size: 11; -fx-padding: 10;"/>
                 </VBox>
             </VBox>

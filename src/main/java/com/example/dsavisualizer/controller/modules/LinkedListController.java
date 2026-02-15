@@ -225,7 +225,7 @@ public class LinkedListController extends ModuleController {
         renderList();
     }
 
-    private void showAlert(String msg) {
+    protected void showAlert(String msg) {
         Alert a = new Alert(Alert.AlertType.INFORMATION, msg, ButtonType.OK);
         a.showAndWait();
     }

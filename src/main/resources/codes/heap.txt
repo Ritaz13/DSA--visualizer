@@ -1,0 +1,77 @@
+// Max Heap Implementation
+class MaxHeap {
+    private int[] heap;
+    private int size;
+    
+    public MaxHeap(int capacity) {
+        heap = new int[capacity];
+        size = 0;
+    }
+    
+    // Insert element
+    public void insert(int val) {
+        heap[size] = val;
+        heapifyUp(size);
+        size++;
+    }
+    
+    // Extract maximum (root)
+    public int extractMax() {
+        int max = heap[0];
+        heap[0] = heap[size - 1];
+        size--;
+        heapifyDown(0);
+        return max;
+    }
+    
+    // Move element up to maintain heap property
+    private void heapifyUp(int index) {
+        while (index > 0) {
+            int parent = (index - 1) / 2;
+            if (heap[index] > heap[parent]) {
+                swap(index, parent);
+                index = parent;
+            } else break;
+        }
+    }
+    
+    // Move element down to maintain heap property
+    private void heapifyDown(int index) {
+        while (true) {
+            int largest = index;
+            int left = 2 * index + 1;
+            int right = 2 * index + 2;
+            
+            if (left < size && heap[left] > heap[largest])
+                largest = left;
+            if (right < size && heap[right] > heap[largest])
+                largest = right;
+            
+            if (largest != index) {
+                swap(index, largest);
+                index = largest;
+            } else break;
+        }
+    }
+    
+    private void swap(int i, int j) {
+        int temp = heap[i];
+        heap[i] = heap[j];
+        heap[j] = temp;
+    }
+    
+    public boolean isEmpty() {
+        return size == 0;
+    }
+    
+    public int getSize() {
+        return size;
+    }
+}
+
+// Min Heap Implementation (same as above but with < instead of >)
+// Time Complexity:
+//   Insertion: O(log n)
+//   Deletion: O(log n)
+//   Search: O(n)
+// Space Complexity: O(n)

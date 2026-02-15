@@ -11,12 +11,21 @@
 
     <!-- TOP RIGHT THEME BUTTON -->
     <top>
+
+            <VBox spacing="20" alignment="CENTER">
+                <padding>
+                    <Insets top="20" right="10" bottom="20" left="10"/>
+                </padding>
+                <Label text="DSA -VISUALIZER"  style=" -fx-text-fill: black; -fx-font-size: 40px; -fx-font-weight: bold;" />
+
+
         <HBox alignment="TOP_RIGHT">
             <padding>
                 <Insets top="10" right="10" bottom="10" left="10"/>
             </padding>
             <Button fx:id="themeBtn" text="Dark Mode" onAction="#toggleTheme"/>
         </HBox>
+            </VBox>
     </top>
 
 
@@ -25,8 +34,8 @@
         <GridPane alignment="CENTER" hgap="30" vgap="30">
 
             <!-- Row 1 -->
-            <Button fx:id="arrayBtn" onAction="#openModule" prefWidth="300" prefHeight="260" GridPane.rowIndex="0" GridPane.columnIndex="0">
-                <graphic><ImageView fitWidth="300" fitHeight="260"><image><Image url="@/images/array.png"/></image></ImageView></graphic>
+            <Button fx:id="heapBtn" onAction="#openModule" prefWidth="300" prefHeight="260" GridPane.rowIndex="0" GridPane.columnIndex="0">
+                <graphic><ImageView fitWidth="300" fitHeight="260"><image><Image url="@/images/heap.png"/></image></ImageView></graphic>
             </Button>
 
             <Button fx:id="recursionBtn" onAction="#openModule" prefWidth="300" prefHeight="260" GridPane.rowIndex="0" GridPane.columnIndex="1">
