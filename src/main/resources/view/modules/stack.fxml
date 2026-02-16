@@ -121,6 +121,18 @@
                             <VBox fx:id="vizArea" spacing="5" style="-fx-padding:10;"/>
                         </ScrollPane>
                     </StackPane>
+                    
+                    <!-- Step Result Display -->
+<!--                    <VBox spacing="5">-->
+<!--                        <Label text="FINAL RESULT"-->
+<!--                               style="-fx-font-weight: bold; -fx-font-size: 13;"/>-->
+<!--                        <TextArea fx:id="stepResultArea" -->
+<!--                                  editable="false" -->
+<!--                                  wrapText="true" -->
+<!--                                  prefHeight="100"-->
+<!--                                  style="-fx-control-inner-background: #e8f5e9; -fx-font-family: 'Courier New'; -fx-font-size: 11; -fx-padding: 6;"/>-->
+<!--                    </VBox>-->
+                    
                     <Label fx:id="statusLabel" text="Stack ready"
                            style="-fx-font-size: 14; -fx-text-fill: darkblue; -fx-padding: 6;"/>
                 </VBox>

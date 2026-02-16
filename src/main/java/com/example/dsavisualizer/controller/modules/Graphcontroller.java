@@ -347,10 +347,20 @@ public class Graphcontroller extends ModuleController {
         dsStates.clear();
         visitedStates.clear();
         stopTraversalAuto();
+        
+        // Reset all nodes to white (not visited)
         for (Integer n : graphData.getNodes()) {
             nodeStatus.put(n, "white");
-            pathColors.put(n, Color.LIGHTGRAY);
+            pathColors.put(n, Color.web("#CCCCCC")); // Gray
         }
+        
+        // Reset all edges to default (black, normal)
+        for (Edge edge : graphData.getEdges()) {
+            edge.edgeType = "normal";
+            edge.color = Color.BLACK;
+        }
+        stackDisplay.clear(); queueDisplay.clear();
+        
         redrawCanvas();
     }
 
@@ -426,20 +436,21 @@ public class Graphcontroller extends ModuleController {
     }
 
 
-    private void performDFSTraversal(int start) {
-        // Reset all nodes
+    /*private void performDFSTraversal(int start) {
+        // Reset all nodes to white (not visited)
         for (Integer n : graphData.getNodes()) {
             nodeStatus.put(n, "white");
-            pathColors.put(n, Color.LIGHTGRAY);
+            pathColors.put(n, Color.web("#CCCCCC")); // Gray - Not visited
         }
         for (Edge edge : graphData.getEdges()) {
             edge.edgeType = "normal";
+            edge.color = Color.BLACK;
         }
 
         Stack<Integer> stack = new Stack<>();
         stack.push(start);
-        nodeStatus.put(start, "grey");
-        pathColors.put(start, Color.web("#FFB84D"));
+        nodeStatus.put(start, "orange"); // In stack
+        pathColors.put(start, Color.web("#FFA500"));
 
         traversalOrder.add(start);
         visitedStates.add(new HashSet<>(visitedNodes));
@@ -448,110 +459,267 @@ public class Graphcontroller extends ModuleController {
         while (!stack.isEmpty()) {
             int node = stack.pop();
 
-            if (nodeStatus.get(node).equals("grey")) {
-                nodeStatus.put(node, "black");
-                pathColors.put(node, Color.web("#2C3E50"));
+            // Only process if not visited
+            if (!visitedNodes.contains(node)) {
+                nodeStatus.put(node, "blue"); // Processing
+                pathColors.put(node, Color.web("#2196F3"));
+
                 visitedNodes.add(node);
+                nodeStatus.put(node, "green"); // Finished
+                pathColors.put(node, Color.web("#4CAF50"));
 
+                // Record snapshot after visiting node
+                visitedStates.add(new HashSet<>(visitedNodes));
+                dsStates.add("Stack: " + stack.toString());
+
+                // Process neighbors
                 for (int neighbor : graphData.getNeighbors(node)) {
-                    String status = nodeStatus.get(neighbor);
-                    if (status.equals("white")) {
-                        nodeStatus.put(neighbor, "grey");
-                        pathColors.put(neighbor, Color.web("#FFB84D"));
-                        stack.push(neighbor);
-                        traversalOrder.add(neighbor);
-
+                    if (!visitedNodes.contains(neighbor)) {
+                        // Only color edge and neighbor node when actually moving to it
+                        int neighborStatus = 0;
                         for (Edge edge : graphData.getEdges()) {
                             if (edge.from == node && edge.to == neighbor) {
                                 edge.edgeType = "tree";
+                                edge.color = Color.GREEN;
+                                neighborStatus = 1;
+                                break;
+                            }
+                        }
 
-                            }
+                        // Add to stack
+                        if (neighborStatus == 1) {
+                            nodeStatus.put(neighbor, "orange"); // In stack
+                            pathColors.put(neighbor, Color.web("#FFA500"));
+                            stack.push(neighbor);
+                            traversalOrder.add(neighbor);
                         }
-                    } else if (status.equals("grey")) {
+                    } else {
+                        // Back edge (only in undirected graphs, visited but in same path)
                         for (Edge edge : graphData.getEdges()) {
-                            if (edge.from == node && edge.to == neighbor) {
+                            if (edge.from == node && edge.to == neighbor && nodeStatus.get(neighbor).equals("green")) {
                                 edge.edgeType = "back";
-                            }
-                        }
-                    } else if (status.equals("black")) {
-                        for (Edge edge : graphData.getEdges()) {
-                            if (edge.from == node && edge.to == neighbor) {
-                                edge.edgeType = "forward";
+                                edge.color = Color.RED;
                             }
                         }
                     }
                 }
             }
 
-            // ✅ Record snapshot after each step
+            // Record snapshot after each step
             visitedStates.add(new HashSet<>(visitedNodes));
             dsStates.add("Stack: " + stack.toString());
+        }
+
+        // Reset non-tree edges to default
+        for (Edge edge : graphData.getEdges()) {
+            if (!edge.edgeType.equals("tree") && !edge.edgeType.equals("back")) {
+                edge.edgeType = "normal";
+                edge.color = Color.BLACK;
+            }
         }
     }
 
 
     private void performBFSTraversal(int start) {
+        // Reset all nodes to white (not visited)
         for (Integer n : graphData.getNodes()) {
             nodeStatus.put(n, "white");
-            pathColors.put(n, Color.LIGHTGRAY);
+            pathColors.put(n, Color.web("#CCCCCC")); // Gray - Not visited
         }
         for (Edge edge : graphData.getEdges()) {
             edge.edgeType = "normal";
-           }
+            edge.color = Color.BLACK;
+        }
 
-            Queue<Integer> queue = new LinkedList<>();
-            queue.add(start);
-            nodeStatus.put(start, "grey");
-            pathColors.put(start, Color.web("#FFB84D"));
+        Queue<Integer> queue = new LinkedList<>();
+        queue.add(start);
+        nodeStatus.put(start, "yellow"); // In queue
+        pathColors.put(start, Color.web("#FFFF00"));
+        visitedNodes.add(start);
 
-            visitedNodes.add(start);
-            traversalOrder.add(start);
+        traversalOrder.add(start);
+        visitedStates.add(new HashSet<>(visitedNodes));
+        dsStates.add("Queue: " + queue.toString());
 
+        while (!queue.isEmpty()) {
+            int node = queue.poll();
+            nodeStatus.put(node, "blue"); // Processing
+            pathColors.put(node, Color.web("#2196F3"));
+
+            // Record snapshot after processing
             visitedStates.add(new HashSet<>(visitedNodes));
             dsStates.add("Queue: " + queue.toString());
 
-            while (!queue.isEmpty()) {
-                int node = queue.poll();
-                nodeStatus.put(node, "black");
-                pathColors.put(node, Color.web("#2C3E50"));
+            nodeStatus.put(node, "green"); // Finished
+            pathColors.put(node, Color.web("#4CAF50"));
 
-                for (int neighbor : graphData.getNeighbors(node)) {
-                    String status = nodeStatus.get(neighbor);
-                    if (status.equals("white")) {
-                        nodeStatus.put(neighbor, "grey");
-                        pathColors.put(neighbor, Color.web("#FFB84D"));
-                        queue.add(neighbor);
-                        visitedNodes.add(neighbor);
-                        traversalOrder.add(neighbor);
+            // Process neighbors - only color edge when actually moving to unvisited neighbor
+            for (int neighbor : graphData.getNeighbors(node)) {
+                if (!visitedNodes.contains(neighbor)) {
+                    // Mark as in queue
+                    nodeStatus.put(neighbor, "yellow");
+                    pathColors.put(neighbor, Color.web("#FFFF00"));
+                    
+                    // Mark edge as tree edge
+                    for (Edge edge : graphData.getEdges()) {
+                        if (edge.from == node && edge.to == neighbor) {
+                            edge.edgeType = "tree";
+                            edge.color = Color.GREEN;
+                        }
+                    }
+                    
+                    // Add to queue
+                    queue.add(neighbor);
+                    visitedNodes.add(neighbor);
+                    traversalOrder.add(neighbor);
 
-                        for (Edge edge : graphData.getEdges()) {
-                            if (edge.from == node && edge.to == neighbor) {
-                                edge.edgeType = "tree";
-                                //edge.color = Color.GREEN;
-                            }
-                        }
-                    } else if (status.equals("grey")) {
-                        for (Edge edge : graphData.getEdges()) {
-                            if (edge.from == node && edge.to == neighbor) {
-                                edge.edgeType = "cross";
-                            }
-                        }
-                    } else if (status.equals("black")) {
-                        for (Edge edge : graphData.getEdges()) {
-                            if (edge.from == node && edge.to == neighbor) {
-                                edge.edgeType = "cross";
+                    // Record snapshot
+                    visitedStates.add(new HashSet<>(visitedNodes));
+                    dsStates.add("Queue: " + queue.toString());
+                } else {
+                    // Back edge (only for undirected, when neighbor is visited and not parent)
+                    for (Edge edge : graphData.getEdges()) {
+                        if (edge.from == node && edge.to == neighbor && nodeStatus.get(neighbor).equals("green")) {
+                            if (!isDirected) { // Only for undirected graphs
+                                edge.edgeType = "back";
+                                edge.color = Color.RED;
                             }
                         }
                     }
                 }
-
-                // ✅ Record snapshot after each step
-                visitedStates.add(new HashSet<>(visitedNodes));
-                dsStates.add("Queue: " + queue.toString());
             }
         }
 
-        private Color getColorForPath ( int index){
+        // Reset non-tree, non-back edges to default
+        for (Edge edge : graphData.getEdges()) {
+            if (!edge.edgeType.equals("tree") && !edge.edgeType.equals("back")) {
+                edge.edgeType = "normal";
+                edge.color = Color.BLACK;
+            }
+        }
+    }
+*/private void performDFSTraversal(int start) {
+        // Reset nodes and edges
+        for (Integer n : graphData.getNodes()) {
+            nodeStatus.put(n, "white");
+            pathColors.put(n, Color.web("#CCCCCC"));
+        }
+        for (Edge edge : graphData.getEdges()) {
+            edge.edgeType = "normal";
+            edge.color = Color.BLACK;
+        }
+
+        Stack<Integer> stack = new Stack<>();
+        stack.push(start);
+        nodeStatus.put(start, "orange");
+        pathColors.put(start, Color.web("#FFA500"));
+
+        traversalOrder.add(start);
+        visitedStates.add(new HashSet<>(visitedNodes));
+        dsStates.add("Stack: " + stack.toString());
+
+        while (!stack.isEmpty()) {
+            int node = stack.pop();
+
+            if (!visitedNodes.contains(node)) {
+                nodeStatus.put(node, "blue");
+                pathColors.put(node, Color.web("#2196F3"));
+
+                visitedNodes.add(node);
+                nodeStatus.put(node, "green");
+                pathColors.put(node, Color.web("#4CAF50"));
+
+                visitedStates.add(new HashSet<>(visitedNodes));
+                dsStates.add("Stack: " + stack.toString());
+
+                for (int neighbor : graphData.getNeighbors(node)) {
+                    if (!visitedNodes.contains(neighbor)) {
+                        for (Edge edge : graphData.getEdges()) {
+                            if (edge.from == node && edge.to == neighbor) {
+                                edge.edgeType = "tree";
+                                edge.color = Color.GREEN;
+                            }
+                        }
+                        nodeStatus.put(neighbor, "orange");
+                        pathColors.put(neighbor, Color.web("#FFA500"));
+                        stack.push(neighbor);
+                        traversalOrder.add(neighbor);
+                    } else {
+                        for (Edge edge : graphData.getEdges()) {
+                            if (edge.from == node && edge.to == neighbor) {
+                                edge.edgeType = "back";
+                                edge.color = Color.RED;
+                            }
+                        }
+                    }
+                }
+            }
+            visitedStates.add(new HashSet<>(visitedNodes));
+            dsStates.add("Stack: " + stack.toString());
+        }
+    }private void performBFSTraversal(int start) {
+        for (Integer n : graphData.getNodes()) {
+            nodeStatus.put(n, "white");
+            pathColors.put(n, Color.web("#CCCCCC"));
+        }
+        for (Edge edge : graphData.getEdges()) {
+            edge.edgeType = "normal";
+            edge.color = Color.BLACK;
+        }
+
+        Queue<Integer> queue = new LinkedList<>();
+        queue.add(start);
+        nodeStatus.put(start, "yellow");
+        pathColors.put(start, Color.web("#FFFF00"));
+        visitedNodes.add(start);
+
+        traversalOrder.add(start);
+        visitedStates.add(new HashSet<>(visitedNodes));
+        dsStates.add("Queue: " + queue.toString());
+
+        while (!queue.isEmpty()) {
+            int node = queue.poll();
+            nodeStatus.put(node, "blue");
+            pathColors.put(node, Color.web("#2196F3"));
+
+            visitedStates.add(new HashSet<>(visitedNodes));
+            dsStates.add("Queue: " + queue.toString());
+
+            nodeStatus.put(node, "green");
+            pathColors.put(node, Color.web("#4CAF50"));
+
+            for (int neighbor : graphData.getNeighbors(node)) {
+                if (!visitedNodes.contains(neighbor)) {
+                    nodeStatus.put(neighbor, "yellow");
+                    pathColors.put(neighbor, Color.web("#FFFF00"));
+
+                    for (Edge edge : graphData.getEdges()) {
+                        if (edge.from == node && edge.to == neighbor) {
+                            edge.edgeType = "tree";
+                            edge.color = Color.GREEN;
+                        }
+                    }
+
+                    queue.add(neighbor);
+                    visitedNodes.add(neighbor);
+                    traversalOrder.add(neighbor);
+
+                    visitedStates.add(new HashSet<>(visitedNodes));
+                    dsStates.add("Queue: " + queue.toString());
+                } else {
+                    for (Edge edge : graphData.getEdges()) {
+                        if (edge.from == node && edge.to == neighbor) {
+                            edge.edgeType = "back";
+                            edge.color = Color.RED;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    private Color getColorForPath ( int index){
             Color[] colors = {
                     Color.web("#FF6B6B"), // Red
                     Color.web("#4ECDC4"), // Teal
@@ -663,14 +831,7 @@ public class Graphcontroller extends ModuleController {
         }
 
 
-        private void previousStep () {
-            if (currentTraversalIndex > 0) {
-                currentTraversalIndex--;
-                redrawCanvas();
-            }
-        }
-
-        private boolean isTreeGraph () {
+    private boolean isTreeGraph () {
             if (isDirected) return false;   // Directed graph tree না ধরবো
 
             if (graphData.getNodes().isEmpty()) return false;
@@ -702,9 +863,63 @@ public class Graphcontroller extends ModuleController {
 
             return visited.size() == graphData.getNodes().size();
         }
+    private void redrawCanvas() {
+        if (canvas == null) return;
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+
+        Map<Integer, double[]> positions = calculateNodePositions(canvas.getWidth(), canvas.getHeight());
+
+        // Current snapshot
+        Set<Integer> currentVisited = new HashSet<>();
+        if (currentTraversalIndex >= 0 && currentTraversalIndex < visitedStates.size()) {
+            currentVisited = visitedStates.get(currentTraversalIndex);
+        }
+
+        // Draw edges
+        for (Edge edge : graphData.getEdges()) {
+            double[] fromPos = positions.get(edge.from);
+            double[] toPos = positions.get(edge.to);
+            if (fromPos != null && toPos != null) {
+                drawArrow(gc, fromPos[0], fromPos[1], toPos[0], toPos[1], isDirected, edge);
+            }
+        }
+
+        // Draw nodes
+        for (Integer node : graphData.getNodes()) {
+            double[] pos = positions.get(node);
+            Color color = Color.LIGHTGRAY;
+            if (currentVisited.contains(node)) {
+                color = pathColors.getOrDefault(node, Color.LIGHTGRAY);
+            }
+
+            double radius = (currentTraversalIndex >= 0 && traversalOrder.size() > currentTraversalIndex
+                    && traversalOrder.get(currentTraversalIndex).equals(node)) ? 30 : 20; // highlight active node
+
+            gc.setFill(color);
+            gc.fillOval(pos[0] - radius, pos[1] - radius, radius * 2, radius * 2);
+            gc.setStroke(Color.BLACK);
+            gc.setLineWidth(2);
+            gc.strokeOval(pos[0] - radius, pos[1] - radius, radius * 2, radius * 2);
+
+            gc.setFill(Color.BLACK);
+            gc.setFont(new javafx.scene.text.Font("Arial", 18)); // bigger font
+            String label = String.valueOf(node);
+            gc.fillText(label, pos[0] - 10, pos[1] + 5);
+        }
+
+        // Show stack/queue state prominently
+        if (currentTraversalIndex >= 0 && currentTraversalIndex < dsStates.size()) {
+            String dsState = dsStates.get(currentTraversalIndex);
+            gc.setFill(Color.DARKBLUE);
+            gc.setFont(new javafx.scene.text.Font("Arial", 16));
+            gc.fillText(dsState, 20, canvas.getHeight() - 20); // bottom-left corner
+        }
+    }
 
 
-        private void redrawCanvas () {
+
+       /* private void redrawCanvas () {
             if (canvas == null) return;
             GraphicsContext gc = canvas.getGraphicsContext2D();
             gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
@@ -722,7 +937,7 @@ public class Graphcontroller extends ModuleController {
                 double[] fromPos = positions.get(edge.from);
                 double[] toPos = positions.get(edge.to);
                 if (fromPos != null && toPos != null) {
-                    drawArrow(gc, fromPos[0], fromPos[1], toPos[0], toPos[1], isDirected, edge.edgeType);
+                    drawArrow(gc, fromPos[0], fromPos[1], toPos[0], toPos[1], isDirected, edge);
                 }
             }
 
@@ -738,6 +953,7 @@ public class Graphcontroller extends ModuleController {
                 gc.setStroke(Color.BLACK);
                 gc.strokeOval(pos[0] - 20, pos[1] - 20, 40, 40);
                 gc.setFill(Color.BLACK);
+               // gc.setFont(new javafx.scene.text.Font("Arial", 18)); // bigger font String label = String.valueOf(node);
                 gc.fillText(String.valueOf(node), pos[0] - 10, pos[1] + 5);
             }
 
@@ -747,34 +963,37 @@ public class Graphcontroller extends ModuleController {
                 if (isDFS) stackDisplay.setText(dsState);
                 else queueDisplay.setText(dsState);
             }
-        }
+        }*/
 
-        private void drawArrow (GraphicsContext gc,double startX, double startY, double endX, double endY,
-        boolean directed, String edgeType){
+        /*private void drawArrow(GraphicsContext gc, double startX, double startY, double endX, double endY,
+                               boolean directed, Edge edge) {
+            String edgeType = edge.edgeType;
+            Color edgeColor = edge.color;
+
             // Set line style and color based on edge type
             switch (edgeType) {
                 case "tree":
-                    gc.setStroke(Color.GREEN);
-                    //gc.setLineDashes(null); // solid line
-                    //gc.setLineWidth(2.5);
+                    gc.setStroke(edgeColor != null ? edgeColor : Color.GREEN);
+                    gc.setLineDashes(null); // solid line
+                    gc.setLineWidth(2.5);
                     break;
                 case "back":
-                    gc.setStroke(Color.RED);
+                    gc.setStroke(edgeColor != null ? edgeColor : Color.RED);
                     gc.setLineDashes(5, 5); // dashed line (- - -)
                     gc.setLineWidth(2);
                     break;
                 case "cross":
-                    gc.setStroke(Color.GRAY);
+                    gc.setStroke(edgeColor != null ? edgeColor : Color.GRAY);
                     gc.setLineDashes(2, 4); // dotted line (. . . .)
                     gc.setLineWidth(2);
                     break;
                 case "forward":
-                    gc.setStroke(Color.BLUE);
-                    gc.setLineDashes(8, 4, 2, 4); // comma style (,,,,)
+                    gc.setStroke(edgeColor != null ? edgeColor : Color.BLUE);
+                    gc.setLineDashes(8, 4, 2, 4); // comma style
                     gc.setLineWidth(2);
                     break;
                 default:
-                    gc.setStroke(Color.BLACK);
+                    gc.setStroke(edgeColor != null ? edgeColor : Color.BLACK);
                     gc.setLineDashes(null); // solid line
                     gc.setLineWidth(2);
             }
@@ -812,9 +1031,86 @@ public class Graphcontroller extends ModuleController {
 
             // Reset line dashes for next drawing
             gc.setLineDashes(null);
+        }*/
+        /*private void drawArrow(GraphicsContext gc, double startX, double startY, double endX, double endY,
+                               boolean directed, Edge edge) {
+            String edgeType = edge.edgeType;
+            Color edgeColor = edge.color != null ? edge.color : Color.BLACK;
+
+            switch (edgeType) {
+                case "tree":
+                    gc.setStroke(Color.GREEN);
+                    gc.setLineDashes(null);
+                    gc.setLineWidth(3);
+                    break;
+                case "back":
+                    gc.setStroke(Color.RED);
+                    gc.setLineDashes(6, 6);
+                    gc.setLineWidth(2.5);
+                    break;
+                case "forward":
+                    gc.setStroke(Color.BLUE);
+                    gc.setLineDashes(10, 4);
+                    gc.setLineWidth(2.5);
+                    break;
+                case "cross":
+                    gc.setStroke(Color.GRAY);
+                    gc.setLineDashes(2, 6);
+                    gc.setLineWidth(2);
+                    break;
+                default:
+                    gc.setStroke(edgeColor);
+                    gc.setLineDashes(null);
+                    gc.setLineWidth(2);
+            }
+
+            gc.strokeLine(startX, startY, endX, endY);
+
+            if (directed) {
+                double angle = Math.atan2(endY - startY, endX - startX);
+                double arrowSize = 12;
+                double x1 = endX - arrowSize * Math.cos(angle - Math.PI / 6);
+                double y1 = endY - arrowSize * Math.sin(angle - Math.PI / 6);
+                double x2 = endX - arrowSize * Math.cos(angle + Math.PI / 6);
+                double y2 = endY - arrowSize * Math.sin(angle + Math.PI / 6);
+                gc.fillPolygon(new double[]{endX, x1, x2}, new double[]{endY, y1, y2}, 3);
+            }
+        }*/
+        private void drawArrow(GraphicsContext gc, double startX, double startY, double endX, double endY,
+                               boolean directed, Edge edge) {
+            switch (edge.edgeType) {
+                case "tree":
+                    gc.setStroke(Color.GREEN);
+                    gc.setLineDashes(null);
+                    gc.setLineWidth(3);
+                    break;
+                case "back":
+                    gc.setStroke(Color.RED);
+                    gc.setLineDashes(6, 6);
+                    gc.setLineWidth(2.5);
+                    break;
+                default:
+                    gc.setStroke(Color.BLACK);
+                    gc.setLineDashes(null);
+                    gc.setLineWidth(2);
+            }
+
+            gc.strokeLine(startX, startY, endX, endY);
+
+            if (directed) {
+                double angle = Math.atan2(endY - startY, endX - startX);
+                double arrowSize = 12;
+                double x1 = endX - arrowSize * Math.cos(angle - Math.PI / 6);
+                double y1 = endY - arrowSize * Math.sin(angle - Math.PI / 6);
+                double x2 = endX - arrowSize * Math.cos(angle + Math.PI / 6);
+                double y2 = endY - arrowSize * Math.sin(angle + Math.PI / 6);
+                gc.fillPolygon(new double[]{endX, x1, x2}, new double[]{endY, y1, y2}, 3);
+            }
         }
 
-        private Map<Integer, double[]> calculateNodePositions ( double width, double height){
+
+
+    private Map<Integer, double[]> calculateNodePositions ( double width, double height){
             Map<Integer, double[]> positions = new HashMap<>();
             List<Integer> nodes = graphData.getNodes();
 
@@ -961,17 +1257,20 @@ public class Graphcontroller extends ModuleController {
             int from;
             int to;
             String edgeType; // "tree", "back", "cross", "forward"
+            Color color; // Color of the edge
 
             public Edge(int from, int to) {
                 this.from = from;
                 this.to = to;
                 this.edgeType = "normal"; // default
+                this.color = Color.BLACK;
             }
 
             public Edge(int from, int to, String edgeType) {
                 this.from = from;
                 this.to = to;
                 this.edgeType = edgeType;
+                this.color = Color.BLACK;
             }
         }
     }

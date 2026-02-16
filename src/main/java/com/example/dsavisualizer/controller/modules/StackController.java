@@ -12,6 +12,8 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 import java.util.Optional;
 
@@ -34,6 +36,7 @@ public class StackController extends ModuleController {
     @FXML private Button toPostfixBtn;
     @FXML private Button toPrefixBtn;
     @FXML private TextArea conversionResult;
+    @FXML private TextArea stepResultArea;
 
     private final Stack<Integer> stack = new Stack<>();
 
@@ -121,11 +124,18 @@ public class StackController extends ModuleController {
 
     private void renderStack() {
         vizArea.getChildren().clear();
+        
+        VBox stackBox = new VBox();
+        stackBox.setSpacing(5);
+        stackBox.setStyle("-fx-alignment: CENTER;");
+        
         for (int i = stack.size() - 1; i >= 0; i--) {
             Label lbl = new Label(String.valueOf(stack.get(i)));
-            lbl.setStyle("-fx-border-color:black; -fx-border-width:2; -fx-padding:10; -fx-background-color:#ffcccc; -fx-font-size:14; -fx-font-weight:bold;");
-            vizArea.getChildren().add(lbl);
+            lbl.setStyle("-fx-border-color:black; -fx-border-width:2; -fx-padding:15 20; -fx-background-color:#4CAF50; -fx-font-size:16; -fx-font-weight:bold; -fx-text-fill:white;");
+            stackBox.getChildren().add(lbl);
         }
+        
+        vizArea.getChildren().add(stackBox);
     }
 
     protected void showAlert(String msg) {
@@ -133,212 +143,207 @@ public class StackController extends ModuleController {
             statusLabel.setText(msg);
         }
     }
-    
-    // Parentheses matching
     private void checkParentheses() {
         String expr = parenField.getText().trim();
         if (expr.isEmpty()) {
             showAlert("Enter expression with parentheses");
             return;
         }
-        
+
         Stack<Character> st = new Stack<>();
-        StringBuilder steps = new StringBuilder("Step-by-step:\n\n");
+        List<Stack<Character>> snapshots = new ArrayList<>();
+        List<String> stepDescriptions = new ArrayList<>();
         boolean valid = true;
         int step = 0;
-        
+
         for (char c : expr.toCharArray()) {
             if (c == '(' || c == '[' || c == '{') {
                 st.push(c);
-                steps.append("Step ").append(++step).append(": Push '").append(c).append("' -> Stack: ").append(st).append("\n");
+                stepDescriptions.add("Step " + (++step) + ": Push '" + c + "' -> Stack: " + st);
             } else if (c == ')' || c == ']' || c == '}') {
                 if (st.isEmpty()) {
                     valid = false;
-                    steps.append("Step ").append(++step).append(": Error - Pop from empty stack\n");
+                    stepDescriptions.add("Step " + (++step) + ": Error - Pop from empty stack");
                     break;
                 }
                 char top = st.pop();
-                if ((c == ')' && top != '(') || 
-                    (c == ']' && top != '[') || 
-                    (c == '}' && top != '{')) {
+                if ((c == ')' && top != '(') || (c == ']' && top != '[') || (c == '}' && top != '{')) {
                     valid = false;
-                    steps.append("Step ").append(++step).append(": Error - Mismatch '").append(top).append("' with '").append(c).append("'\n");
+                    stepDescriptions.add("Step " + (++step) + ": Error - Mismatch '" + top + "' with '" + c + "'");
                     break;
                 }
-                steps.append("Step ").append(++step).append(": Pop '").append(top).append("' (matches '").append(c).append("') -> Stack: ").append(st).append("\n");
+                stepDescriptions.add("Step " + (++step) + ": Pop '" + top + "' (matches '" + c + "') -> Stack: " + st);
             }
+            snapshots.add((Stack<Character>) st.clone());
         }
-        
+
         if (!st.isEmpty()) {
             valid = false;
-            steps.append("Step ").append(++step).append(": Error - Stack not empty at end\n");
+            stepDescriptions.add("Step " + (++step) + ": Error - Stack not empty at end");
         }
-        
-        steps.append("\nResult: ").append(valid ? "✓ Valid" : "✗ Invalid");
-        if (conversionResult != null) {
-            conversionResult.setText(steps.toString());
-        }
+
+        stepDescriptions.add("Result: " + (valid ? "✓ Valid" : "✗ Invalid"));
+
+        // Animate snapshots with step descriptions
+        animateSnapshots(snapshots, stepDescriptions);
+
         showAlert(valid ? "✓ Valid Parentheses" : "✗ Invalid Parentheses");
-    }
-    
-    // Infix to Postfix conversion
-    private void convertToPostfix() {
+    }private void convertToPostfix() {
         String expr = convertField.getText().trim();
         if (expr.isEmpty()) {
             showAlert("Enter infix expression");
             return;
         }
-        
-        String postfix = infixToPostfixWithSteps(expr);
-        if (conversionResult != null) {
-            conversionResult.setText(postfix);
+
+        Stack<Character> st = new Stack<>();
+        List<Stack<Character>> snapshots = new ArrayList<>();
+        List<String> stepDescriptions = new ArrayList<>();
+        StringBuilder result = new StringBuilder();
+        int step = 0;
+
+        for (char c : expr.toCharArray()) {
+            if (Character.isLetterOrDigit(c)) {
+                result.append(c);
+                stepDescriptions.add("Step " + (++step) + ": Operand '" + c + "' -> Output: " + result);
+            } else if (c == '(') {
+                st.push(c);
+                stepDescriptions.add("Step " + (++step) + ": Push '(' -> Stack: " + st);
+            } else if (c == ')') {
+                while (!st.isEmpty() && st.peek() != '(') {
+                    result.append(st.pop());
+                }
+                if (!st.isEmpty()) st.pop();
+                stepDescriptions.add("Step " + (++step) + ": Pop until '(' -> Output: " + result + ", Stack: " + st);
+            } else {
+                while (!st.isEmpty() && getPrecedence(st.peek()) >= getPrecedence(c)) {
+                    result.append(st.pop());
+                }
+                st.push(c);
+                stepDescriptions.add("Step " + (++step) + ": Push '" + c + "' -> Output: " + result + ", Stack: " + st);
+            }
+            snapshots.add((Stack<Character>) st.clone());
         }
+
+        while (!st.isEmpty()) {
+            result.append(st.pop());
+            snapshots.add((Stack<Character>) st.clone());
+        }
+        stepDescriptions.add("Step " + (++step) + ": Pop remaining -> Output: " + result);
+        stepDescriptions.add("Final Postfix: " + result);
+
+        animateSnapshots(snapshots, stepDescriptions);
     }
-    
-    // Infix to Prefix conversion
     private void convertToPrefix() {
         String expr = convertField.getText().trim();
         if (expr.isEmpty()) {
             showAlert("Enter infix expression");
             return;
         }
-        
-        String prefix = infixToPrefixWithSteps(expr);
-        if (conversionResult != null) {
-            conversionResult.setText(prefix);
-        }
-    }
-    
-    private String infixToPostfixWithSteps(String expr) {
-        Stack<Character> st = new Stack<>();
-        StringBuilder result = new StringBuilder();
-        StringBuilder steps = new StringBuilder("Step-by-step conversion:\n\n");
-        int step = 0;
-        
-        for (char c : expr.toCharArray()) {
-            if (Character.isLetterOrDigit(c)) {
-                result.append(c);
-                steps.append("Step ").append(++step).append(": '").append(c).append("' is operand -> Output: ").append(result).append("\n");
-            } else if (c == '(') {
-                st.push(c);
-                steps.append("Step ").append(++step).append(": Push '").append(c).append("' -> Stack: ").append(st).append("\n");
-            } else if (c == ')') {
-                while (!st.isEmpty() && st.peek() != '(') {
-                    result.append(st.pop());
-                }
-                if (!st.isEmpty()) st.pop();
-                steps.append("Step ").append(++step).append(": Pop until '(' -> Output: ").append(result).append(", Stack: ").append(st).append("\n");
-            } else {
-                while (!st.isEmpty() && getPrecedence(st.peek()) >= getPrecedence(c)) {
-                    result.append(st.pop());
-                }
-                st.push(c);
-                steps.append("Step ").append(++step).append(": Push '").append(c).append("' -> Output: ").append(result).append(", Stack: ").append(st).append("\n");
-            }
-        }
-        
-        while (!st.isEmpty()) {
-            result.append(st.pop());
-        }
-        steps.append("Step ").append(++step).append(": Pop remaining -> Output: ").append(result).append("\n");
-        steps.append("\nFinal Postfix: ").append(result);
-        
-        return steps.toString();
-    }
-    
-    private String infixToPrefixWithSteps(String expr) {
-        Stack<Character> st = new Stack<>();
-        StringBuilder result = new StringBuilder();
-        StringBuilder steps = new StringBuilder("Step-by-step conversion (Infix to Prefix):\n\n");
-        
-        // Reverse and convert
+
+        // Reverse input and swap parentheses
         String reversed = new StringBuilder(expr)
-            .reverse()
-            .toString()
-            .replace('(', '\u0001')
-            .replace(')', '(')
-            .replace('\u0001', ')');
-        
-        steps.append("Step 1: Reverse input: ").append(reversed).append("\n");
-        steps.append("Step 2: Convert to postfix...\n");
-        
-        int step = 3;
-        Stack<Character> st2 = new Stack<>();
-        
+                .reverse()
+                .toString()
+                .replace('(', '\u0001')
+                .replace(')', '(')
+                .replace('\u0001', ')');
+
+        Stack<Character> st = new Stack<>();
+        List<Stack<Character>> snapshots = new ArrayList<>();
+        List<String> stepDescriptions = new ArrayList<>();
+        StringBuilder result = new StringBuilder();
+        stepDescriptions.add("Step 1: Reverse input: " + reversed);
+
+        int step = 2;
         for (char c : reversed.toCharArray()) {
             if (Character.isLetterOrDigit(c)) {
                 result.append(c);
-                steps.append("Step ").append(step++).append(": '").append(c).append("' is operand -> Output: ").append(result).append("\n");
-            } else if (c == '(') {
-                st2.push(c);
-                steps.append("Step ").append(step++).append(": Push '").append(c).append("' -> Stack: ").append(st2).append("\n");
-            } else if (c == ')') {
-                while (!st2.isEmpty() && st2.peek() != '(') {
-                    result.append(st2.pop());
-                }
-                if (!st2.isEmpty()) st2.pop();
-                steps.append("Step ").append(step++).append(": Pop until '(' -> Output: ").append(result).append("\n");
-            } else {
-                while (!st2.isEmpty() && getPrecedence(st2.peek()) >= getPrecedence(c)) {
-                    result.append(st2.pop());
-                }
-                st2.push(c);
-                steps.append("Step ").append(step++).append(": Push '").append(c).append("' -> Stack: ").append(st2).append("\n");
-            }
-        }
-        
-        while (!st2.isEmpty()) {
-            result.append(st2.pop());
-        }
-        
-        String prefix = new StringBuilder(result).reverse().toString();
-        steps.append("Step ").append(step).append(": Reverse result\n\n");
-        steps.append("Final Prefix: ").append(prefix);
-        
-        return steps.toString();
-    }
-    private String infixToPostfix(String expr) {
-        Stack<Character> st = new Stack<>();
-        StringBuilder result = new StringBuilder();
-        
-        for (char c : expr.toCharArray()) {
-            if (Character.isLetterOrDigit(c)) {
-                result.append(c);
+                stepDescriptions.add("Step " + (step++) + ": Operand '" + c + "' -> Output: " + result);
             } else if (c == '(') {
                 st.push(c);
+                stepDescriptions.add("Step " + (step++) + ": Push '(' -> Stack: " + st);
             } else if (c == ')') {
                 while (!st.isEmpty() && st.peek() != '(') {
                     result.append(st.pop());
                 }
                 if (!st.isEmpty()) st.pop();
+                stepDescriptions.add("Step " + (step++) + ": Pop until '(' -> Output: " + result + ", Stack: " + st);
             } else {
                 while (!st.isEmpty() && getPrecedence(st.peek()) >= getPrecedence(c)) {
                     result.append(st.pop());
                 }
                 st.push(c);
+                stepDescriptions.add("Step " + (step++) + ": Push '" + c + "' -> Output: " + result + ", Stack: " + st);
             }
+            snapshots.add((Stack<Character>) st.clone());
         }
-        
+
         while (!st.isEmpty()) {
             result.append(st.pop());
+            snapshots.add((Stack<Character>) st.clone());
         }
-        
-        return result.toString();
+
+        String prefix = new StringBuilder(result).reverse().toString();
+        stepDescriptions.add("Step " + (step++) + ": Reverse result");
+        stepDescriptions.add("Final Prefix: " + prefix);
+
+        animateSnapshots(snapshots, stepDescriptions);
     }
-    
-    private String infixToPrefix(String expr) {
-        // Reverse and convert ) to ( and vice versa
-        String reversed = new StringBuilder(expr)
-            .reverse()
-            .toString()
-            .replace('(', '\u0001')
-            .replace(')', '(')
-            .replace('\u0001', ')');
-        
-        String postfix = infixToPostfix(reversed);
-        return new StringBuilder(postfix).reverse().toString();
+    private void animateSnapshots(List<Stack<Character>> snapshots, List<String> stepDescriptions) {
+        vizArea.getChildren().clear();
+        Timeline timeline = new Timeline();
+        int index = 0;
+
+        for (int i = 0; i < snapshots.size(); i++) {
+            final Stack<Character> snapshot = (Stack<Character>) snapshots.get(i).clone();
+            final String stepText = stepDescriptions.get(i);
+
+            KeyFrame frame = new KeyFrame(Duration.seconds(index + 1), e -> {
+                renderCharStack(snapshot, stepText);
+            });
+            timeline.getKeyFrames().add(frame);
+            index++;
+        }
+
+        timeline.setCycleCount(1);
+        timeline.play();
     }
-    
+
+    private void renderCharStack(Stack<Character> st, String stepText) {
+        vizArea.getChildren().clear();
+
+        HBox container = new HBox(30); // stack + step text side by side
+        container.setStyle("-fx-alignment: CENTER;"); // ✅
+        // Stack visualization (vertical)
+        VBox stackBox = new VBox();
+        stackBox.setSpacing(10);
+        stackBox.setStyle("-fx-alignment: CENTER;");
+
+        for (int i = st.size() - 1; i >= 0; i--) {
+            Label lbl = new Label(String.valueOf(st.get(i)));
+            lbl.setStyle(
+                    "-fx-border-color:black; -fx-border-width:2; " +
+                            "-fx-padding:15 20; -fx-background-color:#2196F3; " +
+                            "-fx-font-size:16; -fx-font-weight:bold; -fx-text-fill:white;"
+            );
+            stackBox.getChildren().add(lbl);
+        }
+
+        // Step description
+        Label stepLabel = new Label(stepText);
+        stepLabel.setWrapText(true);
+        stepLabel.setStyle("-fx-font-size: 20; -fx-text-fill: darkblue; -fx-padding: 10;");
+
+        container.getChildren().addAll(stackBox, stepLabel);
+        vizArea.getChildren().add(container);
+        vizArea.setStyle("-fx-alignment: CENTER;");
+    }
+
+
+
+
+    // Parentheses matching
+
     private int getPrecedence(char c) {
         if (c == '+' || c == '-') return 1;
         if (c == '*' || c == '/') return 2;
