@@ -31,8 +31,7 @@ public class QueueController extends ModuleController {
     private Button clearBtn;
     @FXML
     private CheckBox circularCheck;
-    @FXML
-    private CheckBox priorityCheck;
+
     @FXML
     private HBox vizArea;
     @FXML
@@ -48,7 +47,7 @@ public class QueueController extends ModuleController {
 
     private final Queue<Integer> queue = new LinkedList<>();
 
-    // Circular queue implementation
+
     private static final int CIRCULAR_SIZE = 8;
     private int[] circularQueue;
     private int front = -1;
@@ -227,48 +226,7 @@ public class QueueController extends ModuleController {
         vizArea.getChildren().clear();
 
         if (circularCheck.isSelected()) {
-            // Render circular queue (8 slots) with indices
-//            VBox circularContainer = new VBox();
-//            circularContainer.setStyle("-fx-alignment:center; -fx-spacing:10;");
-//
-//            // Indices row
-//            HBox indexRow = new HBox();
-//            indexRow.setStyle("-fx-spacing:10; -fx-alignment:center;");
-//            for (int i = 0; i < CIRCULAR_SIZE; i++) {
-//                Label indexLabel = new Label("i:" + i);
-//                indexLabel.setStyle("-fx-font-size:20; -fx-padding:2;");
-//                indexRow.getChildren().add(indexLabel);
-//            }
-//            circularContainer.getChildren().add(indexRow);
-//
-//            // Values row
-//            HBox valueRow = new HBox();
-//            valueRow.setStyle("-fx-spacing:10; -fx-alignment:center;");
-//            for (int i = 0; i < CIRCULAR_SIZE; i++) {
-//                Label lbl = new Label(circularQueue[i] == 0 && !((front != -1 && i == front) || (rear != -1 && i == rear)) ? "-" : String.valueOf(circularQueue[i]));
-//                String bgColor = "#f0f0f0";
-//
-//                if (front != -1 && rear != -1) {
-//                    if (front <= rear) {
-//                        if (i >= front && i <= rear) {
-//                            bgColor = "#ffcccc";
-//                        }
-//                    } else {
-//                        if (i >= front || i <= rear) {
-//                            bgColor = "#ffcccc";
-//                        }
-//                    }
-//                }
-//
-//                if (i == front && front != -1) bgColor = "#90EE90"; // Green for front
-//                if (i == rear && rear != -1) bgColor = "#FFD700";   // Gold for rear
-//
-//                lbl.setStyle("-fx-border-color:black; -fx-border-width:2; -fx-padding:15; " +
-//                            "-fx-background-color:" + bgColor + "; -fx-font-weight:bold; -fx-font-size:14;");
-//                valueRow.getChildren().add(lbl);
-//            }
-//            circularContainer.getChildren().add(valueRow);
-//            vizArea.getChildren().add(circularContainer);
+
             HBox circularRow = new HBox();
             circularRow.setStyle("-fx-spacing:15; -fx-alignment:center;");
 
@@ -277,11 +235,11 @@ public class QueueController extends ModuleController {
                 VBox slot = new VBox();
                 slot.setStyle("-fx-alignment:center; -fx-spacing:5;");
 
-                // Index Label (Upore)
+
                 Label indexLabel = new Label(String.valueOf(i));
                 indexLabel.setStyle("-fx-font-size:12; -fx-text-fill:#555;");
 
-                // Value Label (Niche)
+
                 Label valueLabel = new Label(
                         circularQueue[i] == 0 &&
                                 !((front != -1 && i == front) || (rear != -1 && i == rear))
@@ -322,42 +280,7 @@ public class QueueController extends ModuleController {
                 queueSizeLabel.setText("Size: " + getCircularQueueSize() + "/8");
             }
         } else {
-            // Render normal queue with front/rear coloring
-//            HBox queueContainer = new HBox();
-//            queueContainer.setStyle("-fx-spacing:10; -fx-alignment:center;");
-//
-//            java.util.List<Integer> queueList = new ArrayList<>(queue);
-//            for (int idx = 0; idx < queueList.size(); idx++) {
-//                Label lbl = new Label(String.valueOf(queueList.get(idx)));
-//                String bgColor = "#ccf";
-//
-//                if (idx == 0) {
-//                    bgColor = "#90EE90"; // Green for front
-//                }
-//                if (idx == queueList.size() - 1) {
-//                    bgColor = "#FFD700"; // Gold for rear
-//                }
-//
-//                // If both front and rear are same (single element)
-//                if (queueList.size() == 1) {
-//                    bgColor = "#FF69B4"; // Pink for both
-//                }
-//
-//                lbl.setStyle("-fx-border-color:black; -fx-border-width:2; -fx-padding:12; -fx-background-color:" + bgColor + "; -fx-font-weight:bold; -fx-font-size:14;");
-//                queueContainer.getChildren().add(lbl);
-//            }
-//
-//            if (queueList.isEmpty()) {
-//                Label emptyLabel = new Label("Queue Empty");
-//                emptyLabel.setStyle("-fx-font-size:14; -fx-text-fill:#999;");
-//                queueContainer.getChildren().add(emptyLabel);
-//            }
-//
-//            vizArea.getChildren().add(queueContainer);
-//
-//            if (queueSizeLabel != null) {
-//                queueSizeLabel.setText("Size: " + queue.size());
-//            }
+
 
             HBox queueContainer = new HBox();
             queueContainer.setStyle("-fx-spacing:10; -fx-alignment:center;");

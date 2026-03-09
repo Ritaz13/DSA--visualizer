@@ -53,7 +53,6 @@
             <Label text="Queue Type" style="-fx-font-weight: bold; -fx-padding: 8 0 0 0; -fx-font-size: 13;"/>
             <VBox spacing="4">
                 <CheckBox fx:id="circularCheck" text="Circular Queue (8 slots)" style="-fx-font-size: 12;" selected="false"/>
-                <CheckBox fx:id="priorityCheck" text="Priority Queue" style="-fx-font-size: 12;" selected="false"/>
             </VBox>
 
             <!-- Input Section -->

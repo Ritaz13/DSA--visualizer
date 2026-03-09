@@ -7,6 +7,9 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -35,7 +38,7 @@ public class BSTController extends ModuleController {
     @FXML
     private Label statusLabel; // bottom message
     @FXML
-    private TextArea inOrderResult, preOrderResult, postOrderResult, levelOrderResult;
+    private TextArea traversalResult;
 
     private Node root;
     private List<Node> traversalSteps = new ArrayList<>();
@@ -44,6 +47,10 @@ public class BSTController extends ModuleController {
     private boolean isRunning = false;
     @FXML
     private Button startBtn, stopBtn;
+    
+    // For build from array visualization
+    private List<Integer> buildInput = new ArrayList<>();
+    private int buildStepIndex = -1;
 
     private void startTraversalAuto() {
         if (traversalSteps.isEmpty()) return;
@@ -58,6 +65,9 @@ public class BSTController extends ModuleController {
                     if (stepIndex < traversalSteps.size() - 1) {
                         stepIndex++;
                         redraw();
+                        if (traversalResult != null) {
+                            traversalResult.setText(traversalResult.getText().split(":")[0] + ": " + getTraversalString());
+                        }
                     } else {
                         stopTraversalAuto();
                     }
@@ -174,15 +184,52 @@ public class BSTController extends ModuleController {
     // Build BST
     private void buildBST() {
         root = null;
-        String[] parts = inputField.getText().split(",");
+        buildInput.clear();
+        buildStepIndex = 0;
+        
+        String input = inputField.getText().trim();
+        if (input.isEmpty()) {
+            showMessage("Enter numbers separated by commas");
+            return;
+        }
+        
+        String[] parts = input.split(",");
         for (String p : parts) {
             try {
-                insert(Integer.parseInt(p.trim()));
+                buildInput.add(Integer.parseInt(p.trim()));
             } catch (Exception ignored) {
             }
         }
-        redraw();
-        showMessage("BST built with " + parts.length + " nodes.");
+        
+        if (buildInput.isEmpty()) {
+            showMessage("No valid numbers found");
+            return;
+        }
+        
+        // Animate insertion
+        animateBuildSteps();
+    }
+    
+    private void animateBuildSteps() {
+        Timeline timeline = new Timeline();
+        
+        for (int i = 0; i < buildInput.size(); i++) {
+            final int idx = i;
+            KeyFrame frame = new KeyFrame(Duration.millis(i * 800), e -> {
+                buildStepIndex = idx;
+                insert(buildInput.get(idx));
+                redraw();
+                showMessage("Inserted " + buildInput.get(idx) + " (" + (idx + 1) + "/" + buildInput.size() + ")");
+            });
+            timeline.getKeyFrames().add(frame);
+        }
+        
+        timeline.setOnFinished(e -> {
+            buildStepIndex = -1;
+            showMessage("BST built with " + buildInput.size() + " nodes.");
+            redraw();
+        });
+        timeline.play();
     }
 
     private void insertNode() {
@@ -259,11 +306,9 @@ public class BSTController extends ModuleController {
         inorderSteps(root);
         stepIndex = 0;
         
-        // Display full result
-        List<Integer> result = new ArrayList<>();
-        collectInorder(root, result);
-        if (inOrderResult != null) {
-            inOrderResult.setText(result.isEmpty() ? "Empty tree" : result.toString().replaceAll("[\\[\\]]", ""));
+        // Display traversal type
+        if (traversalResult != null) {
+            traversalResult.setText("In-Order Traversal: " + getTraversalString());
         }
         redraw();
         startTraversalAuto();
@@ -274,11 +319,8 @@ public class BSTController extends ModuleController {
         preorderSteps(root);
         stepIndex = 0;
         
-        // Display full result
-        List<Integer> result = new ArrayList<>();
-        collectPreorder(root, result);
-        if (preOrderResult != null) {
-            preOrderResult.setText(result.isEmpty() ? "Empty tree" : result.toString().replaceAll("[\\[\\]]", ""));
+        if (traversalResult != null) {
+            traversalResult.setText("Pre-Order Traversal: " + getTraversalString());
         }
         redraw();
         startTraversalAuto();
@@ -289,11 +331,8 @@ public class BSTController extends ModuleController {
         postorderSteps(root);
         stepIndex = 0;
         
-        // Display full result
-        List<Integer> result = new ArrayList<>();
-        collectPostorder(root, result);
-        if (postOrderResult != null) {
-            postOrderResult.setText(result.isEmpty() ? "Empty tree" : result.toString().replaceAll("[\\[\\]]", ""));
+        if (traversalResult != null) {
+            traversalResult.setText("Post-Order Traversal: " + getTraversalString());
         }
         redraw();
         startTraversalAuto();
@@ -304,14 +343,26 @@ public class BSTController extends ModuleController {
         levelorderSteps(root);
         stepIndex = 0;
         
-        // Display full result
-        List<Integer> result = new ArrayList<>();
-        collectLevelorder(root, result);
-        if (levelOrderResult != null) {
-            levelOrderResult.setText(result.isEmpty() ? "Empty tree" : result.toString().replaceAll("[\\[\\]]", ""));
+        if (traversalResult != null) {
+            traversalResult.setText("Level-Order Traversal: " + getTraversalString());
         }
         redraw();
         startTraversalAuto();
+    }
+    
+    private String getTraversalString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[ ");
+        for (int i = 0; i < traversalSteps.size(); i++) {
+            if (i > 0) sb.append(", ");
+            if (i == stepIndex) {
+                sb.append(">>> ").append(traversalSteps.get(i).val).append(" <<<");
+            } else {
+                sb.append(traversalSteps.get(i).val);
+            }
+        }
+        sb.append(" ]");
+        return sb.toString();
     }
     // Preorder traversal steps
     private void preorderSteps(Node node) {
@@ -380,6 +431,9 @@ public class BSTController extends ModuleController {
     private void nextStep() {
         if (stepIndex < traversalSteps.size() - 1) {
             stepIndex++;
+            if (traversalResult != null) {
+                traversalResult.setText(traversalResult.getText().split(":")[0] + ": " + getTraversalString());
+            }
             redraw();
         }
     }
@@ -387,6 +441,9 @@ public class BSTController extends ModuleController {
     private void prevStep() {
         if (stepIndex > 0) {
             stepIndex--;
+            if (traversalResult != null) {
+                traversalResult.setText(traversalResult.getText().split(":")[0] + ": " + getTraversalString());
+            }
             redraw();
         }
     }
@@ -513,7 +570,19 @@ public class BSTController extends ModuleController {
         // Highlight current traversal step
         Color nodeColor = Color.LIGHTBLUE;
         if (stepIndex >= 0 && stepIndex < traversalSteps.size() && traversalSteps.get(stepIndex) == node) {
-            nodeColor = Color.YELLOW; // highlight current node
+            nodeColor = Color.ORANGE; // highlight current node in orange
+        }
+        
+        // Highlight all traversed nodes up to current step
+        boolean isTraversed = false;
+        if (stepIndex >= 0) {
+            for (int i = 0; i <= stepIndex && i < traversalSteps.size(); i++) {
+                if (traversalSteps.get(i) == node && i < stepIndex) {
+                    nodeColor = Color.LIGHTGREEN; // already traversed
+                    isTraversed = true;
+                    break;
+                }
+            }
         }
 
         // Draw current node
@@ -526,7 +595,7 @@ public class BSTController extends ModuleController {
 
         // Height and Balance Factor
         gc.setFill(Color.DARKGREEN);
-        gc.setFont(javafx.scene.text.Font.font("Segoe UI", 14));
+        gc.setFont(javafx.scene.text.Font.font("Segue UI", 14));
         gc.fillText("h=" + height(node) + ", bf=" + balanceFactor(node), x - 25, y + 30);
 
         // Draw left child

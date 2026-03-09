@@ -250,7 +250,8 @@ public class SortingController extends ModuleController {
         }
 
         // Align all bars to bottom
-        vizArea.setStyle("-fx-alignment: BOTTOM_CENTER;");
+        //vizArea.setStyle("-fx-alignment: BOTTOM_CENTER;");
+        vizArea.setStyle("-fx-alignment:baseline-center");
     }
 
     private void renderArray(boolean[] comparing, boolean[] sorted) {
