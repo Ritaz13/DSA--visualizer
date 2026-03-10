@@ -60,7 +60,7 @@
             <TextField fx:id="inputField" promptText="Enter number" style="-fx-font-size: 13; -fx-padding: 8;"/>
             
             <!-- Circular Queue Size Display -->
-            <Label fx:id="queueSizeLabel" text="Size: 0/8" style="-fx-font-size: 12; -fx-text-fill: #555;"/>
+            <Label fx:id="queueSizeLabel" text="Size: 0" style="-fx-font-size: 12; -fx-text-fill: #555;"/>
 
             <!-- Operations Section -->
             <VBox spacing="8">
@@ -109,7 +109,10 @@
                             style="-fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 10; -fx-background-color: #f5f5f5;"
                             VBox.vgrow="ALWAYS">
                         <ScrollPane fx:id="vizScroll" fitToHeight="true" fitToWidth="true">
-                            <HBox fx:id="vizArea" spacing="15" style="-fx-padding:10; -fx-alignment:center;"/>
+                            <VBox>
+                                <HBox fx:id="vizArea" spacing="15" style="-fx-padding:10; -fx-alignment:center;"/>
+                                <HBox fx:id="resizeArea" spacing="15" style="-fx-padding:10; -fx-alignment:center;"/>
+                            </VBox>
                         </ScrollPane>
                     </StackPane>
                     <Label fx:id="statusLabel" text="Queue ready"
@@ -123,7 +126,7 @@
                               editable="false"
                               wrapText="false"
                               prefHeight="200"
-                              style="-fx-control-inner-background: #1e1e1e; -fx-text-fill: #d4d4d4; -fx-font-family: 'Courier New'; -fx-font-size: 11; -fx-padding: 10;"/>
+                              style="-fx-control-inner-background: #2d3748; -fx-text-fill: #e2e8f0; -fx-font-family: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', 'Courier New', monospace; -fx-font-size: 13; -fx-padding: 15; -fx-background-color: #2d3748; -fx-border-color: #4a5568; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-highlight-fill: #4299e1; -fx-highlight-text-fill: white;"/>
                 </VBox>
             </VBox>
         </HBox>

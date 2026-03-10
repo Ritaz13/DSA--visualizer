@@ -4,6 +4,7 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
@@ -90,7 +91,16 @@
                         <Button fx:id="predecessorBtn" text="Predecessor"
                                 style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #009688; -fx-text-fill: white; -fx-font-weight: bold;"/>
                     </HBox>
-
+                    <HBox spacing="6">
+                        <Button fx:id="minimumBtn" text="Minimum"
+                                style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #009688; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                        <Button fx:id="maximumBtn" text="Maximum"
+                                style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #009688; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                    </HBox>
+                    <HBox spacing="6">
+                        <Button fx:id="clearVizBtn" text="Clear View"
+                                style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #757575; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                    </HBox>
                 </VBox>
 
                 <!-- Traversal Section -->
@@ -109,6 +119,10 @@
                                 style="-fx-font-size: 13; -fx-padding: 8 12; -fx-background-color: #607D8B; -fx-text-fill: white; -fx-font-weight: bold;"/>
                         <Button fx:id="nextBtn" text="Next ▶"
                                 style="-fx-font-size: 13; -fx-padding: 8 12; -fx-background-color: #607D8B; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                    </HBox>
+                    <HBox spacing="6">
+                        <Label text="Speed:" style="-fx-font-size:12;"/>
+                        <Slider fx:id="speedSlider" min="0.5" max="3" value="1" style="-fx-font-size: 12;"/>
                     </HBox>
                     <HBox spacing="6">
                         <Button fx:id="inOrderBtn" text="In-Order"
@@ -169,7 +183,7 @@
                               editable="false"
                               wrapText="false"
                               prefHeight="200"
-                              style="-fx-control-inner-background: white; -fx-text-fill:black; -fx-font-family: 'Fira Code', 'Courier New', monospace; -fx-font-size: 20; -fx-padding: 15; -fx-focus-color: transparent; -fx-border-color: #546e7a; -fx-border-width: 1; -fx-border-radius: 3;"/>
+                              style="-fx-control-inner-background: #2d3748; -fx-text-fill: #e2e8f0; -fx-font-family: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', 'Courier New', monospace; -fx-font-size: 13; -fx-padding: 15; -fx-background-color: #2d3748; -fx-border-color: #4a5568; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-highlight-fill: #4299e1; -fx-highlight-text-fill: white;"/>
                 </VBox>
             </VBox>
         </HBox>

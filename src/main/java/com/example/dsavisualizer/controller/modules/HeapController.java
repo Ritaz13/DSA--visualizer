@@ -23,7 +23,7 @@ public class HeapController extends ModuleController {
     @FXML private TextField inputField;
     @FXML private Button insertBtn, deleteBtn, extractBtn, buildBtn, randomBtn, clearBtn;
     @FXML private Button heapsortBtn, startBtn, pauseBtn, stopBtn, nextBtn, prevBtn;
-    @FXML private CheckBox maxHeapCheck;
+    @FXML private ChoiceBox<String> heapTypeChoice;
     @FXML private Slider speedSlider;
     @FXML private StackPane vizArea;
     @FXML private TextArea codeArea, storyArea;
@@ -36,39 +36,32 @@ public class HeapController extends ModuleController {
     private List<Integer> sortedArray = new ArrayList<>();
     private boolean isMaxHeap = true;
     private String lastMessage = "";
-    
-    // Heapsort animation state
-    private List<HeapsortStep> heapsortSteps = new ArrayList<>();
-    private int currentHeapsortStep = -1;
-    private boolean isHeapsortRunning = false;
-    private Timeline heapsortTimeline;
 
-    // Step structure
+    private List<HeapStep> currentSteps = new ArrayList<>();
+    private List<HeapsortStep> currentHeapsortSteps = new ArrayList<>();
+    private int currentStepIndex = -1;
+    private Timeline currentTimeline;
+    private boolean isOperationRunning = false;
+    private boolean isCurrentHeapsort = false;
+
+    // ---------------- Step Classes ----------------
     private static class HeapStep {
         int idx1, idx2;
         boolean swapped;
         List<Integer> snapshot;
-
         HeapStep(int i, int j, boolean swapped, List<Integer> heap) {
-            this.idx1 = i;
-            this.idx2 = j;
-            this.swapped = swapped;
+            this.idx1 = i; this.idx2 = j; this.swapped = swapped;
             this.snapshot = new ArrayList<>(heap);
         }
     }
-    
-    // Heapsort step structure
-    private static class HeapsortStep {
-        List<Integer> heapSnapshot;
-        List<Integer> sortedSnapshot;
-        int highlightIdx; // heap index being highlighted
-        boolean isExtracted;
 
+    private static class HeapsortStep {
+        List<Integer> heapSnapshot, sortedSnapshot;
+        int highlightIdx; boolean isExtracted;
         HeapsortStep(List<Integer> heap, List<Integer> sorted, int highlightIdx, boolean isExtracted) {
             this.heapSnapshot = new ArrayList<>(heap);
             this.sortedSnapshot = new ArrayList<>(sorted);
-            this.highlightIdx = highlightIdx;
-            this.isExtracted = isExtracted;
+            this.highlightIdx = highlightIdx; this.isExtracted = isExtracted;
         }
     }
 
@@ -84,33 +77,28 @@ public class HeapController extends ModuleController {
         gc = canvas.getGraphicsContext2D();
         vizArea.getChildren().add(canvas);
 
-        maxHeapCheck.setSelected(isMaxHeap);
-        maxHeapCheck.selectedProperty().addListener((obs, oldVal, newVal) -> {
-            isMaxHeap = newVal;
+        heapTypeChoice.setValue("Max Heap");
+        heapTypeChoice.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            isMaxHeap = "Max Heap".equals(newVal);
             redraw();
         });
 
-        // Speed slider setup
-        if (speedSlider != null) {
-            speedSlider.setMin(0.5);
-            speedSlider.setMax(3);
-            speedSlider.setValue(1);
-        }
+        if (speedSlider != null) { speedSlider.setMin(0.5); speedSlider.setMax(3); speedSlider.setValue(1); }
 
-        insertBtn.setOnAction(e -> insertElement());
-        deleteBtn.setOnAction(e -> deleteRootAnimated());
+        insertBtn.setOnAction(e -> insert());
+        deleteBtn.setOnAction(e -> deleteRoot());
         extractBtn.setOnAction(e -> extractRoot());
-        buildBtn.setOnAction(e -> buildHeapFromInput());
-        randomBtn.setOnAction(e -> generateRandom());
+        buildBtn.setOnAction(e -> buildHeap());
+        randomBtn.setOnAction(e -> randomHeap());
         clearBtn.setOnAction(e -> clearHeap());
-        
-        heapsortBtn.setOnAction(e -> startHeapsort());
-        if (startBtn != null) startBtn.setOnAction(e -> playHeapsort());
-        if (pauseBtn != null) pauseBtn.setOnAction(e -> pauseHeapsort());
-        if (stopBtn != null) stopBtn.setOnAction(e -> stopHeapsort());
-        if (nextBtn != null) nextBtn.setOnAction(e -> nextHeapsortStep());
-        if (prevBtn != null) prevBtn.setOnAction(e -> prevHeapsortStep());
-        
+        heapsortBtn.setOnAction(e -> heapsort());
+
+        if (startBtn != null) startBtn.setOnAction(e -> playCurrentOperation());
+        if (pauseBtn != null) pauseBtn.setOnAction(e -> pauseCurrentOperation());
+        if (stopBtn != null) stopBtn.setOnAction(e -> stopCurrentOperation());
+        if (nextBtn != null) nextBtn.setOnAction(e -> nextCurrentStep());
+        if (prevBtn != null) prevBtn.setOnAction(e -> prevCurrentStep());
+
         showCodeBtn.setOnAction(e -> toggleCodeArea());
         copyCodeBtn.setOnAction(e -> copyCode());
 
@@ -119,394 +107,121 @@ public class HeapController extends ModuleController {
     }
 
     // ---------------- Heap Operations ----------------
-    private void insertElement() {
+    private void insert() {
         try {
             int val = Integer.parseInt(inputField.getText().trim());
             heap.add(val);
-            heapifyUpAnimated(heap.size() - 1);
-            inputField.clear();
-            setMessage("Inserted " + val);
-        } catch (NumberFormatException ex) {
-            setMessage("Enter a valid number");
-        }
+            currentSteps.clear(); currentStepIndex = 0; isCurrentHeapsort = false;
+            currentSteps.add(new HeapStep(-1, -1, false, heap));
+            currentSteps.addAll(getHeapifyUpSteps(heap.size() - 1));
+            heapifyUp(heap.size() - 1); // enforce property
+            playCurrentOperation(); inputField.clear();
+        } catch (NumberFormatException ex) { setMessage("Enter a valid number"); }
     }
 
-    private void deleteRootAnimated() {
-        if (heap.isEmpty()) {
-            setMessage("Heap is empty!");
-            return;
-        }
-        int removed = heap.get(0);
-        heap.set(0, heap.get(heap.size() - 1));
-        heap.remove(heap.size() - 1);
-        if (!heap.isEmpty()) heapifyDownAnimated(0);
-        setMessage("Removed root " + removed);
+    private void deleteRoot() {
+        if (heap.isEmpty()) { setMessage("Heap is empty!"); return; }
+        heap.set(0, heap.get(heap.size() - 1)); heap.remove(heap.size() - 1);
+        currentSteps.clear(); currentStepIndex = 0; isCurrentHeapsort = false;
+        currentSteps.add(new HeapStep(-1, -1, false, heap));
+        if (!heap.isEmpty()) { currentSteps.addAll(getHeapifyDownSteps(0)); heapifyDown(0); }
+        playCurrentOperation();
     }
 
     private void extractRoot() {
-        if (heap.isEmpty()) {
-            setMessage("Heap is empty!");
-            return;
-        }
+        if (heap.isEmpty()) { setMessage("Heap is empty!"); return; }
         setMessage("Root: " + heap.get(0));
     }
 
-    private void clearHeap() {
-        heap.clear();
-        inputField.clear();
-        setMessage("Heap cleared");
-        redraw();
-    }
+    private void clearHeap() { heap.clear(); inputField.clear(); setMessage("Heap cleared"); redraw(); }
 
-    private void buildHeapFromInput() {
+    private void buildHeap() {
         try {
-            String input = inputField.getText().trim();
-            if (input.isEmpty()) {
-                setMessage("Enter numbers separated by commas");
-                return;
+            String[] parts = inputField.getText().split(",");
+            heap.clear(); for (String part : parts) heap.add(Integer.parseInt(part.trim()));
+            currentSteps.clear(); currentStepIndex = 0; isCurrentHeapsort = false;
+            currentSteps.add(new HeapStep(-1, -1, false, heap));
+            for (int i = heap.size()/2 - 1; i >= 0; i--) {
+                currentSteps.addAll(getHeapifyDownSteps(i)); heapifyDown(i);
             }
-            String[] parts = input.split(",");
-            heap.clear();
-            for (String part : parts) {
-                int val = Integer.parseInt(part.trim());
-                heap.add(val);
-            }
-            buildHeapAnimated();
-        } catch (NumberFormatException ex) {
-            setMessage("Enter valid numbers separated by commas");
-        }
+            playCurrentOperation(); inputField.clear();
+        } catch (NumberFormatException ex) { setMessage("Enter valid numbers separated by commas"); }
     }
 
-    private void buildHeapAnimated() {
-        if (heap.isEmpty()) {
-            setMessage("Heap is empty!");
-            return;
-        }
-        List<HeapStep> allSteps = new ArrayList<>();
-        // always show the original order first
-        allSteps.add(new HeapStep(-1, -1, false, heap));
-        for (int i = heap.size() / 2 - 1; i >= 0; i--) {
-            allSteps.addAll(getHeapifyDownSteps(i));
-        }
-        animateHeapSteps(allSteps);
-        setMessage("Built heap with animation");
-    }
-
-    private void generateRandom() {
-        heap.clear();
-        Random rand = new Random();
+    private void randomHeap() {
+        heap.clear(); Random rand = new Random();
         int size = 7 + rand.nextInt(6);
-        for (int i = 0; i < size; i++) {
-            heap.add(rand.nextInt(100) + 1);
+        for (int i = 0; i < size; i++) heap.add(rand.nextInt(100) + 1);
+        currentSteps.clear(); currentStepIndex = 0; isCurrentHeapsort = false;
+        currentSteps.add(new HeapStep(-1, -1, false, heap));
+        for (int i = heap.size()/2 - 1; i >= 0; i--) {
+            currentSteps.addAll(getHeapifyDownSteps(i)); heapifyDown(i);
         }
-        buildHeapAnimated();
-        setMessage("Generated random heap with " + size + " elements");
+        playCurrentOperation();
     }
 
-    // ============ HEAPSORT ============
-    private void startHeapsort() {
-        if (heap.isEmpty()) {
-            setMessage("Heap is empty!");
-            return;
+    // ---------------- Heapify ----------------
+    private void heapifyUp(int index) {
+        while (index > 0) {
+            int parentIdx = (index - 1)/2;
+            if (isMaxHeap ? heap.get(index) > heap.get(parentIdx) : heap.get(index) < heap.get(parentIdx)) {
+                swap(heap, index, parentIdx); index = parentIdx;
+            } else break;
         }
-        
-        sortedArray.clear();
-        heapsortSteps.clear();
-        currentHeapsortStep = 0;
-        
-        // Create a copy for heapsort
-        List<Integer> tempHeap = new ArrayList<>(heap);
-        
-        // Record initial state
-        heapsortSteps.add(new HeapsortStep(tempHeap, sortedArray, -1, false));
-        
-        // Extract root repeatedly
-        while (!tempHeap.isEmpty()) {
-            int root = tempHeap.get(0);
-            sortedArray.add(root);
-            
-            tempHeap.set(0, tempHeap.get(tempHeap.size() - 1));
-            tempHeap.remove(tempHeap.size() - 1);
-            
-            heapsortSteps.add(new HeapsortStep(tempHeap, sortedArray, 0, true)); // Extracted
-            
-            // Heapify down steps
-            if (!tempHeap.isEmpty()) {
-                List<HeapsortStep> heapifySteps = getHeapifySortSteps(tempHeap, sortedArray);
-                heapsortSteps.addAll(heapifySteps);
-            }
-        }
-        
-        setMessage("Heapsort steps prepared. Click Play or Next to start.");
-        redrawHeapsort(currentHeapsortStep);
     }
-    
-    private List<HeapsortStep> getHeapifySortSteps(List<Integer> heap, List<Integer> sorted) {
-        List<HeapsortStep> steps = new ArrayList<>();
-        int index = 0;
-        int size = heap.size();
-        
-        while (true) {
-            int target = index;
-            int left = 2 * index + 1;
-            int right = 2 * index + 2;
-            
-            if (left < size && heap.get(left) > heap.get(target)) target = left;
-            if (right < size && heap.get(right) > heap.get(target)) target = right;
-            
-            if (target != index) {
-                swap(heap, index, target);
-                steps.add(new HeapsortStep(heap, sorted, target, false));
-                index = target;
+
+    private List<HeapStep> getHeapifyUpSteps(int index) {
+        List<HeapStep> steps = new ArrayList<>();
+        while (index > 0) {
+            int parentIdx = (index - 1)/2;
+            boolean swapCandidate = (isMaxHeap ? heap.get(index) > heap.get(parentIdx) : heap.get(index) < heap.get(parentIdx));
+            steps.add(new HeapStep(index, parentIdx, swapCandidate, new ArrayList<>(heap)));
+            if (swapCandidate) { 
+                swap(heap, index, parentIdx); 
+                steps.add(new HeapStep(index, parentIdx, true, new ArrayList<>(heap))); 
+                index = parentIdx; 
             } else {
                 break;
             }
         }
-        
         return steps;
     }
-    
-    private void playHeapsort() {
-        if (heapsortSteps.isEmpty()) {
-            setMessage("Start Heapsort first!");
-            return;
-        }
-        
-        isHeapsortRunning = true;
-        if (startBtn != null) startBtn.setDisable(true);
-        
-        double speed = speedSlider != null ? speedSlider.getValue() : 1.0;
-        int delayMs = (int)(1000 / speed);
-        
-        heapsortTimeline = new Timeline();
-        for (int i = currentHeapsortStep; i < heapsortSteps.size(); i++) {
-            int stepIdx = i;
-            KeyFrame frame = new KeyFrame(Duration.millis((i - currentHeapsortStep) * delayMs), e -> {
-                currentHeapsortStep = stepIdx;
-                redrawHeapsort(stepIdx);
-            });
-            heapsortTimeline.getKeyFrames().add(frame);
-        }
-        
-        heapsortTimeline.setOnFinished(e -> stopHeapsort());
-        heapsortTimeline.play();
-    }
-    
-    private void pauseHeapsort() {
-        if (heapsortTimeline != null) {
-            heapsortTimeline.pause();
-            isHeapsortRunning = false;
-            if (startBtn != null) startBtn.setDisable(false);
-            setMessage("Heapsort paused");
-        }
-    }
-    
-    private void stopHeapsort() {
-        if (heapsortTimeline != null) {
-            heapsortTimeline.stop();
-        }
-        isHeapsortRunning = false;
-        currentHeapsortStep = 0;
-        heapsortSteps.clear();
-        sortedArray.clear();
-        if (startBtn != null) startBtn.setDisable(false);
-        setMessage("Heapsort stopped");
-        redraw();
-    }
-    
-    private void nextHeapsortStep() {
-        if (heapsortSteps.isEmpty()) {
-            setMessage("Start Heapsort first!");
-            return;
-        }
-        
-        if (currentHeapsortStep < heapsortSteps.size() - 1) {
-            currentHeapsortStep++;
-            redrawHeapsort(currentHeapsortStep);
-        } else {
-            setMessage("Heapsort complete!");
-        }
-    }
-    
-    private void prevHeapsortStep() {
-        if (currentHeapsortStep > 0) {
-            currentHeapsortStep--;
-            redrawHeapsort(currentHeapsortStep);
-        }
-    }
-
-    // ============ HEAPSORT VISUALIZATION ============
-    private void redrawHeapsort(int stepIdx) {
-        if (stepIdx < 0 || stepIdx >= heapsortSteps.size()) return;
-        
-        HeapsortStep step = heapsortSteps.get(stepIdx);
-        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        
-        double canvasHeight = canvas.getHeight();
-        
-        // Draw heap
-        gc.setFill(Color.BLACK);
-        gc.setFont(new Font("Arial", 14));
-        gc.fillText("Current Heap:", 20, 30);
-        drawHeapArrayBoxesHeapsort(step.heapSnapshot, step.highlightIdx);
-        
-        drawHeapTreeHeapsort(step.heapSnapshot, step.highlightIdx);
-        
-        // Draw sorted array
-        gc.setFill(Color.BLACK);
-        gc.fillText("Sorted Array:", 20, 320);
-        drawSortedArrayBoxes(step.sortedSnapshot);
-    }
-    
-    private void drawHeapArrayBoxesHeapsort(List<Integer> snapshot, int highlightIdx) {
-        double startX = (canvas.getWidth() - snapshot.size() * 50) / 2;
-        double y = 50;
-        double boxSize = 40;
-        
-        for (int i = 0; i < snapshot.size(); i++) {
-            double x = startX + i * 50;
-            
-            Color fillColor = Color.WHITE;
-            if (i == highlightIdx) {
-                fillColor = Color.YELLOW;
-            }
-            
-            gc.setFill(fillColor);
-            gc.fillRect(x, y, boxSize, boxSize);
-            gc.setStroke(Color.BLACK);
-            gc.setLineWidth(2);
-            gc.strokeRect(x, y, boxSize, boxSize);
-            
-            gc.setFill(Color.BLACK);
-            gc.setFont(new Font(14));
-            gc.fillText(String.valueOf(snapshot.get(i)), x + 12, y + 25);
-        }
-    }
-    
-    private void drawHeapTreeHeapsort(List<Integer> snapshot, int highlightIdx) {
-        double centerX = canvas.getWidth() / 2;
-        double startY = 130;
-        double verticalGap = 60;
-        drawNodeHeapsort(snapshot, 0, centerX, startY, canvas.getWidth() / 4, verticalGap, highlightIdx);
-    }
-    
-    private void drawNodeHeapsort(List<Integer> snapshot, int idx, double x, double y,
-                                   double horizontalGap, double verticalGap, int highlightIdx) {
-        if (idx >= snapshot.size()) return;
-        
-        int leftChild = 2 * idx + 1;
-        int rightChild = 2 * idx + 2;
-        double nextY = y + verticalGap;
-        
-        if (leftChild < snapshot.size()) {
-            double leftX = x - horizontalGap;
-            gc.setStroke(Color.GRAY);
-            gc.setLineWidth(2);
-            gc.strokeLine(x, y, leftX, nextY);
-            drawNodeHeapsort(snapshot, leftChild, leftX, nextY, horizontalGap / 2, verticalGap, highlightIdx);
-        }
-        
-        if (rightChild < snapshot.size()) {
-            double rightX = x + horizontalGap;
-            gc.setStroke(Color.GRAY);
-            gc.setLineWidth(2);
-            gc.strokeLine(x, y, rightX, nextY);
-            drawNodeHeapsort(snapshot, rightChild, rightX, nextY, horizontalGap / 2, verticalGap, highlightIdx);
-        }
-        
-        double radius = 20;
-        Color fillColor = (idx == highlightIdx) ? Color.YELLOW : Color.web("#FF6B6B");
-        gc.setFill(fillColor);
-        gc.fillOval(x - radius, y - radius, 2 * radius, 2 * radius);
-        gc.setStroke(Color.BLACK);
-        gc.setLineWidth(2);
-        gc.strokeOval(x - radius, y - radius, 2 * radius, 2 * radius);
-        
-        gc.setFill(Color.BLACK);
-        gc.setFont(new Font(14));
-        String text = String.valueOf(snapshot.get(idx));
-        gc.fillText(text, x - 6, y + 5);
-    }
-    
-    private void drawSortedArrayBoxes(List<Integer> sorted) {
-        double boxSize = 40;
-        double spacing = 50;
-        double startX = (canvas.getWidth() - sorted.size() * spacing) / 2;
-        double y = 340;
-        
-        for (int i = 0; i < sorted.size(); i++) {
-            double x = startX + i * spacing;
-            
-            gc.setFill(Color.LIGHTGREEN);
-            gc.fillRect(x, y, boxSize, boxSize);
-            gc.setStroke(Color.BLACK);
-            gc.setLineWidth(2);
-            gc.strokeRect(x, y, boxSize, boxSize);
-            
-            gc.setFill(Color.BLACK);
-            gc.setFont(new Font(14));
-            gc.fillText(String.valueOf(sorted.get(i)), x + 12, y + 25);
-        }
-    }
-
-    // ---------------- Heapify with Step Recording ----------------
-    private void heapifyUpAnimated(int index) {
-        List<HeapStep> steps = new ArrayList<>();
-        while (index > 0) {
-            int parentIdx = (index - 1) / 2;
-            boolean swapCandidate = (isMaxHeap ? heap.get(index) > heap.get(parentIdx) : heap.get(index) < heap.get(parentIdx));
-            steps.add(new HeapStep(index, parentIdx, swapCandidate, heap));
-            if (swapCandidate) {
-                swap(index, parentIdx);
-                index = parentIdx;
-            } else break;
-        }
-        animateHeapSteps(steps);
-    }
-
-    private void heapifyDownAnimated(int index) {
-        List<HeapStep> steps = getHeapifyDownSteps(index);
-        animateHeapSteps(steps);
-    }
-
     private List<HeapStep> getHeapifyDownSteps(int index) {
         int size = heap.size();
         List<HeapStep> steps = new ArrayList<>();
+
         while (true) {
             int target = index;
             int left = 2 * index + 1;
             int right = 2 * index + 2;
 
+            // Check left child
             if (left < size) {
-                boolean swapCandidate = (isMaxHeap ? heap.get(left) > heap.get(target) : heap.get(left) < heap.get(target));
-                steps.add(new HeapStep(index, left, swapCandidate, heap));
+                boolean swapCandidate = (isMaxHeap ? heap.get(left) > heap.get(target)
+                        : heap.get(left) < heap.get(target));
+                steps.add(new HeapStep(index, left, swapCandidate, new ArrayList<>(heap)));
                 if (swapCandidate) target = left;
             }
+
+            // Check right child against target (which might be left or index)
             if (right < size) {
-                boolean swapCandidate = (isMaxHeap ? heap.get(right) > heap.get(target) : heap.get(right) < heap.get(target));
-                steps.add(new HeapStep(index, right, swapCandidate, heap));
+                boolean swapCandidate = (isMaxHeap ? heap.get(right) > heap.get(target)
+                        : heap.get(right) < heap.get(target));
+                steps.add(new HeapStep(index, right, swapCandidate, new ArrayList<>(heap)));
                 if (swapCandidate) target = right;
             }
 
+            // Perform the swap if needed
             if (target != index) {
-                swap(index, target);
-                index = target;
+                swap(heap, index, target);
+                steps.add(new HeapStep(index, target, true, new ArrayList<>(heap)));
+                index = target; // continue down
             } else break;
         }
-        return steps;
-    }
+        // After the while loop ends, add final state
+        steps.add(new HeapStep(-1, -1, false, new ArrayList<>(heap)));
 
-    private void swap(int i, int j) {
-        int temp = heap.get(i);
-        heap.set(i, heap.get(j));
-        heap.set(j, temp);
-    }
-    
-    // Swap for heapsort
-    private void swap(List<Integer> arr, int i, int j) {
-        int temp = arr.get(i);
-        arr.set(i, arr.get(j));
-        arr.set(j, temp);
+        return steps;
     }
 
     // ---------------- Animation ----------------
@@ -523,12 +238,121 @@ public class HeapController extends ModuleController {
         }
 
         timeline.setCycleCount(1);
-        // after animation completes show the current heap state (it has already been mutated)
-        timeline.setOnFinished(e -> redraw());
+        //timeline.setOnFinished(e -> redraw());
+        timeline.setOnFinished(e -> {
+            if (!steps.isEmpty()) {
+                HeapStep last = steps.get(steps.size() - 1);
+                redrawSnapshot(last.snapshot, null);
+            }
+        });
+
+
         timeline.play();
     }
+    // --- Step Navigation ---
+    private void nextCurrentStep() {
+        int totalSteps = isCurrentHeapsort ? currentHeapsortSteps.size() : currentSteps.size();
+        if (totalSteps == 0) { setMessage("No operation prepared!"); return; }
+        if (currentStepIndex < totalSteps - 1) {
+            currentStepIndex++; redrawCurrentStep();
+        } else setMessage("Operation complete!");
+    }
 
-    // redraw with an optional step for highlighting
+    private void prevCurrentStep() {
+        if (currentStepIndex > 0) { currentStepIndex--; redrawCurrentStep(); }
+    }
+
+
+    // --- Heapsort Visualization ---
+
+
+    private void drawHeapArrayBoxesHeapsort(List<Integer> snapshot, int highlightIdx) {
+        double startX = (canvas.getWidth() - snapshot.size() * 50) / 2;
+        double y = 50, boxSize = 40;
+        for (int i = 0; i < snapshot.size(); i++) {
+            double x = startX + i * 50;
+            Color fillColor = (i == highlightIdx) ? Color.YELLOW : Color.WHITE;
+            gc.setFill(fillColor); gc.fillRect(x, y, boxSize, boxSize);
+            gc.setStroke(Color.BLACK); gc.strokeRect(x, y, boxSize, boxSize);
+            gc.setFill(Color.BLACK); gc.setFont(new Font(14));
+            gc.fillText(String.valueOf(snapshot.get(i)), x + 12, y + 25);
+        }
+    }
+
+    private void drawHeapTreeHeapsort(List<Integer> snapshot, int highlightIdx) {
+        double centerX = canvas.getWidth() / 2, startY = 130, verticalGap = 60;
+        drawNodeHeapsort(snapshot, 0, centerX, startY, canvas.getWidth() / 4, verticalGap, highlightIdx);
+    }
+
+    private void drawNodeHeapsort(List<Integer> snapshot, int idx, double x, double y,
+                                  double horizontalGap, double verticalGap, int highlightIdx) {
+        if (idx >= snapshot.size()) return;
+        int leftChild = 2 * idx + 1, rightChild = 2 * idx + 2;
+        double nextY = y + verticalGap;
+
+        if (leftChild < snapshot.size()) {
+            double leftX = x - horizontalGap;
+            gc.setStroke(Color.GRAY); gc.strokeLine(x, y, leftX, nextY);
+            drawNodeHeapsort(snapshot, leftChild, leftX, nextY, horizontalGap / 2, verticalGap, highlightIdx);
+        }
+        if (rightChild < snapshot.size()) {
+            double rightX = x + horizontalGap;
+            gc.setStroke(Color.GRAY); gc.strokeLine(x, y, rightX, nextY);
+            drawNodeHeapsort(snapshot, rightChild, rightX, nextY, horizontalGap / 2, verticalGap, highlightIdx);
+        }
+
+        double radius = 20;
+        Color fillColor = (idx == highlightIdx) ? Color.YELLOW : Color.web("#FF6B6B");
+        gc.setFill(fillColor); gc.fillOval(x - radius, y - radius, 2 * radius, 2 * radius);
+        gc.setStroke(Color.BLACK); gc.strokeOval(x - radius, y - radius, 2 * radius, 2 * radius);
+        gc.setFill(Color.BLACK); gc.setFont(new Font(14));
+        gc.fillText(String.valueOf(snapshot.get(idx)), x - 6, y + 5);
+    }
+
+    private void drawSortedArrayBoxes(List<Integer> sorted) {
+        double boxSize = 40, spacing = 50;
+        double startX = (canvas.getWidth() - sorted.size() * spacing) / 2;
+        double y = 340;
+        for (int i = 0; i < sorted.size(); i++) {
+            double x = startX + i * spacing;
+            gc.setFill(Color.LIGHTGREEN); gc.fillRect(x, y, boxSize, boxSize);
+            gc.setStroke(Color.BLACK); gc.strokeRect(x, y, boxSize, boxSize);
+            gc.setFill(Color.BLACK); gc.setFont(new Font(14));
+            gc.fillText(String.valueOf(sorted.get(i)), x + 12, y + 25);
+        }
+    }
+
+    // --- Utility ---
+    private void toggleCodeArea() {
+        if (codeArea != null) codeArea.setVisible(!codeArea.isVisible());
+    }
+
+    private void copyCode() {
+        String code = codeArea.getText();
+        javafx.scene.input.Clipboard clipboard = javafx.scene.input.Clipboard.getSystemClipboard();
+        javafx.scene.input.ClipboardContent cc = new javafx.scene.input.ClipboardContent();
+        cc.putString(code); clipboard.setContent(cc);
+        setMessage("Code copied to clipboard!");
+    }
+
+    private void loadCodeFile() {
+        try (InputStream is = getClass().getResourceAsStream("/codes/heap.txt")) {
+            if (is != null) {
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+                    StringBuilder sb = new StringBuilder(); String line;
+                    while ((line = br.readLine()) != null) sb.append(line).append('\n');
+                    codeArea.setText(sb.toString()); codeArea.setVisible(false);
+                }
+            }
+        } catch (Exception ex) { ex.printStackTrace(); }
+    }
+
+    private void setMessage(String msg) {
+        lastMessage = msg;
+        if (statusLabel != null) statusLabel.setText(msg);
+    }
+
+
     private void redrawSnapshot(List<Integer> snapshot, HeapStep step) {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         drawHeapArrayBoxes(snapshot);
@@ -536,13 +360,11 @@ public class HeapController extends ModuleController {
         updateHeapArray(snapshot);
 
         if (step != null) {
-            // highlight the two indices in the array
             highlightArrayBox(step.idx1, step.swapped ? Color.ORANGE : Color.YELLOW, snapshot);
             highlightArrayBox(step.idx2, step.swapped ? Color.ORANGE : Color.YELLOW, snapshot);
         }
     }
 
-    // convenience overload when there is no step information
     private void redrawSnapshot(List<Integer> snapshot) {
         redrawSnapshot(snapshot, null);
     }
@@ -582,7 +404,7 @@ public class HeapController extends ModuleController {
         }
     }
 
-    private void highlightArrayBox(int idx, Color color,List<Integer>snapshot) {
+    private void highlightArrayBox(int idx, Color color, List<Integer> snapshot) {
         if (idx < 0 || idx >= snapshot.size()) return;
         double startX = (canvas.getWidth() - snapshot.size() * 50) / 2;
         double y = 20;
@@ -599,21 +421,11 @@ public class HeapController extends ModuleController {
         gc.fillText(String.valueOf(snapshot.get(idx)), x + 12, y + 25);
     }
 
-    /**
-     * Draws the heap tree. When a step is provided, only the two indices involved in the
-     * comparison/swapping are coloured (yellow or orange), and all other nodes are drawn
-     * with a white fill. If step is null the normal heap-type colour is used.
-     */
     private void drawHeapTreeSnapshot(List<Integer> snapshot, HeapStep step) {
         double centerX = canvas.getWidth() / 2;
         double startY = 100;
         double verticalGap = 60;
-        // if no step or a dummy step (negative indices) we simply draw with the normal heap colour
-        if (step == null || step.idx1 < 0) {
-            drawNodeSnapshot(snapshot, 0, centerX, startY, canvas.getWidth() / 4, verticalGap, null);
-        } else {
-            drawNodeSnapshot(snapshot, 0, centerX, startY, canvas.getWidth() / 4, verticalGap, step);
-        }
+        drawNodeSnapshot(snapshot, 0, centerX, startY, canvas.getWidth() / 4, verticalGap, step);
     }
 
     private void drawNodeSnapshot(List<Integer> snapshot, int idx, double x, double y,
@@ -627,7 +439,6 @@ public class HeapController extends ModuleController {
         if (leftChild < snapshot.size()) {
             double leftX = x - horizontalGap;
             gc.setStroke(Color.GRAY);
-            gc.setLineWidth(2);
             gc.strokeLine(x, y, leftX, nextY);
             drawNodeSnapshot(snapshot, leftChild, leftX, nextY, horizontalGap / 2, verticalGap, step);
         }
@@ -635,35 +446,23 @@ public class HeapController extends ModuleController {
         if (rightChild < snapshot.size()) {
             double rightX = x + horizontalGap;
             gc.setStroke(Color.GRAY);
-            gc.setLineWidth(2);
             gc.strokeLine(x, y, rightX, nextY);
             drawNodeSnapshot(snapshot, rightChild, rightX, nextY, horizontalGap / 2, verticalGap, step);
         }
 
-        // Draw the node circle
         double radius = 20;
-        Color fillColor;
-        if (step != null) {
-            if (idx == step.idx1 || idx == step.idx2) {
-                fillColor = step.swapped ? Color.ORANGE : Color.YELLOW;
-            } else {
-                fillColor = Color.WHITE;
-            }
-        } else {
-            fillColor = isMaxHeap ? Color.web("#FF6B6B") : Color.web("#4ECDC4");
-        }
+        Color fillColor = (step != null && (idx == step.idx1 || idx == step.idx2))
+                ? (step.swapped ? Color.ORANGE : Color.YELLOW)
+                : (isMaxHeap ? Color.web("#FF6B6B") : Color.web("#4ECDC4"));
+
         gc.setFill(fillColor);
         gc.fillOval(x - radius, y - radius, 2 * radius, 2 * radius);
         gc.setStroke(Color.BLACK);
-        gc.setLineWidth(2);
         gc.strokeOval(x - radius, y - radius, 2 * radius, 2 * radius);
 
-        // Draw the value
-        //gc.setFill(step != null ? Color.BLACK : Color.WHITE);
         gc.setFill(Color.BLACK);
         gc.setFont(new Font(14));
-        String text = String.valueOf(snapshot.get(idx));
-        gc.fillText(text, x - 6, y + 5);
+        gc.fillText(String.valueOf(snapshot.get(idx)), x - 6, y + 5);
     }
 
     private void updateHeapArray(List<Integer> snapshot) {
@@ -675,58 +474,186 @@ public class HeapController extends ModuleController {
             if (i < snapshot.size() - 1) sb.append(", ");
         }
         sb.append(" ]");
-
+        if (statusLabel != null) statusLabel.setText(sb.toString());
     }
+    // --- Heapsort core ---
+    private void heapsort() {
+        if (heap.isEmpty()) { setMessage("Heap is empty!"); return; }
+        sortedArray.clear(); currentHeapsortSteps.clear(); currentSteps.clear();
+        currentStepIndex = 0; isCurrentHeapsort = true;
 
-    private void toggleCodeArea() {
-        if (codeArea != null) {
-            codeArea.setVisible(!codeArea.isVisible());
-        }
-    }
+        List<Integer> tempHeap = new ArrayList<>(heap);
+        currentHeapsortSteps.add(new HeapsortStep(tempHeap, sortedArray, -1, false));
 
-    private void copyCode() {
-        String code = codeArea.getText();
-        javafx.scene.input.Clipboard clipboard = javafx.scene.input.Clipboard.getSystemClipboard();
-        javafx.scene.input.ClipboardContent cc = new javafx.scene.input.ClipboardContent();
-        cc.putString(code);
-        clipboard.setContent(cc);
-        setMessage("Code copied to clipboard!");
-    }
+        while (!tempHeap.isEmpty()) {
+            int root = tempHeap.get(0);
+            sortedArray.add(root);
 
-    private void loadCodeFile() {
-        try (InputStream is = getClass().getResourceAsStream("/codes/heap.txt")) {
-            if (is != null) {
-                try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-                    StringBuilder sb = new StringBuilder();
-                    String line;
-                    while ((line = br.readLine()) != null) {
-                        sb.append(line).append('\n');
-                    }
-                    codeArea.setText(sb.toString());
-                    codeArea.setVisible(false);
-                }
-            } else {
-                codeArea.setText("// Heap insertion example\n" +
-                        "private void heapifyUp(int index) {\n" +
-                        "    while (index > 0) {\n" +
-                        "        int parent = (index - 1) / 2;\n" +
-                        "        if (heap[index] > heap[parent]) {\n" +
-                        "            swap(index, parent);\n" +
-                        "            index = parent;\n" +
-                        "        } else break;\n" +
-                        "    }\n" +
-                        "}");
+            tempHeap.set(0, tempHeap.get(tempHeap.size() - 1));
+            tempHeap.remove(tempHeap.size() - 1);
+
+            currentHeapsortSteps.add(new HeapsortStep(new ArrayList<>(tempHeap),
+                    new ArrayList<>(sortedArray), 0, true));
+
+            if (!tempHeap.isEmpty()) {
+                currentHeapsortSteps.addAll(getHeapifySortSteps(tempHeap, sortedArray));
             }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        }
+        playCurrentOperation();
+    }
+
+    private List<HeapsortStep> getHeapifySortSteps(List<Integer> heap, List<Integer> sorted) {
+        List<HeapsortStep> steps = new ArrayList<>();
+        int index = 0, size = heap.size();
+
+        while (true) {
+            int target = index;
+            int left = 2 * index + 1, right = 2 * index + 2;
+
+            if (left < size) {
+                steps.add(new HeapsortStep(new ArrayList<>(heap), new ArrayList<>(sorted), left, false));
+                if (heap.get(left) > heap.get(target)) target = left;
+            }
+            if (right < size) {
+                steps.add(new HeapsortStep(new ArrayList<>(heap), new ArrayList<>(sorted), right, false));
+                if (heap.get(right) > heap.get(target)) target = right;
+            }
+
+            if (target != index) {
+                swap(heap, index, target);
+                steps.add(new HeapsortStep(new ArrayList<>(heap), new ArrayList<>(sorted), target, true));
+                index = target;
+            } else break;
+
+
+        }
+        steps.add(new HeapsortStep(new ArrayList<>(heap), new ArrayList<>(sorted), -1, false));
+
+        return steps;
+    }
+
+    // --- Timeline control ---
+    private void playCurrentOperation() {
+        if ((isCurrentHeapsort && currentHeapsortSteps.isEmpty()) || (!isCurrentHeapsort && currentSteps.isEmpty())) {
+            setMessage("No operation prepared!"); return;
+        }
+        isOperationRunning = true;
+        if (startBtn != null) startBtn.setDisable(true);
+
+        double speed = speedSlider != null ? speedSlider.getValue() : 1.0;
+        int delayMs = (int)(1000 / speed);
+
+        currentTimeline = new Timeline();
+        int totalSteps = isCurrentHeapsort ? currentHeapsortSteps.size() : currentSteps.size();
+        for (int i = currentStepIndex; i < totalSteps; i++) {
+            int stepIdx = i;
+            KeyFrame frame = new KeyFrame(Duration.millis((i - currentStepIndex) * delayMs), e -> {
+                currentStepIndex = stepIdx; redrawCurrentStep();
+            });
+            currentTimeline.getKeyFrames().add(frame);
+        }
+        currentTimeline.setOnFinished(e -> stopCurrentOperation());
+        currentTimeline.play();
+//        currentTimeline.setOnFinished(e -> {
+//            if (isCurrentHeapsort && !currentHeapsortSteps.isEmpty()) {
+//                HeapsortStep last = currentHeapsortSteps.get(currentHeapsortSteps.size() - 1);
+//                redrawHeapsort(currentHeapsortSteps.size() - 1);
+//            } else if (!isCurrentHeapsort && !currentSteps.isEmpty()) {
+//                HeapStep last = currentSteps.get(currentSteps.size() - 1);
+//                redrawSnapshot(last.snapshot, null);
+//            }
+//            isOperationRunning = false;
+//            if (startBtn != null) startBtn.setDisable(false);
+//        });
+
+    }
+
+    private void pauseCurrentOperation() {
+        if (currentTimeline != null) {
+            currentTimeline.pause(); isOperationRunning = false;
+            if (startBtn != null) startBtn.setDisable(false);
+            setMessage("Operation paused");
         }
     }
 
-    private void setMessage(String msg) {
-        lastMessage = msg;
-        if (statusLabel != null) {
-            statusLabel.setText(msg);
+    private void stopCurrentOperation() {
+        if (currentTimeline != null) currentTimeline.stop();
+        isOperationRunning = false;
+        //currentStepIndex = 0;
+        if (startBtn != null) startBtn.setDisable(false);
+        setMessage("Operation stopped");
+        //redrawCurrentStep();
+    }
+
+    // --- Step navigation ---
+
+
+    private void redrawCurrentStep() {
+        if (isCurrentHeapsort) redrawHeapsort(currentStepIndex);
+        else {
+            if (currentStepIndex >= 0 && currentStepIndex < currentSteps.size()) {
+                HeapStep step = currentSteps.get(currentStepIndex);
+                redrawSnapshot(step.snapshot, step);
+            } else redraw();
         }
     }
+
+    // --- Heapsort visualization ---
+    private void redrawHeapsort(int stepIdx) {
+        if (stepIdx < 0 || stepIdx >= currentHeapsortSteps.size()) return;
+        HeapsortStep step = currentHeapsortSteps.get(stepIdx);
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+
+        gc.setFill(Color.BLACK); gc.setFont(new Font("Arial", 20));
+        gc.fillText("Current Heap:", 10, 60);
+        drawHeapArrayBoxesHeapsort(step.heapSnapshot, step.highlightIdx);
+        drawHeapTreeHeapsort(step.heapSnapshot, step.highlightIdx);
+
+        gc.setFill(Color.BLACK);
+        gc.setFont(new Font("Arial", 20));
+        gc.fillText("Sorted Array:", 20, 370);
+        drawSortedArrayBoxes(step.sortedSnapshot);
+    }
+    private void heapifyDown(int index) {
+        int size = heap.size();
+        while (true) {
+            int target = index;
+            int left = 2 * index + 1;
+            int right = 2 * index + 2;
+
+            if (left < size && (isMaxHeap ? heap.get(left) > heap.get(target)
+                    : heap.get(left) < heap.get(target))) {
+                target = left;
+            }
+            if (right < size && (isMaxHeap ? heap.get(right) > heap.get(target)
+                    : heap.get(right) < heap.get(target))) {
+                target = right;
+            }
+
+            if (target != index) {
+                // enforce property by swapping
+                int temp = heap.get(index);
+                heap.set(index, heap.get(target));
+                heap.set(target, temp);
+                index = target; // continue down
+            } else break;
+        }
+    }
+
+    // Swap two elements in the heap list
+    private void swap( List<Integer> heap,int i, int j) {
+        int temp = heap.get(i);
+        heap.set(i, heap.get(j));
+        heap.set(j, temp);
+    }
+
+
+
+
+
+
+
+
+
+
 }
-

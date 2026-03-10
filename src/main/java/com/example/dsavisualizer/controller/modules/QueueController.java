@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -35,6 +36,8 @@ public class QueueController extends ModuleController {
     @FXML
     private HBox vizArea;
     @FXML
+    private HBox resizeArea;
+    @FXML
     private TextArea codeArea;
     @FXML
     private Button showCodeBtn;
@@ -47,11 +50,13 @@ public class QueueController extends ModuleController {
 
     private final Queue<Integer> queue = new LinkedList<>();
 
-
-    private static final int CIRCULAR_SIZE = 8;
+    // dynamic circular buffer fields
     private int[] circularQueue;
     private int front = -1;
     private int rear = -1;
+    private int capacity = 0;
+    private int size = 0;
+    private int[] resizePreview; // shown when resizing occurs
 
     @Override
     protected void initialize() {
@@ -59,8 +64,7 @@ public class QueueController extends ModuleController {
         titleLabel.setText("Queue");
         storyArea.setText("Queue is FIFO (First In First Out).\nEnqueue at rear, Dequeue from front.\nCircular queue reuses space with 8 slots.");
 
-        circularQueue = new int[CIRCULAR_SIZE];
-
+        // initial queue listeners
         enqueueBtn.setOnAction(e -> enqueue());
         dequeueBtn.setOnAction(e -> dequeue());
         frontBtn.setOnAction(e -> showFront());
@@ -71,10 +75,24 @@ public class QueueController extends ModuleController {
 
         circularCheck.selectedProperty().addListener((obs, oldVal, newVal) -> {
             queue.clear();
-            front = -1;
-            rear = -1;
+            if (newVal) {
+                initCircular(2);
+            } else {
+                // drop circular buffer
+                circularQueue = null;
+                capacity = 0;
+                size = 0;
+                front = -1;
+                rear = -1;
+                resizePreview = null;
+            }
             render();
         });
+        
+        // on startup ensure proper circular state
+        if (circularCheck.isSelected()) {
+            initCircular(2);
+        }
 
         loadCodeFile();
         render();
@@ -116,6 +134,7 @@ public class QueueController extends ModuleController {
             int val = Integer.parseInt(text);
 
             if (circularCheck.isSelected()) {
+                resizePreview = null;
                 enqueueCircular(val);
             } else {
                 queue.add(val);
@@ -129,6 +148,7 @@ public class QueueController extends ModuleController {
 
     private void dequeue() {
         if (circularCheck.isSelected()) {
+            resizePreview = null;
             if (front == -1) {
                 showAlert("Queue underflow");
                 return;
@@ -146,7 +166,7 @@ public class QueueController extends ModuleController {
 
     private void showFront() {
         if (circularCheck.isSelected()) {
-            if (front == -1) {
+            if (size == 0) {
                 showAlert("Queue empty");
                 return;
             }
@@ -162,7 +182,7 @@ public class QueueController extends ModuleController {
 
     private void showRear() {
         if (circularCheck.isSelected()) {
-            if (rear == -1) {
+            if (size == 0) {
                 showAlert("Queue empty");
                 return;
             }
@@ -179,8 +199,13 @@ public class QueueController extends ModuleController {
 
     private void clearQ() {
         if (circularCheck.isSelected()) {
+            // deallocate
+            circularQueue = null;
             front = -1;
             rear = -1;
+            capacity = 0;
+            size = 0;
+            resizePreview = null;
         } else {
             queue.clear();
         }
@@ -189,99 +214,136 @@ public class QueueController extends ModuleController {
 
     // Circular Queue Operations
     private void enqueueCircular(int val) {
-        if ((rear + 1) % CIRCULAR_SIZE == front) {
-            showAlert("Circular Queue is FULL");
-            return;
+        if (capacity == 0) {
+            initCircular(2);
         }
-
+        // resize if more than 50% full
+        if (size > capacity * 0.5) {
+            // show old array before resize
+            resizePreview = Arrays.copyOf(circularQueue, capacity);
+            resize(capacity * 2);
+            // resizePreview now shows old, main shows new
+        } else {
+            resizePreview = null;
+        }
         if (front == -1) front = 0;
-        rear = (rear + 1) % CIRCULAR_SIZE;
+        rear = (front + size) % capacity;
         circularQueue[rear] = val;
+        size++;
         showAlert("Enqueued: " + val);
     }
 
     private void dequeueCircular() {
+        if (size == 0) {
+            showAlert("Queue underflow");
+            return;
+        }
         int val = circularQueue[front];
-
-        if (front == rear) {
+        circularQueue[front]=0;
+        front = (front + 1) % capacity;
+        size--;
+        if (size == 0) {
             front = -1;
             rear = -1;
-        } else {
-            front = (front + 1) % CIRCULAR_SIZE;
         }
-
         showAlert("Dequeued: " + val);
+        // shrink if less than 25% full
+        if (size < capacity * 0.25 && capacity > 2) {
+            // show old array before shrink
+            resizePreview = Arrays.copyOf(circularQueue, capacity);
+            resize(Math.max(2, capacity / 2));
+            // resizePreview shows old, main shows new
+        } else {
+            resizePreview = null;
+        }
     }
 
     private int getCircularQueueSize() {
-        if (front == -1) return 0;
-        if (rear >= front) {
-            return rear - front + 1;
-        } else {
-            return CIRCULAR_SIZE - front + rear + 1;
-        }
+        return size;
     }
 
     private void render() {
         vizArea.getChildren().clear();
 
         if (circularCheck.isSelected()) {
+            // Single central array visualization
+            HBox queueContainer = new HBox();
+            queueContainer.setStyle("-fx-spacing:5; -fx-alignment:center; -fx-padding:20;");
 
-            HBox circularRow = new HBox();
-            circularRow.setStyle("-fx-spacing:15; -fx-alignment:center;");
+            for (int i = 0; i < capacity; i++) {
+                Label lbl;
+                if (size == 0) {
+                    lbl = new Label("-");
+                } else {
+                    lbl = new Label(String.valueOf(circularQueue[i]));
+                }
 
-            for (int i = 0; i < CIRCULAR_SIZE; i++) {
+                String bgColor = "#f0f0f0"; // default empty color
+                String textColor = "#666"; // default text color
 
-                VBox slot = new VBox();
-                slot.setStyle("-fx-alignment:center; -fx-spacing:5;");
+                if (size > 0) {
+                    // Check if this position is within the logical queue
+                    boolean isInQueue = false;
+                    for (int j = 0; j < size; j++) {
+                        int idx = (front + j) % capacity;
+                        if (i == idx) {
+                            isInQueue = true;
+                            break;
+                        }
+                    }
 
-
-                Label indexLabel = new Label(String.valueOf(i));
-                indexLabel.setStyle("-fx-font-size:12; -fx-text-fill:#555;");
-
-
-                Label valueLabel = new Label(
-                        circularQueue[i] == 0 &&
-                                !((front != -1 && i == front) || (rear != -1 && i == rear))
-                                ? "-"
-                                : String.valueOf(circularQueue[i])
-                );
-
-                String bgColor = "#f0f0f0";
-
-                if (front != -1 && rear != -1) {
-                    if (front <= rear) {
-                        if (i >= front && i <= rear) bgColor = "#ffcccc";
-                    } else {
-                        if (i >= front || i <= rear) bgColor = "#ffcccc";
+                    if (isInQueue) {
+                        if (i == front) {
+                            bgColor = "#4CAF50"; // Green for front
+                            textColor = "white";
+                        } else if (i == rear) {
+                            bgColor = "#FF9800"; // Orange for rear
+                            textColor = "white";
+                        } else {
+                            bgColor = "#2196F3"; // Blue for elements between front and rear
+                            textColor = "white";
+                        }
                     }
                 }
 
-                if (i == front && front != -1) bgColor = "#90EE90";
-                if (i == rear && rear != -1) bgColor = "#FFD700";
-
-                valueLabel.setStyle(
-                        "-fx-border-color:black; " +
-                                "-fx-border-width:2; " +
-                                "-fx-padding:15; " +
-                                "-fx-background-color:" + bgColor + "; " +
-                                "-fx-font-weight:bold; " +
-                                "-fx-font-size:14;"
-                );
-
-                slot.getChildren().addAll(indexLabel, valueLabel);
-                circularRow.getChildren().add(slot);
+                lbl.setStyle("-fx-border-color:black; -fx-border-width:2; -fx-padding:15; "
+                        + "-fx-background-color:" + bgColor + "; -fx-text-fill:" + textColor + "; "
+                        + "-fx-font-weight:bold; -fx-font-size:14; -fx-min-width:50; -fx-alignment:center;");
+                queueContainer.getChildren().add(lbl);
             }
 
-            vizArea.getChildren().add(circularRow);
+            vizArea.getChildren().add(queueContainer);
 
+            // Show resize preview if exists
+            if (resizePreview != null) {
+                HBox previewContainer = new HBox();
+                previewContainer.setStyle("-fx-spacing:5; -fx-alignment:center; -fx-padding:10;");
+
+                Label previewLabel = new Label("Resizing to:");
+                previewLabel.setStyle("-fx-font-weight:bold; -fx-padding:10;");
+                previewContainer.getChildren().add(previewLabel);
+                
+                // Show elements in logical order after resize
+                for (int i = 0; i < size; i++) {
+                    int idx = (front + i) % capacity;
+                    Label lbl = new Label(String.valueOf(circularQueue[idx]));
+                    lbl.setStyle("-fx-border-color:#999; -fx-border-width:1; -fx-padding:10; "
+                            + "-fx-background-color:#eee; -fx-font-weight:bold; -fx-font-size:12; "
+                            + "-fx-min-width:40; -fx-alignment:center;");
+                    previewContainer.getChildren().add(lbl);}
+                resizeArea.getChildren().clear();
+                resizeArea.getChildren().add(previewContainer);
+            } else {
+                resizeArea.getChildren().clear();
+            }
 
             if (queueSizeLabel != null) {
-                queueSizeLabel.setText("Size: " + getCircularQueueSize() + "/8");
+                queueSizeLabel.setText("Size: " + getCircularQueueSize() + "/" + capacity +
+                                     " | Front: " + (size > 0 ? front : "-") +
+                                     " | Rear: " + (size > 0 ? rear : "-"));
             }
         } else {
-
-
+            // Regular queue visualization
             HBox queueContainer = new HBox();
             queueContainer.setStyle("-fx-spacing:10; -fx-alignment:center;");
 
@@ -317,13 +379,27 @@ public class QueueController extends ModuleController {
                 queueSizeLabel.setText("Size: " + queue.size());
             }
         }
-
     }
 
+    // initialize circular buffer with given capacity
+     private void initCircular(int cap) {
+        capacity = cap;
+        circularQueue = new int[capacity];
+        front = -1;
+        rear = -1;
+        size = 0;
+        resizePreview = null;
+    }
 
-    protected void showAlert(String msg) {
-        if (statusLabel != null) {
-            statusLabel.setText(msg);
+    // resize underlying array to new capacity, reordering elements
+    private void resize(int newCap) {
+        int[] newArr = new int[newCap];
+        for (int i = 0; i < size; i++) {
+            newArr[i] = circularQueue[(front + i) % capacity];
         }
+        circularQueue = newArr;
+        capacity = newCap;
+        front = 0;
+        rear = size - 1;
     }
 }
