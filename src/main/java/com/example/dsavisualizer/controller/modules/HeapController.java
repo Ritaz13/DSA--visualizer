@@ -357,7 +357,7 @@ public class HeapController extends ModuleController {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         drawHeapArrayBoxes(snapshot);
         drawHeapTreeSnapshot(snapshot, step);
-        updateHeapArray(snapshot);
+        //updateHeapArray(snapshot);
 
         if (step != null) {
             highlightArrayBox(step.idx1, step.swapped ? Color.ORANGE : Color.YELLOW, snapshot);
@@ -373,7 +373,7 @@ public class HeapController extends ModuleController {
     private void redraw() {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         drawHeapArrayBoxes(heap);
-        updateHeapArray(heap);
+        //updateHeapArray(heap);
 
         if (heap.isEmpty()) {
             gc.setFill(Color.GRAY);
@@ -465,17 +465,17 @@ public class HeapController extends ModuleController {
         gc.fillText(String.valueOf(snapshot.get(idx)), x - 6, y + 5);
     }
 
-    private void updateHeapArray(List<Integer> snapshot) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Heap Array (").append(isMaxHeap ? "Max" : "Min").append(" Heap):\n\n");
-        sb.append("[ ");
-        for (int i = 0; i < snapshot.size(); i++) {
-            sb.append(snapshot.get(i));
-            if (i < snapshot.size() - 1) sb.append(", ");
-        }
-        sb.append(" ]");
-        if (statusLabel != null) statusLabel.setText(sb.toString());
-    }
+//    private void updateHeapArray(List<Integer> snapshot) {
+//        StringBuilder sb = new StringBuilder();
+//        sb.append("Heap Array (").append(isMaxHeap ? "Max" : "Min").append(" Heap):\n\n");
+//        sb.append("[ ");
+//        for (int i = 0; i < snapshot.size(); i++) {
+//            sb.append(snapshot.get(i));
+//            if (i < snapshot.size() - 1) sb.append(", ");
+//        }
+//        sb.append(" ]");
+//        if (statusLabel != null) statusLabel.setText(sb.toString());
+//    }
     // --- Heapsort core ---
     private void heapsort() {
         if (heap.isEmpty()) { setMessage("Heap is empty!"); return; }
@@ -605,13 +605,13 @@ public class HeapController extends ModuleController {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
         gc.setFill(Color.BLACK); gc.setFont(new Font("Arial", 20));
-        gc.fillText("Current Heap:", 10, 60);
+        gc.fillText("Current Heap:", 2, 60);
         drawHeapArrayBoxesHeapsort(step.heapSnapshot, step.highlightIdx);
         drawHeapTreeHeapsort(step.heapSnapshot, step.highlightIdx);
 
         gc.setFill(Color.BLACK);
         gc.setFont(new Font("Arial", 20));
-        gc.fillText("Sorted Array:", 20, 370);
+        gc.fillText("Sorted Array:", 2, 370);
         drawSortedArrayBoxes(step.sortedSnapshot);
     }
     private void heapifyDown(int index) {

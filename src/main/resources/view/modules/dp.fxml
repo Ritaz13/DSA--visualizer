@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:id="moduleRoot"
+            fx:controller="com.example.dsavisualizer.controller.modules.DPController"
+            style="-fx-font-family: 'Segoe UI'; -fx-font-size: 12;">
+
+    <!-- Top: Title centered, Theme & Home buttons top-right -->
+    <top>
+        <BorderPane style="-fx-padding: 15 20 10 20; -fx-border-color: #cccccc; -fx-border-width: 0 0 1 0;">
+            <center>
+                <Label fx:id="titleLabel" text="Dynamic Programming"
+                       style="-fx-font-size: 32; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+            </center>
+            <right>
+                <HBox spacing="10" alignment="TOP_RIGHT">
+                    <Button fx:id="themeBtn" text="Dark Mode" style="-fx-font-size: 12; -fx-padding: 8 15; -fx-background-color: #4CAF50; -fx-text-fill: white;"/>
+                    <Button fx:id="backBtn" text="Home" style="-fx-font-size: 12; -fx-padding: 8 15; -fx-background-color: #2196F3; -fx-text-fill: white;"/>
+                </HBox>
+            </right>
+        </BorderPane>
+    </top>
+
+    <center>
+        <HBox spacing="15" style="-fx-padding: 15;">
+            <!-- LEFT PANEL: Story -->
+            <VBox spacing="12" style="-fx-padding: 10; -fx-min-width: 280; -fx-max-width: 320; -fx-border-color: #e0e0e0; -fx-border-radius: 5; -fx-background-color: #f9f9f9;">
+                <Label text="📖 Story" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+                <TextArea fx:id="storyArea"
+                          editable="false"
+                          wrapText="true"
+                          prefHeight="400"
+                          style="-fx-control-inner-background: #ffffff; -fx-font-size: 12;"/>
+            </VBox>
+
+            <!-- RIGHT PANEL: Problem Selection -->
+            <VBox spacing="20" alignment="TOP_LEFT" style="-fx-padding: 10;">
+                <Label text="Select a problem to explore:" style="-fx-font-size: 20; -fx-font-weight: bold;"/>
+                <VBox spacing="12">
+                    <Button fx:id="knapsackBtn" text="0/1 Knapsack" prefWidth="200" style="-fx-font-size: 14; -fx-padding: 12; -fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                    <Button fx:id="changeBtn" text="Making Change" prefWidth="200" style="-fx-font-size: 14; -fx-padding: 12; -fx-background-color: #9C27B0; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                    <Button fx:id="fibBtn" text="Nth Fibonacci" prefWidth="200" style="-fx-font-size: 14; -fx-padding: 12; -fx-background-color: #F44336; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                    <Button fx:id="lcsBtn" text="Longest Common Subsequence" prefWidth="200" style="-fx-font-size: 14; -fx-padding: 12; -fx-background-color: #00BCD4; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                    <Button fx:id="seqBtn" text="Sequence Alignment" prefWidth="200" style="-fx-font-size: 14; -fx-padding: 12; -fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                </VBox>
+            </VBox>
+        </HBox>
+    </center>
+</BorderPane>

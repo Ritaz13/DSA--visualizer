@@ -1,0 +1,19 @@
+// Coin change (minimum coins)
+int change(int[] coins, int amt) {
+    if (amt == 0) return 0;
+    int res = Integer.MAX_VALUE/2;
+    for (int c : coins) {
+        if (c <= amt) res = Math.min(res, 1 + change(coins, amt-c));
+    }
+    return res;
+}
+
+int changeDP(int[] coins, int amt) {
+    int[] dp = new int[amt+1];
+    Arrays.fill(dp, Integer.MAX_VALUE/2);
+    dp[0] = 0;
+    for (int i = 1; i <= amt; i++) {
+        for (int c : coins) if (c <= i) dp[i] = Math.min(dp[i], 1 + dp[i-c]);
+    }
+    return dp[amt];
+}

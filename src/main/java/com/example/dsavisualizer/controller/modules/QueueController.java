@@ -218,7 +218,7 @@ public class QueueController extends ModuleController {
             initCircular(2);
         }
         // resize if more than 50% full
-        if (size > capacity * 0.5) {
+        if (size ==capacity ) {
             // show old array before resize
             resizePreview = Arrays.copyOf(circularQueue, capacity);
             resize(capacity * 2);

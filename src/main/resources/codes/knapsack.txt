@@ -1,0 +1,18 @@
+// 0/1 Knapsack - recursive and DP
+int knap(int[] w, int[] v, int cap, int i) {
+    if (i==w.length || cap==0) return 0;
+    if (w[i] > cap) return knap(w,v,cap,i+1);
+    return Math.max(v[i]+knap(w,v,cap-w[i],i+1), knap(w,v,cap,i+1));
+}
+
+int knapDP(int[] w, int[] v, int cap) {
+    int n = w.length;
+    int[][] dp = new int[n+1][cap+1];
+    for (int i = 1; i <= n; i++) {
+        for (int j = 0; j <= cap; j++) {
+            if (w[i-1] > j) dp[i][j] = dp[i-1][j];
+            else dp[i][j] = Math.max(dp[i-1][j], v[i-1] + dp[i-1][j-w[i-1]]);
+        }
+    }
+    return dp[n][cap];
+}
