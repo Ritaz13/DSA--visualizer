@@ -71,7 +71,7 @@
             <!-- RIGHT PANEL: Visualization Area (contains code, stack, and table) -->
             <VBox spacing="10" HBox.hgrow="ALWAYS">
                 <Label text="Visualization" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
-                <HBox HBox.hgrow="ALWAYS">
+                <VBox HBox.hgrow="ALWAYS">
                     <ScrollPane fitToWidth="true" HBox.hgrow="ALWAYS">
                         <content>
                             <VBox fx:id="vizPane"
@@ -79,10 +79,10 @@
                                   style="-fx-background-color:#f5f5f5; -fx-padding:10;"/>
                         </content>
                     </ScrollPane>
-                    <HBox style="-fx-padding: 10; -fx-min-width: 200;">
+                    <VBox style="-fx-padding: 10; -fx-min-width: 200;">
                         <Label fx:id="statusLabel" text="" style="-fx-font-size: 20; -fx-text-fill: darkblue; -fx-font-weight: bold;"/>
-                    </HBox>
-                </HBox>
+                    </VBox>
+                </VBox>
             </VBox>
         </HBox>
     </center>

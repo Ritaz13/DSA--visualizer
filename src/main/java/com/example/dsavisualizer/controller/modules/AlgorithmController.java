@@ -7,6 +7,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.util.Duration;
@@ -61,16 +62,16 @@ public class AlgorithmController extends ModuleController {
         int row, col;
         List<int[]> deps;
         String message;
-        int highlightLine;
+        List<Integer> highlightLines;
         List<String> stackSnapshot;
         // Code lines for reference
 
-        Step(int r, int c, List<int[]> d, String msg, int line, List<String> stack) {
+        Step(int r, int c, List<int[]> d, String msg, List<Integer> lines, List<String> stack) {
             row = r;
             col = c;
             deps = d;
             message = msg;
-            highlightLine = line;
+            highlightLines = new ArrayList<>(lines);
             stackSnapshot = new ArrayList<>(stack);
         }
     }
@@ -94,6 +95,7 @@ public class AlgorithmController extends ModuleController {
         randomBtn.setOnAction(e -> randomize());
         computeBtn.setOnAction(e -> compute());
         setupControlButtons();
+        loadFullCode();
         configureForAlgorithm();
     }
 
@@ -115,6 +117,14 @@ public class AlgorithmController extends ModuleController {
         codeArea = new VBox(4);
         codeArea.setStyle("-fx-font-family:'Courier New'; -fx-font-size:18;");
         layout.getChildren().add(codeArea);
+        codeLinesLabels = new ArrayList<>();
+        String[] lines = fullCodes.get(currentAlgorithm.name()).split("\n");
+        for (int i = 0; i < lines.length; i++) {
+            Label lbl = new Label(lines[i]);
+            lbl.setStyle("-fx-font-family:'Courier New'; -fx-font-size:18;");
+            codeArea.getChildren().add(lbl);
+            codeLinesLabels.add(lbl);
+        }
 
         // Stack area
         if (!mode.equals("Table")) {
@@ -123,15 +133,6 @@ public class AlgorithmController extends ModuleController {
             layout.getChildren().add(stackPanel);
         }
 
-        // Table area
-        // if (mode.equals("Memoization") || mode.equals("Table")) {
-        // tableOutput = new GridPane();
-        // tableOutput.setStyle("-fx-hgap:5; -fx-vgap:5;");
-        // layout.getChildren().add(tableOutput);
-        // tableAnswerLabel = new Label();
-        // tableAnswerLabel.setStyle("-fx-font-size:20; -fx-font-weight:bold;");
-        // layout.getChildren().add(tableAnswerLabel);
-        // }
 
         if (mode.equals("Memoization") || mode.equals("Table")) {
             tableOutput = new GridPane();
@@ -155,7 +156,7 @@ public class AlgorithmController extends ModuleController {
     }
 
     // --- Step Recording & Redraw ---
-    private void recordStep(int r, int c, List<int[]> deps, String msg, int line, List<String> stack) {
+    private void recordStep(int r, int c, List<int[]> deps, String msg, List<Integer>line, List<String> stack) {
         steps.add(new Step(r, c, deps, msg, line, stack));
     }
 
@@ -169,7 +170,7 @@ public class AlgorithmController extends ModuleController {
         if (codeLinesLabels != null) {
             for (int i = 0; i < codeLinesLabels.size(); i++) {
                 Label lbl = codeLinesLabels.get(i);
-                if (i == step.highlightLine) {
+                if (step.highlightLines.contains(i)) {
                     lbl.setStyle("-fx-font-family:'Courier New'; -fx-font-size:18; -fx-background-color:yellow;");
                 } else {
                     lbl.setStyle("-fx-font-family:'Courier New'; -fx-font-size:18;");
@@ -181,7 +182,15 @@ public class AlgorithmController extends ModuleController {
             cell.setStyle(
                     "-fx-background-color:white; -fx-border-color:black; -fx-font-size:18; -fx-alignment:center;");
         }
-
+        for (Node node : tableOutput.getChildren()) {
+            Integer r = GridPane.getRowIndex(node);
+            Integer c = GridPane.getColumnIndex(node);
+            if (node instanceof Label) {
+                if (r != null && r == 0 || c != null && c == 0) {
+                    ((Label) node).setStyle("-fx-background-color:lightgray; -fx-border-color:black; -fx-font-size:18; -fx-alignment:center; -fx-font-weight:bold;");
+                }
+            }
+        }
         // Highlight current cell orange and show value
         Label cur = tableCellMap.get((step.row + 1) + "," + (step.col + 1));
         if (cur != null) {
@@ -190,6 +199,18 @@ public class AlgorithmController extends ModuleController {
             if (step.message.contains("=")) {
                 cur.setText(step.message.split("=")[1].trim());
             }
+        }
+        Node colHeader = getNodeByRowColumnIndex(0, step.col + 1, tableOutput);
+        if (colHeader instanceof Label) {
+            ((Label) colHeader).setStyle(
+                    "-fx-background-color:yellow; -fx-border-color:black; -fx-font-size:18; -fx-alignment:center;");
+        }
+
+        // ✅ Highlight row header
+        Node rowHeader = getNodeByRowColumnIndex(step.row + 1, 0, tableOutput);
+        if (rowHeader instanceof Label) {
+            ((Label) rowHeader).setStyle(
+                    "-fx-background-color:yellow; -fx-border-color:black; -fx-font-size:18; -fx-alignment:center;");
         }
 
         // Highlight dependencies blue
@@ -211,6 +232,16 @@ public class AlgorithmController extends ModuleController {
     }
 
     // --- Animation Controls ---
+    private Node getNodeByRowColumnIndex(final int row, final int column, GridPane gridPane) {
+        for (Node node : gridPane.getChildren()) {
+            if (GridPane.getRowIndex(node) != null && GridPane.getRowIndex(node) == row &&
+                    GridPane.getColumnIndex(node) != null && GridPane.getColumnIndex(node) == column) {
+                return node;
+            }
+        }
+        return null;
+    }
+
     private void startAnimation() {
         currentStep = 0;
         redrawCurrentStep();
@@ -282,7 +313,7 @@ public class AlgorithmController extends ModuleController {
                     deps.add(new int[] { 0, i - 2 });
 
                 // Record step to update this cell later
-                recordStep(0, i, deps, "dp[" + i + "] = " + dp[i], 4, new ArrayList<>(callStack));
+                recordStep(0, i, deps, "dp[" + i + "] = " + dp[i], List.of(8), new ArrayList<>(callStack));
             }
 
             tableAnswerLabel.setText("Fibonacci Number: " + dp[n]);
@@ -290,49 +321,28 @@ public class AlgorithmController extends ModuleController {
         }
     }
 
-    /**/
-
-    // Recursive Fibonacci
-    private int fibRec(int n) {
-        callStack.push("fib(" + n + ")");
-        recordStep(-1, -1, null, "call fib(" + n + ")", 0, new ArrayList<>(callStack));
-
-        if (n <= 1) {
-            recordStep(-1, -1, null, "return " + n, 1, new ArrayList<>(callStack));
-            callStack.pop();
-            return n;
-        }
-
-        int a = fibRec(n - 1);
-        int b = fibRec(n - 2);
-        int res = a + b;
-
-        recordStep(-1, -1, null, "return " + res, 4, new ArrayList<>(callStack));
-        callStack.pop();
-        return res;
-    }
 
     // Memoization Fibonacci
     private int fibMemo(int n, int[] memo) {
         callStack.push("fib(" + n + ")");
-        recordStep(-1, -1, null, "call fib(" + n + ")", 0, new ArrayList<>(callStack));
+        recordStep(-1, -1, null, "call fib(" + n + ")", Arrays.asList(0), new ArrayList<>(callStack));
 
         if (n <= 1) {
             memo[n] = n;
-            recordStep(0, n, null, "memo[" + n + "] = " + n, 1, new ArrayList<>(callStack));
+            recordStep(0, n, null, "memo[" + n + "] = " + n, Arrays.asList(1, 2), new ArrayList<>(callStack));
             callStack.pop();
             return n;
         }
 
         if (memo[n] != -1) {
-            recordStep(0, n, null, "use memo[" + n + "] = " + memo[n], 2, new ArrayList<>(callStack));
+            recordStep(0, n, null, "use memo[" + n + "] = " + memo[n], Arrays.asList(3,4), new ArrayList<>(callStack));
             callStack.pop();
             return memo[n];
         }
 
         int res = fibMemo(n - 1, memo) + fibMemo(n - 2, memo);
         memo[n] = res;
-        recordStep(0, n, null, "store memo[" + n + "] = " + res, 3, new ArrayList<>(callStack));
+        recordStep(0, n, null, "store memo[" + n + "] = " + res, Arrays.asList(5,6,7), new ArrayList<>(callStack));
         callStack.pop();
         return res;
     }
@@ -386,7 +396,7 @@ public class AlgorithmController extends ModuleController {
             int[][] dp = new int[n + 1][cap + 1];
             for (int j = 0; j <= cap; j++) {
                 dp[0][j] = 0;
-                recordStep(0, j, null, "dp[0][" + j + "] = 0", 1, new ArrayList<>(callStack));
+                recordStep(0, j, null, "dp[0][" + j + "] = 0", Arrays.asList(0), new ArrayList<>(callStack));
             }
             for (int i = 1; i <= n; i++) {
                 for (int j = 0; j <= cap; j++) {
@@ -400,7 +410,7 @@ public class AlgorithmController extends ModuleController {
                     if (w[i - 1] <= j)
                         deps.add(new int[] { i - 1, j - w[i - 1] });
 
-                    recordStep(i, j, deps, "dp[" + i + "][" + j + "] = " + dp[i][j], 4, new ArrayList<>(callStack));
+                    recordStep(i, j, deps, "dp[" + i + "][" + j + "] = " + dp[i][j], Arrays.asList(5,6,7,8), new ArrayList<>(callStack));
                 }
             }
 
@@ -423,45 +433,21 @@ public class AlgorithmController extends ModuleController {
         }
     }
 
-    // Recursive Knapsack
-    private int knapRec(int[] w, int[] v, int cap, int idx) {
-        callStack.push("knap(idx=" + idx + ",cap=" + cap + ")");
-        recordStep(-1, -1, null, "call knap idx=" + idx, 0, new ArrayList<>(callStack));
 
-        if (idx == w.length || cap == 0) {
-            recordStep(-1, -1, null, "return 0", 1, new ArrayList<>(callStack));
-            callStack.pop();
-            return 0;
-        }
-
-        if (w[idx] > cap) {
-            int res = knapRec(w, v, cap, idx + 1);
-            callStack.pop();
-            return res;
-        }
-
-        int take = v[idx] + knapRec(w, v, cap - w[idx], idx + 1);
-        int skip = knapRec(w, v, cap, idx + 1);
-        int res = Math.max(take, skip);
-
-        recordStep(-1, -1, null, "return " + res, 4, new ArrayList<>(callStack));
-        callStack.pop();
-        return res;
-    }
 
     // Memoization Knapsack
     private int knapMemo(int[] w, int[] v, int cap, int idx, int[][] memo) {
         callStack.push("knap(" + idx + "," + cap + ")");
-        recordStep(-1, -1, null, "call knap memo idx=" + idx, 0, new ArrayList<>(callStack));
+        recordStep(-1, -1, null, "call knap memo idx=" + idx, Arrays.asList(0), new ArrayList<>(callStack));
 
         if (idx == w.length || cap == 0) {
-            recordStep(-1, -1, null, "return 0", 1, new ArrayList<>(callStack));
+            recordStep(-1, -1, null, "return 0", Arrays.asList(1,2), new ArrayList<>(callStack));
             callStack.pop();
             return 0;
         }
 
         if (memo[idx][cap] != -1) {
-            recordStep(idx, cap, null, "use memo[" + idx + "][" + cap + "] = " + memo[idx][cap], 2,
+            recordStep(idx, cap, null, "use memo[" + idx + "][" + cap + "] = " + memo[idx][cap], Arrays.asList(3,4),
                     new ArrayList<>(callStack));
             callStack.pop();
             return memo[idx][cap];
@@ -470,7 +456,7 @@ public class AlgorithmController extends ModuleController {
         if (w[idx] > cap) {
             int res = knapMemo(w, v, cap, idx + 1, memo);
             memo[idx][cap] = res;
-            recordStep(idx, cap, null, "store memo[" + idx + "][" + cap + "] = " + res, 3, new ArrayList<>(callStack));
+            recordStep(idx, cap, null, "store memo[" + idx + "][" + cap + "] = " + res, Arrays.asList(5,6), new ArrayList<>(callStack));
             callStack.pop();
             return res;
         }
@@ -480,7 +466,7 @@ public class AlgorithmController extends ModuleController {
         int res = Math.max(take, skip);
         memo[idx][cap] = res;
 
-        recordStep(idx, cap, null, "store memo[" + idx + "][" + cap + "] = " + res, 3, new ArrayList<>(callStack));
+        recordStep(idx, cap, null, "store memo[" + idx + "][" + cap + "] = " + res, Arrays.asList(7,8,9), new ArrayList<>(callStack));
         callStack.pop();
         return res;
     }
@@ -495,7 +481,7 @@ public class AlgorithmController extends ModuleController {
             coins[i] = Integer.parseInt(cs[i].trim());
 
         if (mode.equals("Memoization")) {
-            // ... keep your memoization logic
+            // ... keep your memoization
         } else { // ✅ Table mode
             steps.clear();
             setupChangeTable(amt);
@@ -518,7 +504,7 @@ public class AlgorithmController extends ModuleController {
                 }
 
                 // Step will update cell later
-                recordStep(0, a, deps, "dp[" + a + "] = " + dp[a], 4, new ArrayList<>(callStack));
+                recordStep(0, a, deps, "dp[" + a + "] = " + dp[a], Arrays.asList(8), new ArrayList<>(callStack));
             }
 
             List<Integer> coinsUsed = new ArrayList<>();
@@ -539,43 +525,21 @@ public class AlgorithmController extends ModuleController {
         }
     }
 
-    // Recursive Coin Change
-    private int changeRec(int[] coins, int amt) {
-        callStack.push("change(" + amt + ")");
-        recordStep(-1, -1, null, "call change amt=" + amt, 0, new ArrayList<>(callStack));
 
-        if (amt == 0) {
-            recordStep(-1, -1, null, "return 0", 1, new ArrayList<>(callStack));
-            callStack.pop();
-            return 0;
-        }
-
-        int res = Integer.MAX_VALUE / 2;
-        for (int c : coins) {
-            if (c <= amt) {
-                int sub = changeRec(coins, amt - c);
-                res = Math.min(res, sub + 1);
-            }
-        }
-
-        recordStep(-1, -1, null, "return " + res, 4, new ArrayList<>(callStack));
-        callStack.pop();
-        return res;
-    }
 
     // Memoization Coin Change
     private int changeMemo(int[] coins, int amt, int[] memo) {
         callStack.push("change(" + amt + ")");
-        recordStep(-1, -1, null, "call change memo amt=" + amt, 0, new ArrayList<>(callStack));
+        recordStep(-1, -1, null, "call change memo amt=" + amt, Arrays.asList(0), new ArrayList<>(callStack));
 
         if (amt == 0) {
-            recordStep(-1, -1, null, "return 0", 1, new ArrayList<>(callStack));
+            recordStep(-1, -1, null, "return 0", Arrays.asList(1,2), new ArrayList<>(callStack));
             callStack.pop();
             return 0;
         }
 
         if (memo[amt] != -1) {
-            recordStep(0, amt, null, "use memo[" + amt + "] = " + memo[amt], 2, new ArrayList<>(callStack));
+            recordStep(0, amt, null, "use memo[" + amt + "] = " + memo[amt], Arrays.asList(3,4), new ArrayList<>(callStack));
             callStack.pop();
             return memo[amt];
         }
@@ -588,7 +552,7 @@ public class AlgorithmController extends ModuleController {
         }
         memo[amt] = res;
 
-        recordStep(0, amt, null, "store memo[" + amt + "] = " + res, 3, new ArrayList<>(callStack));
+        recordStep(0, amt, null, "store memo[" + amt + "] = " + res, Arrays.asList(5,6), new ArrayList<>(callStack));
         callStack.pop();
         return res;
     }
@@ -634,11 +598,11 @@ public class AlgorithmController extends ModuleController {
 
             for (int i = 0; i <= n; i++) {
                 dp[i][0] = 0;
-                recordStep(i, 0, null, "dp[" + i + "][0] = 0", 1, new ArrayList<>(callStack));
+                recordStep(i, 0, null, "dp[" + i + "][0] = 0", Arrays.asList(1,2), new ArrayList<>(callStack));
             }
             for (int j = 0; j <= m; j++) {
                 dp[0][j] = 0;
-                recordStep(0, j, null, "dp[0][" + j + "] = 0", 1, new ArrayList<>(callStack));
+                recordStep(0, j, null, "dp[0][" + j + "] = 0", Arrays.asList(1,2), new ArrayList<>(callStack));
             }
 
             for (int i = 1; i <= n; i++) {
@@ -649,11 +613,11 @@ public class AlgorithmController extends ModuleController {
                         dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
 
                     List<int[]> deps = new ArrayList<>();
-                    deps.add(new int[] { i - 1, j });
-                    deps.add(new int[] { i, j - 1 });
-                    deps.add(new int[] { i - 1, j - 1 });
+                    deps.add(new int[]{i - 1, j});
+                    deps.add(new int[]{i, j - 1});
+                    deps.add(new int[]{i - 1, j - 1});
 
-                    recordStep(i, j, deps, "dp[" + i + "][" + j + "] = " + dp[i][j], 4, new ArrayList<>(callStack));
+                    recordStep(i, j, deps, "dp[" + i + "][" + j + "] = " + dp[i][j], Arrays.asList(11), new ArrayList<>(callStack));
                 }
             }
 
@@ -676,67 +640,23 @@ public class AlgorithmController extends ModuleController {
             startAnimation();
         }
 
-        // for (int i = 1; i <= n; i++) {
-        // for (int j = 1; j <= m; j++) {
-        // if (a.charAt(i - 1) == b.charAt(j - 1)) dp[i][j] = dp[i - 1][j - 1] + 1;
-        // else dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
-        //
-        // Label cell = new Label(String.valueOf(dp[i][j]));
-        // cell.setPrefSize(70, 70);
-        // cell.setStyle("-fx-border-color:black; -fx-font-size:18;
-        // -fx-alignment:center;");
-        // tableOutput.add(cell, j, i);
-        // tableCellMap.put(i + "," + j, cell);
-        //
-        // List<int[]> deps = new ArrayList<>();
-        // deps.add(new int[]{i - 1, j});
-        // deps.add(new int[]{i, j - 1});
-        // deps.add(new int[]{i - 1, j - 1});
-        // recordStep(i, j, deps, "dp[" + i + "][" + j + "] = " + dp[i][j], 4, new
-        // ArrayList<>(callStack));
-        // }
-        // }
-        // tableAnswerLabel.setText("Result: " + dp[n][m]);
-        // startAnimation();
-        // }
     }
 
-    // Recursive LCS
-    private int lcsRec(String a, String b, int i, int j) {
-        callStack.push("lcs(" + i + "," + j + ")");
-        recordStep(-1, -1, null, "call lcs(" + i + "," + j + ")", 0, new ArrayList<>(callStack));
 
-        if (i == 0 || j == 0) {
-            recordStep(-1, -1, null, "return 0", 1, new ArrayList<>(callStack));
-            callStack.pop();
-            return 0;
-        }
-
-        int res;
-        if (a.charAt(i - 1) == b.charAt(j - 1)) {
-            res = 1 + lcsRec(a, b, i - 1, j - 1);
-        } else {
-            res = Math.max(lcsRec(a, b, i - 1, j), lcsRec(a, b, i, j - 1));
-        }
-
-        recordStep(-1, -1, null, "return " + res, 4, new ArrayList<>(callStack));
-        callStack.pop();
-        return res;
-    }
 
     // Memoization LCS
     private int lcsMemo(String a, String b, int i, int j, int[][] memo) {
         callStack.push("lcs(" + i + "," + j + ")");
-        recordStep(-1, -1, null, "call lcs memo(" + i + "," + j + ")", 0, new ArrayList<>(callStack));
+        recordStep(-1, -1, null, "call lcs memo(" + i + "," + j + ")", Arrays.asList(0), new ArrayList<>(callStack));
 
         if (i == 0 || j == 0) {
-            recordStep(-1, -1, null, "return 0", 1, new ArrayList<>(callStack));
+            recordStep(-1, -1, null, "return 0", Arrays.asList(1,2), new ArrayList<>(callStack));
             callStack.pop();
             return 0;
         }
 
         if (memo[i][j] != -1) {
-            recordStep(i, j, null, "use memo[" + i + "][" + j + "] = " + memo[i][j], 2, new ArrayList<>(callStack));
+            recordStep(i, j, null, "use memo[" + i + "][" + j + "] = " + memo[i][j], Arrays.asList(3,4), new ArrayList<>(callStack));
             callStack.pop();
             return memo[i][j];
         }
@@ -749,7 +669,7 @@ public class AlgorithmController extends ModuleController {
         }
         memo[i][j] = res;
 
-        recordStep(i, j, null, "store memo[" + i + "][" + j + "] = " + res, 3, new ArrayList<>(callStack));
+        recordStep(i, j, null, "store memo[" + i + "][" + j + "] = " + res, Arrays.asList(5,6,7,8), new ArrayList<>(callStack));
         callStack.pop();
         return res;
     }
@@ -768,6 +688,10 @@ public class AlgorithmController extends ModuleController {
         tableOutput.add(corner, 0, 0);
 
         // Column headers (string b)
+        Label gapHeader = new Label(" ");
+        gapHeader.setPrefSize(70, 70);
+        gapHeader.setStyle("-fx-font-weight:bold; -fx-font-size:20; -fx-alignment:center; -fx-background-color:lightgray;");
+        tableOutput.add(gapHeader, 1, 0);
         for (int j = 0; j < m; j++) {
             Label header = new Label(String.valueOf(b.charAt(j)));
             header.setPrefSize(70, 70);
@@ -777,7 +701,12 @@ public class AlgorithmController extends ModuleController {
         }
 
         // Row headers (string a)
+        Label gapRowHeader = new Label(" ");
+        gapRowHeader.setPrefSize(70, 70);
+        gapRowHeader.setStyle("-fx-font-weight:bold; -fx-font-size:20; -fx-alignment:center; -fx-background-color:lightgray;");
+        tableOutput.add(gapRowHeader, 0, 1);
         for (int i = 0; i < n; i++) {
+
             Label header = new Label(String.valueOf(a.charAt(i)));
             header.setPrefSize(70, 70);
             header.setStyle(
@@ -956,6 +885,10 @@ public class AlgorithmController extends ModuleController {
         tableOutput.add(corner, 0, 0);
 
         // Column headers (string b)
+        Label gapHeader = new Label(" ");
+        gapHeader.setPrefSize(70, 70);
+        gapHeader.setStyle("-fx-font-weight:bold; -fx-font-size:20; -fx-alignment:center; -fx-background-color:lightgray;");
+        tableOutput.add(gapHeader, 1, 0);
         for (int j = 0; j < m; j++) {
             Label header = new Label(String.valueOf(b.charAt(j)));
             header.setPrefSize(70, 70);
@@ -965,6 +898,10 @@ public class AlgorithmController extends ModuleController {
         }
 
         // Row headers (string a)
+        Label gapRowHeader = new Label(" ");
+        gapRowHeader.setPrefSize(70, 70);
+        gapRowHeader.setStyle("-fx-font-weight:bold; -fx-font-size:20; -fx-alignment:center; -fx-background-color:lightgray;");
+        tableOutput.add(gapRowHeader, 0, 1);
         for (int i = 0; i < n; i++) {
             Label header = new Label(String.valueOf(a.charAt(i)));
             header.setPrefSize(70, 70);
@@ -1001,25 +938,6 @@ public class AlgorithmController extends ModuleController {
 
             setupMemoTable(a, b);
 
-            // // Initialize first column
-            // for (int i = 0; i <= n; i++) {
-            // memo[i][0] = -i;
-            // Label cell = tableCellMap.get((i+1) + "," + 1);
-            // if (cell != null) cell.setText("");
-            // //if (cell != null) cell.setText(String.valueOf(memo[i][0]));
-            // recordStep(i, 0, null, "memo[" + i + "][0] = " + memo[i][0], 1, new
-            // ArrayList<>(callStack));
-            // }
-            //
-            // // Initialize first row
-            // for (int j = 0; j <= m; j++) {
-            // memo[0][j] = -j;
-            // Label cell = tableCellMap.get(1 + "," + (j+1));
-            // //if (cell != null) cell.setText(String.valueOf(memo[0][j]));
-            // if (cell != null) cell.setText("");
-            // recordStep(0, j, null, "memo[0][" + j + "] = " + memo[0][j], 1, new
-            // ArrayList<>(callStack));
-            // }
 
             int res = seqMemo(a, b, n, m, memo);
             // Backtrack to build aligned sequences
@@ -1059,13 +977,13 @@ public class AlgorithmController extends ModuleController {
             // --- Fill first column ---
             for (int i = 0; i <= n; i++) {
                 dp[i][0] = -i;
-                recordStep(i, 0, null, "dp[" + i + "][0] = " + dp[i][0], 1, new ArrayList<>(callStack));
+                recordStep(i, 0, null, "dp[" + i + "][0] = " + dp[i][0], Arrays.asList(2,3), new ArrayList<>(callStack));
             }
 
             // --- Fill first row ---
             for (int j = 0; j <= m; j++) {
                 dp[0][j] = -j;
-                recordStep(0, j, null, "dp[0][" + j + "] = " + dp[0][j], 1, new ArrayList<>(callStack));
+                recordStep(0, j, null, "dp[0][" + j + "] = " + dp[0][j], Arrays.asList(4,5), new ArrayList<>(callStack));
             }
 
             // --- Fill rest ---
@@ -1081,7 +999,7 @@ public class AlgorithmController extends ModuleController {
                             new int[] { i - 1, j },
                             new int[] { i, j - 1 });
 
-                    recordStep(i, j, deps, "dp[" + i + "][" + j + "] = " + dp[i][j], 4, new ArrayList<>(callStack));
+                    recordStep(i, j, deps, "dp[" + i + "][" + j + "] = " + dp[i][j], Arrays.asList(6,7,8,9,10,11), new ArrayList<>(callStack));
                 }
             }
 
@@ -1113,52 +1031,26 @@ public class AlgorithmController extends ModuleController {
         }
     }
 
-    // Recursive Sequence Alignment
-    private int seqRec(String a, String b, int i, int j) {
-        callStack.push("seq(" + i + "," + j + ")");
-        recordStep(-1, -1, null, "call seq(" + i + "," + j + ")", 0, new ArrayList<>(callStack));
-
-        if (i == 0) {
-            recordStep(-1, -1, null, "return " + (-j), 1, new ArrayList<>(callStack));
-            callStack.pop();
-            return -j;
-        }
-        if (j == 0) {
-            recordStep(-1, -1, null, "return " + (-i), 1, new ArrayList<>(callStack));
-            callStack.pop();
-            return -i;
-        }
-
-        int match = seqRec(a, b, i - 1, j - 1) + (a.charAt(i - 1) == b.charAt(j - 1) ? 1 : -1);
-        int del = seqRec(a, b, i - 1, j) - 1;
-        int ins = seqRec(a, b, i, j - 1) - 1;
-        int res = Math.max(match, Math.max(del, ins));
-
-        recordStep(-1, -1, null, "return " + res, 4, new ArrayList<>(callStack));
-        callStack.pop();
-        return res;
-    }
-
     // Memoization Sequence Alignment
     private int seqMemo(String a, String b, int i, int j, int[][] memo) {
         callStack.push("seq(" + i + "," + j + ")");
-        recordStep(-1, -1, null, "call seq memo(" + i + "," + j + ")", 0, new ArrayList<>(callStack));
+        recordStep(-1, -1, null, "call seq memo(" + i + "," + j + ")", Arrays.asList(0), new ArrayList<>(callStack));
 
         if (memo[i][j] != Integer.MIN_VALUE / 2) {
-            recordStep(i, j, null, "use memo[" + i + "][" + j + "] = " + memo[i][j], 2, new ArrayList<>(callStack));
+            recordStep(i, j, null, "use memo[" + i + "][" + j + "] = " + memo[i][j],Arrays.asList(1,2) , new ArrayList<>(callStack));
             callStack.pop();
             return memo[i][j];
         }
 
         if (i == 0) {
             memo[i][j] = -j;
-            recordStep(i, j, null, "store memo[" + i + "][" + j + "] = " + memo[i][j], 3, new ArrayList<>(callStack));
+            recordStep(i, j, null, "store memo[" + i + "][" + j + "] = " + memo[i][j], Arrays.asList(3,4), new ArrayList<>(callStack));
             callStack.pop();
             return memo[i][j];
         }
         if (j == 0) {
             memo[i][j] = -i;
-            recordStep(i, j, null, "store memo[" + i + "][" + j + "] = " + memo[i][j], 3, new ArrayList<>(callStack));
+            recordStep(i, j, null, "store memo[" + i + "][" + j + "] = " + memo[i][j], Arrays.asList(5,6), new ArrayList<>(callStack));
             callStack.pop();
             return memo[i][j];
         }
@@ -1169,7 +1061,7 @@ public class AlgorithmController extends ModuleController {
         int res = Math.max(match, Math.max(del, ins));
         memo[i][j] = res;
 
-        recordStep(i, j, null, "store memo[" + i + "][" + j + "] = " + res, 3, new ArrayList<>(callStack));
+        recordStep(i, j, null, "store memo[" + i + "][" + j + "] = " + res, Arrays.asList(10,11,12,13), new ArrayList<>(callStack));
         callStack.pop();
         return res;
     }
@@ -1287,8 +1179,8 @@ public class AlgorithmController extends ModuleController {
 
         String mode = modeCombo.getValue();
         createVisualizationLayout(mode);
-        loadCodeForAlgorithm();
-
+        //loadCodeForAlgorithm();
+loadFullCode();
         if (currentAlgorithm == null)
             return;
         try {
@@ -1401,5 +1293,98 @@ public class AlgorithmController extends ModuleController {
             displayCode(new String[] { "// Code file not found" });
         }
     }
+    private void loadFullCode() {
+        fullCodes.put("FIB",
+                "function fib(n):\n" +          // line 0
 
-}
+                        "    if n <= 1:\n" +            // line 1
+                        "        return n\n" +          // line 2
+
+                        "    if memo[n] != -1:\n" +     // line 3
+                        "        return memo[n]\n" +    // line 4
+
+                        "    memo[n] = fib(n-1) + fib(n-2)\n" + // line 5
+                        "    return memo[n]\n" +        // line 6
+
+                        "    // table mode update\n" +  // line 7
+                        "    dp[i] = dp[i-1] + dp[i-2]");//line 8
+
+
+        fullCodes.put("KNAPSACK",
+                "function knap(idx, cap):\n" +  // line 0
+
+                        "    if idx == n or cap == 0:\n" + // line 1
+                        "        return 0\n" +          // line 2
+
+                        "    if memo[idx][cap] != -1:\n" + // line3
+                        "        return memo[idx][cap]\n" + // line 4
+
+                        "    if w[idx] > cap:\n" +      // line 5
+                        "        memo[idx][cap] = knap(idx+1, cap)\n" + // line 6
+                        "    else:\n" +
+                        "        memo[idx][cap] = max(knap(idx+1, cap), v[idx] + knap(idx+1, cap-w[idx]))\n" + // line 8
+
+                        "    return memo[idx][cap]\n" + // line 9
+
+                        "    // table mode update\n" +  // line 10
+                        "    dp[i][j] = max(dp[i-1][j], v[i-1] + dp[i-1][j-w[i-1]])");//line 11
+
+        fullCodes.put("CHANGE",
+                "function change(amt):\n" +     // line 0
+                        "    if amt == 0:\n" +          // line 1
+                        "        return 0\n" +          // line 2
+
+                        "    if memo[amt] != -1:\n" +   // line 3
+                        "        return memo[amt]\n" +  // line 4
+                        "    memo[amt] = min(1 + change(amt-c)) for each coin c\n" + // line 5
+                        "    return memo[amt]\n" +      // line 6
+
+                        "    // table mode update\n" +  // line 7
+                        "    dp[a] = min(dp[a], 1 + dp[a-c])");//line 8
+
+        fullCodes.put("LCS",
+                "function lcs(i, j):.\n" +       // line 0
+                        "    if i == 0 or j == 0:\n" +
+                        "return 0.\n" +          // line 2
+
+                        "    if memo[i][j] != -1:\n" +  // line 3
+                        "        return memo[i][j].\n" + // line 4
+                        "    if a[i-1] == b[j-1]:\n" +  // line 5
+                        "        memo[i][j] = 1 + lcs(i-1, j-1)\n" + // line 6
+                        "    else:\n" +
+                        "        memo[i][j] = max(lcs(i-1, j), lcs(i, j-1))\n" + // line 8
+                        "    return memo[i][j].\n" +     // line 9
+                        "    // table mode update\n" +  // line 10
+                        "    dp[i][j] = max(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]+match)");//line 11
+
+        fullCodes.put("SEQALIGN",
+                "function seqAlign(a, b):\n" +  // line 0
+                        "    initialize dp[0][0] = 0\n" + // line 1
+                        "    for j from 1..m:\n" +      // line 2
+                        "        dp[0][j] = gap * j\n" + // line 3
+
+                        "    for i from 1..n:\n" +      // line 4
+                        "        dp[i][0] = gap * i\n" + // line 5
+                        "    for i from 1..n:\n" +      // line 6
+                        "        for j from 1..m:\n" +  // line 7
+                        "            match = dp[i-1][j-1] + score(a[i-1], b[j-1])\n" + // line 8
+                        "            delete = dp[i-1][j] + gap\n" + // line 9
+                        "            insert = dp[i][j-1] + gap\n" + // line 10
+                        "            dp[i][j] = max(match, delete, insert)");
+                                        // line 0
+                        fullCodes.put("SEQMEMO", String.join("\n",
+                                "function seqMemo(i, j):",                        // line 0
+                                "    if i == 0 and j == 0:",                      // line 1
+                                "        return 0" +// line 2
+                                "    if i == 0:",                                 // line 3
+                                "        return j * gap",                         // line 4
+                                "    if j == 0:",                                 // line 5
+                                "        return i * gap",                         // line 6
+                                "    if memo[i][j] != -1:",                       // line 7
+                                "        return memo[i][j]",                      // line 8
+                                "    match = seqMemo(i-1, j-1) + score(a[i-1], b[j-1])", // line 9
+                                "    delete = seqMemo(i-1, j) + gap",             // line 10
+                                "    insert = seqMemo(i, j-1) + gap",             // line 11
+                                "    memo[i][j] = max(match, delete, insert)",    // line 12
+                                "    return memo[i][j]"                           // line 13
+                        ));}}
