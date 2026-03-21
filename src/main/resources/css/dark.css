@@ -6,6 +6,8 @@
     -fx-font-size: 14px;
     -fx-background-radius: 15;
     -fx-padding: 10;
+    -fx-background-color: #444444;
+    -fx-text-fill: white;
 }
 
 .module-title {
@@ -22,7 +24,25 @@
 }
 
 #storyArea {
-    -fx-control-inner-background: #4a3728;
+    -fx-control-inner-background: #0A1F44;
     -fx-text-fill: #fff3e0;
     -fx-font-size: 13;
+}
+
+/* additional dark theme elements */
+.text-area, .text-field {
+    -fx-control-inner-background: #1e1e1e;
+    -fx-text-fill: #ffffff;
+}
+
+.label, .label * {
+    -fx-text-fill: #e0e0e0;
+}
+
+.scroll-pane {
+    -fx-background: #2b2b2b;
+}
+
+.hbox, .vbox, .stack-pane {
+    -fx-background-color: #2b2b2b;
 }

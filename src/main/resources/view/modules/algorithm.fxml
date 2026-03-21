@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:id="moduleRoot"
+            fx:controller="com.example.dsavisualizer.controller.modules.AlgorithmController"
+            style="-fx-font-family: 'Segoe UI'; -fx-font-size: 12;">
+
+    <!-- Top: Title centered, Theme & Home & Go Back buttons top-right -->
+    <top>
+        <BorderPane style="-fx-padding: 15 20 10 20; -fx-border-color: #cccccc; -fx-border-width: 0 0 1 0;">
+            <center>
+                <Label fx:id="titleLabel" text="Algorithm"
+                       style="-fx-font-size: 32; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+            </center>
+            <right>
+                <HBox spacing="10" alignment="TOP_RIGHT">
+                    <Button fx:id="themeBtn" text="Dark Mode" style="-fx-font-size: 12; -fx-padding: 8 15; -fx-background-color: #4CAF50; -fx-text-fill: white;"/>
+                    <Button fx:id="backBtn" text="Home" style="-fx-font-size: 12; -fx-padding: 8 15; -fx-background-color: #2196F3; -fx-text-fill: white;"/>
+                    <Button fx:id="goBackBtn" text="← Go Back" style="-fx-font-size: 12; -fx-padding: 8 15; -fx-background-color: #FF9800; -fx-text-fill: white;"/>
+                </HBox>
+            </right>
+        </BorderPane>
+    </top>
+
+    <center>
+        <HBox spacing="15" style="-fx-padding: 15;">
+            <!-- LEFT PANEL: Input Controls -->
+            <VBox spacing="12" style="-fx-padding: 10; -fx-min-width: 280; -fx-max-width: 320; -fx-background-color: #f9f9f9;">
+                <Label text="Story" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+                <TextArea fx:id="storyArea" editable="false" wrapText="true" prefHeight="80" style="-fx-control-inner-background: #ffffff; -fx-font-size: 11;"/>
+                
+                <Label text="Mode" style="-fx-font-weight: bold; -fx-font-size: 12;"/>
+                <ComboBox fx:id="modeCombo" prefWidth="250"/>
+                
+                <Label text="Input" style="-fx-font-weight: bold; -fx-font-size: 12;"/>
+                <VBox fx:id="inputBox" spacing="6" style="-fx-border-color: #e0e0e0; -fx-border-radius: 3; -fx-padding: 8; -fx-background-color: #ffffff;"/>
+                
+                <HBox spacing="8" style="-fx-padding-top: 8;">
+                    <Button fx:id="randomBtn" text="Random" style="-fx-padding: 8 15; -fx-background-color: #607D8B; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                    <Button fx:id="computeBtn" text="Compute" style="-fx-padding: 8 15; -fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                </HBox>
+                
+                <Label text="Controls" style="-fx-font-weight: bold; -fx-font-size: 12; -fx-padding-top: 8;"/>
+                <VBox spacing="8">
+                    <HBox spacing="8">
+                        <Button fx:id="startBtn" text="▶▶ Start" style="-fx-padding: 10; -fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 11;" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                    <HBox spacing="8">
+                        <Button fx:id="playBtn" text="▶ Play" style="-fx-padding: 10; -fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 11;" HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="pauseBtn" text="⏸ Pause" style="-fx-padding: 10; -fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 11;" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                    <HBox spacing="8">
+                        <Button fx:id="prevBtn" text="⏮ Prev" style="-fx-padding: 10; -fx-background-color: #9C27B0; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 11;" HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="nextBtn" text="Next ⏭" style="-fx-padding: 10; -fx-background-color: #00BCD4; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 11;" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                </VBox>
+            </VBox>
+
+            <!-- RIGHT PANEL: Visualization Area (contains code, stack, and table) -->
+            <VBox spacing="10" HBox.hgrow="ALWAYS">
+                <Label text="Visualization" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+                <VBox HBox.hgrow="ALWAYS">
+                    <ScrollPane fitToWidth="true" HBox.hgrow="ALWAYS">
+                        <content>
+                            <VBox fx:id="vizPane"
+                                  spacing="10"
+                                  style="-fx-background-color:#f5f5f5; -fx-padding:10;"/>
+                        </content>
+                    </ScrollPane>
+                    <VBox style="-fx-padding: 10; -fx-min-width: 200;">
+                        <Label fx:id="statusLabel" text="" style="-fx-font-size: 20; -fx-text-fill: darkblue; -fx-font-weight: bold;"/>
+                    </VBox>
+                </VBox>
+            </VBox>
+        </HBox>
+    </center>
+</BorderPane>

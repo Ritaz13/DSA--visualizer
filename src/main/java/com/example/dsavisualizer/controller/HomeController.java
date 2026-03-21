@@ -12,21 +12,23 @@ public class HomeController {
     @FXML private Button themeBtn;
 
     @FXML private Button heapBtn, recursionBtn, graphBtn, bstBtn,
-            linkedBtn, stackBtn, queueBtn, sortingBtn;
+            dpBtn, stackBtn, queueBtn, sortingBtn;
 
     @FXML
     private void openModule(ActionEvent e) {
 
         Button btn = (Button) e.getSource();
 
-        if (btn == heapBtn) SceneManager.switchScene("modules/heap.fxml");
-        else if (btn == recursionBtn) SceneManager.switchScene("modules/recursion.fxml");
-        else if (btn == graphBtn) SceneManager.switchScene("modules/graph.fxml");
-        else if (btn == bstBtn) SceneManager.switchScene("modules/bst.fxml");
-        else if (btn == linkedBtn) SceneManager.switchScene("modules/linkedlist.fxml");
-        else if (btn == stackBtn) SceneManager.switchScene("modules/stack.fxml");
-        else if (btn == queueBtn) SceneManager.switchScene("modules/queue.fxml");
-        else if (btn == sortingBtn) SceneManager.switchScene("modules/sorting.fxml");
+        String id = btn.getId();
+
+        if ("heapBtn".equals(id)) SceneManager.switchScene("modules/heap.fxml");
+        else if ("recursionBtn".equals(id)) SceneManager.switchScene("modules/recursion.fxml");
+        else if ("graphBtn".equals(id)) SceneManager.switchScene("modules/graph.fxml");
+        else if ("bstBtn".equals(id)) SceneManager.switchScene("modules/bst.fxml");
+        else if ("dpBtn".equals(id)) SceneManager.switchScene("modules/dp.fxml");
+        else if ("stackBtn".equals(id)) SceneManager.switchScene("modules/stack.fxml");
+        else if ("queueBtn".equals(id)) SceneManager.switchScene("modules/queue.fxml");
+        else if ("sortingBtn".equals(id)) SceneManager.switchScene("modules/sorting.fxml");
     }
 
     @FXML

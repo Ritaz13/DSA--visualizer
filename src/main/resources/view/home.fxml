@@ -51,8 +51,8 @@
             </Button>
 
             <!-- Row 2 -->
-            <Button fx:id="linkedBtn" onAction="#openModule" prefWidth="300" prefHeight="260" GridPane.rowIndex="1" GridPane.columnIndex="0">
-                <graphic><ImageView fitWidth="300" fitHeight="260"><image><Image url="@/images/linkedlist.png"/></image></ImageView></graphic>
+            <Button fx:id="dpBtn" onAction="#openModule" prefWidth="300" prefHeight="260" GridPane.rowIndex="1" GridPane.columnIndex="0">
+                <graphic><ImageView fitWidth="300" fitHeight="260"><image><Image url="@/images/dp.png"/></image></ImageView></graphic>
             </Button>
 
             <Button fx:id="stackBtn" onAction="#openModule" prefWidth="300" prefHeight="260" GridPane.rowIndex="1" GridPane.columnIndex="1">

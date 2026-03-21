@@ -4,6 +4,7 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
@@ -84,6 +85,22 @@
                                 style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-weight: bold;"
                                 HBox.hgrow="ALWAYS"/>
                     </HBox>
+                    <HBox spacing="6">
+                        <Button fx:id="successorBtn" text=" Successor"
+                                style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #009688; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                        <Button fx:id="predecessorBtn" text="Predecessor"
+                                style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #009688; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                    </HBox>
+                    <HBox spacing="6">
+                        <Button fx:id="minimumBtn" text="Minimum"
+                                style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #009688; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                        <Button fx:id="maximumBtn" text="Maximum"
+                                style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #009688; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                    </HBox>
+                    <HBox spacing="6">
+                        <Button fx:id="clearVizBtn" text="Clear View"
+                                style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #757575; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                    </HBox>
                 </VBox>
 
                 <!-- Traversal Section -->
@@ -104,6 +121,10 @@
                                 style="-fx-font-size: 13; -fx-padding: 8 12; -fx-background-color: #607D8B; -fx-text-fill: white; -fx-font-weight: bold;"/>
                     </HBox>
                     <HBox spacing="6">
+                        <Label text="Speed:" style="-fx-font-size:12;"/>
+                        <Slider fx:id="speedSlider" min="0.5" max="3" value="1" style="-fx-font-size: 12;"/>
+                    </HBox>
+                    <HBox spacing="6">
                         <Button fx:id="inOrderBtn" text="In-Order"
                                 style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #9C27B0; -fx-text-fill: white; -fx-font-weight: bold;"/>
                         <Button fx:id="preOrderBtn" text="Pre-Order"
@@ -116,17 +137,10 @@
                                 style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #9C27B0; -fx-text-fill: white; -fx-font-weight: bold;"/>
                     </HBox>
                 </VBox>
-                <!-- Successor / Predecessor Section -->
-                <Label text="Extra Operations" style="-fx-font-weight: bold; -fx-padding: 8 0 0 0; -fx-font-size: 13;"/>
-                <VBox spacing="6">
-                    <Button fx:id="successorBtn" text="Find Successor"
-                            style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #009688; -fx-text-fill: white; -fx-font-weight: bold;"/>
-                    <Button fx:id="predecessorBtn" text="Find Predecessor"
-                            style="-fx-font-size: 13; -fx-padding: 10 15; -fx-background-color: #009688; -fx-text-fill: white; -fx-font-weight: bold;"/>
-                </VBox>
 
 
-                <!-- Show Code Button with Copy -->
+
+                
                 <HBox spacing="8">
                     <Button fx:id="showCodeBtn" text="Show Code"
                             style="-fx-font-size: 13; -fx-padding: 10 15; -fx-font-weight: bold; -fx-background-color: #3F51B5; -fx-text-fill: white;"
@@ -157,31 +171,9 @@
 
                 <!-- Traversal Results -->
                 <VBox spacing="5">
-                    <Label text="Traversal Results" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
-                    <HBox spacing="10">
-                        <VBox spacing="4" HBox.hgrow="ALWAYS">
-                            <Label text="In-Order:" style="-fx-font-weight: bold; -fx-font-size: 12;"/>
-                            <TextArea fx:id="inOrderResult" editable="false" wrapText="true" prefHeight="50"
-                                      style="-fx-control-inner-background: #ffffcc; -fx-font-family: 'Courier New'; -fx-font-size: 11; -fx-padding: 6;"/>
-                        </VBox>
-                        <VBox spacing="4" HBox.hgrow="ALWAYS">
-                            <Label text="Pre-Order:" style="-fx-font-weight: bold; -fx-font-size: 12;"/>
-                            <TextArea fx:id="preOrderResult" editable="false" wrapText="true" prefHeight="50"
-                                      style="-fx-control-inner-background: #e8f5e9; -fx-font-family: 'Courier New'; -fx-font-size: 11; -fx-padding: 6;"/>
-                        </VBox>
-                    </HBox>
-                    <HBox spacing="10">
-                        <VBox spacing="4" HBox.hgrow="ALWAYS">
-                            <Label text="Post-Order:" style="-fx-font-weight: bold; -fx-font-size: 12;"/>
-                            <TextArea fx:id="postOrderResult" editable="false" wrapText="true" prefHeight="50"
-                                      style="-fx-control-inner-background: #e3f2fd; -fx-font-family: 'Courier New'; -fx-font-size: 11; -fx-padding: 6;"/>
-                        </VBox>
-                        <VBox spacing="4" HBox.hgrow="ALWAYS">
-                            <Label text="Level-Order:" style="-fx-font-weight: bold; -fx-font-size: 12;"/>
-                            <TextArea fx:id="levelOrderResult" editable="false" wrapText="true" prefHeight="50"
-                                      style="-fx-control-inner-background: #f3e5f5; -fx-font-family: 'Courier New'; -fx-font-size: 11; -fx-padding: 6;"/>
-                        </VBox>
-                    </HBox>
+                    <Label text="Current Traversal" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+                    <TextArea fx:id="traversalResult" editable="false" wrapText="true" prefHeight="80"
+                              style="-fx-control-inner-background: #fff9c4; -fx-font-family: 'Courier New'; -fx-font-size: 12; -fx-padding: 10; -fx-border-color: #f57f17; -fx-border-width: 1; -fx-border-radius: 3;"/>
                 </VBox>
 
                 <!-- Code Box -->
@@ -191,7 +183,7 @@
                               editable="false"
                               wrapText="false"
                               prefHeight="200"
-                              style="-fx-control-inner-background: #1e1e1e; -fx-text-fill: #d4d4d4; -fx-font-family: 'Courier New'; -fx-font-size: 11; -fx-padding: 10;"/>
+                              style="-fx-control-inner-background: #2d3748; -fx-text-fill: #e2e8f0; -fx-font-family: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', 'Courier New', monospace; -fx-font-size: 13; -fx-padding: 15; -fx-background-color: #2d3748; -fx-border-color: #4a5568; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-highlight-fill: #4299e1; -fx-highlight-text-fill: white;"/>
                 </VBox>
             </VBox>
         </HBox>

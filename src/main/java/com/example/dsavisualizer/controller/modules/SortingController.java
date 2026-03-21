@@ -250,7 +250,8 @@ public class SortingController extends ModuleController {
         }
 
         // Align all bars to bottom
-        vizArea.setStyle("-fx-alignment: BOTTOM_CENTER;");
+        //vizArea.setStyle("-fx-alignment: BOTTOM_CENTER;");
+        vizArea.setStyle("-fx-alignment:baseline-center");
     }
 
     private void renderArray(boolean[] comparing, boolean[] sorted) {
@@ -692,15 +693,15 @@ public class SortingController extends ModuleController {
         }
     }
 
-//    private void showAlert(String msg) {
+    //    private void showAlert(String msg) {
 //        Alert a = new Alert(Alert.AlertType.INFORMATION, msg, ButtonType.OK);
 //        a.showAndWait();
 //    }
-protected void showAlert(String msg) {
-    if (statusLabel != null) {
-        statusLabel.setText(msg);
+    protected void showAlert(String msg) {
+        if (statusLabel != null) {
+            statusLabel.setText(msg);
+        }
     }
-}
     // Inner class to store each step of the sorting process
     private static class SortStep {
         int[] array;
