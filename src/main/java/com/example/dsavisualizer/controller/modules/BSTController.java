@@ -471,7 +471,7 @@ public class BSTController extends ModuleController {
 
     private void redraw() {
         int treeHeight = height(root);
-        double canvasHeight = Math.max(400, treeHeight * 100); // প্রতি লেভেলে 100px
+        double canvasHeight = Math.max(400, treeHeight * 100);
         double canvasWidth = Math.max(700, Math.pow(2, treeHeight) * 50); // nodes spread
 
         canvas.setWidth(canvasWidth);

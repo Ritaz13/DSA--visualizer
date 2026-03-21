@@ -107,7 +107,9 @@ public class RecursionController extends ModuleController {
 
         // ChoiceBox
         opChoice = new ChoiceBox<>();
-        opChoice.getItems().addAll("Factorial", "Fibonacci", "Reverse String");
+        opChoice.getItems().addAll("Factorial", "Fibonacci", "Reverse String", "Tower of Hanoi",  "Sum of N",
+                "Power",
+                "BST Insert" );
         opChoice.setValue("Factorial");
         opChoice.setStyle("-fx-font-size: 16; -fx-padding: 6 12;");
 
@@ -252,7 +254,7 @@ public class RecursionController extends ModuleController {
         if (player != null) player.stop();
     }
 
-    private boolean prepareEvents() {
+   /* private boolean prepareEvents() {
         clear();
         String op = opChoice.getValue();
         if (op.equals("Reverse String")) {
@@ -271,8 +273,37 @@ public class RecursionController extends ModuleController {
             }
             if (n < 0) return false;
             if (n > 20) n = 20;
+            if (op.equals("Tower of Hanoi") && n > 6) n = 6;
 
-            if (op.equals("Factorial")) buildFactorialEvents(n, events);
+            if (op.equals("Tower of Hanoi")) {
+                buildHanoiEvents(n, "A", "C", "B", events);
+            }
+            else if (op.equals("Factorial")) {
+                buildFactorialEvents(n, events);
+            }
+            else if (op.equals("Sum of N")) {
+                buildSumEvents(n, events);
+            }
+            else if (op.equals("Power")) {
+
+                String[] parts = inputField.getText().split(",");
+                if(parts.length != 2) return false;
+
+                int base = Integer.parseInt(parts[0].trim());
+                int exp = Integer.parseInt(parts[1].trim());
+
+                buildPowerEvents(base, exp, events);
+            }
+            else if (op.equals("BST Insert")) {
+
+                String[] nums = inputField.getText().split(",");
+                Node root = null;
+
+                for(String s : nums){
+                    int val = Integer.parseInt(s.trim());
+                    root = insertBST(root, val, events);
+                }
+            }
             else if (op.equals("Fibonacci")) {
                 int idxForValue = findFibIndexForValue(n);
                 if (idxForValue == -1) idxForValue = findPrevFibIndex(n);
@@ -288,6 +319,89 @@ public class RecursionController extends ModuleController {
                 }
             }
         }
+        eventIndex = 0;
+        return !events.isEmpty();
+    }*/
+
+    private boolean prepareEvents() {
+        clear();
+        String op = opChoice.getValue();
+
+        if (op.equals("Reverse String")) {
+            String s = inputField.getText();
+            if (s == null) return false;
+            if (s.length() > 10) s = s.substring(0, 10);
+            buildReverseEvents(s, events);
+        }
+        else if (op.equals("Power")) {   // 🔹 Power আগে handle করো
+            String in = inputField.getText();
+            if (in == null || in.trim().isEmpty()) return false;
+
+            String[] parts = in.split(",");
+            if (parts.length != 2) return false;
+
+            int base = Integer.parseInt(parts[0].trim());
+            int exp  = Integer.parseInt(parts[1].trim());
+
+            buildPowerEvents(base, exp, events);
+        }
+        else if (op.equals("BST Insert")) {   // 🔹 BST ও number list
+            String in = inputField.getText();
+            if (in == null || in.trim().isEmpty()) return false;
+
+            String[] nums = in.split(",");
+            if (nums.length > 10) return false;
+            Node root = null;
+
+            for (String s : nums) {
+                int val = Integer.parseInt(s.trim());
+                root = insertBST(root, val, events);
+            }
+        }
+        else {
+            String in = inputField.getText();
+            if (in == null || in.trim().isEmpty()) return false;
+
+            int n;
+            try {
+                n = Integer.parseInt(in.trim());
+            } catch (NumberFormatException ex) {
+                return false;
+            }
+
+            if (n < 0) return false;
+            if (n > 20) n = 20;
+            if (op.equals("Tower of Hanoi") && n > 6) n = 6;
+
+            if (op.equals("Tower of Hanoi")) {
+                buildHanoiEvents(n, "A", "C", "B", events);
+            }
+            else if (op.equals("Factorial")) {
+                buildFactorialEvents(n, events);
+            }
+            else if (op.equals("Sum of N")) {
+                buildSumEvents(n, events);
+            }
+            else if (op.equals("Fibonacci")) {
+                int idxForValue = findFibIndexForValue(n);
+                if (idxForValue == -1) idxForValue = findPrevFibIndex(n);
+
+                if (idxForValue >= 0) {
+                    buildFibonacciEvents(idxForValue, events);
+
+                    List<Long> seq = new ArrayList<>();
+                    seq.add(0L);
+                    if (idxForValue >= 1) seq.add(1L);
+
+                    for (int i = 2; i <= idxForValue; i++) {
+                        seq.add(seq.get(i - 1) + seq.get(i - 2));
+                    }
+
+                    events.add(new Event(EventType.INFO, "sequence", seq));
+                }
+            }
+        }
+
         eventIndex = 0;
         return !events.isEmpty();
     }
@@ -427,19 +541,113 @@ public class RecursionController extends ModuleController {
         return res;
     }
 
+    private void buildHanoiEvents(int n, String from, String to, String aux, List<Event> ev) {
+
+        ev.add(new Event(EventType.ENTER,
+                "hanoi(" + n + ", " + from + " → " + to + ", aux=" + aux + ")"));
+
+        if (n == 1) {
+            ev.add(new Event(EventType.RETURN,
+                    "Move disk 1 from " + from + " → " + to, "done"));
+            return;
+        }
+
+        buildHanoiEvents(n - 1, from, aux, to, ev);
+
+        ev.add(new Event(EventType.INFO,
+                "move", "Move disk " + n + " from " + from + " → " + to));
+
+        buildHanoiEvents(n - 1, aux, to, from, ev);
+
+        ev.add(new Event(EventType.RETURN,
+                "hanoi(" + n + ")", "complete"));
+    }
+
+    private int buildSumEvents(int n, List<Event> ev){
+
+        ev.add(new Event(EventType.ENTER,"sum("+n+")"));
+
+        int res;
+
+        if(n==0){
+            res=0;
+            ev.add(new Event(EventType.RETURN,"sum("+n+")",res));
+        }
+        else{
+            int sub=buildSumEvents(n-1,ev);
+            res=n+sub;
+            ev.add(new Event(EventType.RETURN,"sum("+n+")",res));
+        }
+
+        return res;
+    }
+
+    private long buildPowerEvents(int a,int n,List<Event> ev){
+
+        ev.add(new Event(EventType.ENTER,"power("+a+","+n+")"));
+
+        long res;
+
+        if(n==0){
+            res=1;
+            ev.add(new Event(EventType.RETURN,"power("+a+","+n+")",res));
+        }
+        else{
+            long sub=buildPowerEvents(a,n-1,ev);
+            res=a*sub;
+            ev.add(new Event(EventType.RETURN,"power("+a+","+n+")",res));
+        }
+
+        return res;
+    }
+    class Node{
+        int val;
+        Node left,right;
+
+        Node(int v){
+            val=v;
+        }
+    }
+    private Node insertBST(Node root,int val,List<Event> ev){
+
+        ev.add(new Event(EventType.ENTER,"insert("+val+")"));
+
+        if(root==null){
+            ev.add(new Event(EventType.RETURN,"insert("+val+")","new node"));
+            return new Node(val);
+        }
+
+        if(val<root.val)
+            root.left=insertBST(root.left,val,ev);
+        else
+            root.right=insertBST(root.right,val,ev);
+
+        ev.add(new Event(EventType.RETURN,"insert("+val+")","done"));
+
+        return root;
+    }
     private void showFinalAnswer() {
         vizArea.getChildren().clear();
 
         String op = opChoice.getValue();
         Event last = events.get(events.size() - 1);
 
-        if (op.equals("Factorial") || op.equals("Reverse String")) {
+        if (op.equals("Factorial")
+                || op.equals("Reverse String")
+                || op.equals("Sum of N")
+                || op.equals("Power")) {
             Label finalLbl = new Label("Final Answer: " + last.result);
             finalLbl.setStyle("-fx-font-size: 18; -fx-text-fill: navy; -fx-font-weight: bold; "
                     + "-fx-padding: 10; -fx-background-color: #e6f0ff; "
                     + "-fx-border-color:#333; -fx-border-radius:4; -fx-background-radius:4;");
             vizArea.getChildren().add(finalLbl);
-        } else if (op.equals("Fibonacci")) {
+        }
+        else if (op.equals("Tower of Hanoi")) {
+            Label done = new Label("Tower of Hanoi Completed!");
+            done.setStyle("-fx-font-size: 20; -fx-text-fill: darkgreen; -fx-font-weight: bold;");
+            vizArea.getChildren().add(done);
+        }
+        else if (op.equals("Fibonacci")) {
             Event infoEvent = null;
             for (Event ev : events) {
                 if (ev.type == EventType.INFO) {
@@ -447,6 +655,7 @@ public class RecursionController extends ModuleController {
                     break;
                 }
             }
+
             if (infoEvent != null && infoEvent.result instanceof java.util.List) {
                 @SuppressWarnings("unchecked")
                 java.util.List<Object> list = (java.util.List<Object>) infoEvent.result;

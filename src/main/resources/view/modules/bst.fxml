@@ -152,7 +152,7 @@
 
                     </StackPane>
                     <Label fx:id="statusLabel" text=""
-                           style="-fx-font-size: 14; -fx-text-fill: darkred; -fx-padding: 6;"/>
+                           style="-fx-font-size:  14; -fx-text-fill: darkred; -fx-padding: 6;"/>
                 </VBox>
 
                 <!-- Traversal Results -->

@@ -1,45 +1,62 @@
 // RECURSION EXAMPLES
 class Recursion {
-    
+
     // Factorial: n!
     public static int factorial(int n) {
-        if (n == 0 || n == 1) return 1;  // Base case
-        return n * factorial(n - 1);      // Recursive case
+        if (n == 0 || n == 1) return 1;
+        return n * factorial(n - 1);
     }
-    
-    // Fibonacci: 0, 1, 1, 2, 3, 5, 8...
+
+    // Fibonacci
     public static int fibonacci(int n) {
-        if (n <= 1) return n;  // Base case
-        return fibonacci(n - 1) + fibonacci(n - 2);  // Recursive case
+        if (n <= 1) return n;
+        return fibonacci(n - 1) + fibonacci(n - 2);
     }
-    
+
     // Reverse a string
     public static String reverseString(String str, int index) {
-        if (index == 0) return "" + str.charAt(0);  // Base case
-        return reverseString(str, index - 1) + str.charAt(index);  // Recursive
+        if (index == 0) return "" + str.charAt(0);
+        return reverseString(str, index - 1) + str.charAt(index);
     }
-    
+
     // Sum of n numbers
     public static int sumUpToN(int n) {
-        if (n == 0) return 0;  // Base case
-        return n + sumUpToN(n - 1);  // Recursive case
+        if (n == 0) return 0;
+        return n + sumUpToN(n - 1);
     }
-    
+
     // Power: x^n
     public static int power(int x, int n) {
-        if (n == 0) return 1;  // Base case
-        return x * power(x, n - 1);  // Recursive case
+        if (n == 0) return 1;
+        return x * power(x, n - 1);
     }
-    
+
     // Binary Search (recursive)
     public static int binarySearch(int[] arr, int target, int left, int right) {
-        if (left > right) return -1;  // Base case: not found
+        if (left > right) return -1;
+
         int mid = left + (right - left) / 2;
-        if (arr[mid] == target) return mid;  // Base case: found
-        if (arr[mid] > target) {
-            return binarySearch(arr, target, left, mid - 1);  // Search left
-        } else {
-            return binarySearch(arr, target, mid + 1, right);  // Search right
+
+        if (arr[mid] == target) return mid;
+
+        if (arr[mid] > target)
+            return binarySearch(arr, target, left, mid - 1);
+        else
+            return binarySearch(arr, target, mid + 1, right);
+    }
+
+    // Tower of Hanoi
+    public static void towerOfHanoi(int n, char source, char destination, char auxiliary) {
+
+        if (n == 1) {
+            System.out.println("Move disk 1 from " + source + " to " + destination);
+            return;
         }
+
+        towerOfHanoi(n - 1, source, auxiliary, destination);
+
+        System.out.println("Move disk " + n + " from " + source + " to " + destination);
+
+        towerOfHanoi(n - 1, auxiliary, destination, source);
     }
 }
