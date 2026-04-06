@@ -32,14 +32,23 @@ public class RecursionController extends ModuleController {
     @FXML
     private TextField inputField;
     @FXML
-    private Button startBtn, pauseBtn, stepBtn, clearBtn;
+    private Button startBtn, pauseBtn, nextBtn, prevBtn, clearBtn;
+
     private Slider speedSlider;
     @FXML
     private Pane callStackPane;
-    @FXML
-    private Pane codePane;
+//    @FXML
+//    private Pane codePane;
     @FXML
     private Label returnLabel;
+    @FXML
+    private TextArea codeArea;
+//    @FXML
+//    private Pane vizArea;
+    @FXML
+    private Label statusLabel;
+    @FXML
+    private Label finalAnswerLabel;
 
     private List<Event> events = new ArrayList<>();
     private int eventIndex = 0;
@@ -51,6 +60,8 @@ public class RecursionController extends ModuleController {
 
     private String codeContent = "";
     private Deque<String> callStack = new ArrayDeque<>();
+    private List<Deque<String>> callStackHistory = new ArrayList<>();
+    private List<String> statusHistory = new ArrayList<>();
     private int highlightedLineIndex = -1;
 
     @Override
@@ -68,14 +79,16 @@ public class RecursionController extends ModuleController {
 
         startBtn.setOnAction(e -> start());
         pauseBtn.setOnAction(e -> pause());
-        stepBtn.setOnAction(e -> step());
+        nextBtn.setOnAction(e -> next());
+        prevBtn.setOnAction(e -> prev());
         clearBtn.setOnAction(e -> clear());
+
 
         showCodeBtn.setOnAction(e -> toggleCodeArea());
         copyCodeBtn.setOnAction(e -> copyCode());
 
         updateCode();
-        renderCode();
+        //renderCode();
     }
 
     private void copyCode() {
@@ -125,8 +138,43 @@ public class RecursionController extends ModuleController {
                         return reverse(s.substring(1)) + s.charAt(0);
                     }
                     """;
+        } else if ("Tower of Hanoi".equals(op)) {
+            codeContent = """
+                    public static void hanoi(int n, char from, char to, char aux) {
+                        if (n == 1) {
+                            System.out.println("Move disk 1 from " + from + " to " + to);
+                            return;
+                        }
+                        hanoi(n-1, from, aux, to);
+                        System.out.println("Move disk " + n + " from " + from + " to " + to);
+                        hanoi(n-1, aux, to, from);
+                    }
+                    """;
+        } else if ("Sum of N".equals(op)) {
+            codeContent = """
+                    public static int sum(int n) {
+                        if (n == 0) return 0;
+                        return n + sum(n - 1);
+                    }
+                    """;
+        } else if ("Power".equals(op)) {
+            codeContent = """
+                    public static int power(int base, int exp) {
+                        if (exp == 0) return 1;
+                        return base * power(base, exp - 1);
+                    }
+                    """;
+        } else if ("BST Insert".equals(op)) {
+            codeContent = """
+                    private TreeNode insert(TreeNode root, int val) {
+                        if (root == null) return new TreeNode(val);
+                        if (val < root.val) root.left = insert(root.left, val);
+                        else root.right = insert(root.right, val);
+                        return root;
+                    }
+                    """;
         }
-        renderCode();
+        //renderCode();
         if (codeArea != null) {
             codeArea.setText(codeContent);
         }
@@ -136,55 +184,55 @@ public class RecursionController extends ModuleController {
         // Code is always shown in codePane
     }
 
-    private void renderCode() {
-        if (codePane == null)
-            return;
+//    private void renderCode() {
+////        if (codePane == null)
+////            return;
+////
+////        codePane.getChildren().clear();
+//        VBox codeBox = new VBox(0);
+//        codeBox.setPadding(new Insets(10));
+//        codeBox.setStyle("-fx-background-color: #1e1e1e;");
+//
+//        String[] lines = codeContent.trim().split("\n");
+//        for (int i = 0; i < lines.length; i++) {
+//            HBox lineBox = new HBox(4);
+//            lineBox.setAlignment(Pos.TOP_LEFT);
+//            lineBox.setPadding(new Insets(2, 0, 2, 0));
+//            lineBox.setId("codeline_" + i);
+//
+//            Text lineNum = new Text(String.format("%2d ", i + 1));
+//            lineNum.setFont(Font.font("Courier New", 13));
+//            lineNum.setFill(Color.web("#666666"));
+//
+//            Text lineText = new Text(lines[i]);
+//            lineText.setFont(Font.font("Courier New", 13));
+//            lineText.setFill(Color.web("#d4d4d4"));
+//            lineText.setId("line_" + i);
+//
+//            lineBox.getChildren().addAll(lineNum, lineText);
+//            codeBox.getChildren().add(lineBox);
+//        }
+//
+//        codePane.getChildren().add(codeBox);
+//    }
 
-        codePane.getChildren().clear();
-        VBox codeBox = new VBox(0);
-        codeBox.setPadding(new Insets(10));
-        codeBox.setStyle("-fx-background-color: #1e1e1e;");
-
-        String[] lines = codeContent.trim().split("\n");
-        for (int i = 0; i < lines.length; i++) {
-            HBox lineBox = new HBox(4);
-            lineBox.setAlignment(Pos.TOP_LEFT);
-            lineBox.setPadding(new Insets(2, 0, 2, 0));
-            lineBox.setId("codeline_" + i);
-
-            Text lineNum = new Text(String.format("%2d ", i + 1));
-            lineNum.setFont(Font.font("Courier New", 13));
-            lineNum.setFill(Color.web("#666666"));
-
-            Text lineText = new Text(lines[i]);
-            lineText.setFont(Font.font("Courier New", 13));
-            lineText.setFill(Color.web("#d4d4d4"));
-            lineText.setId("line_" + i);
-
-            lineBox.getChildren().addAll(lineNum, lineText);
-            codeBox.getChildren().add(lineBox);
-        }
-
-        codePane.getChildren().add(codeBox);
-    }
-
-    private void highlightCodeLine(int lineIndex) {
-        highlightedLineIndex = lineIndex;
-        if (codePane == null || codePane.getChildren().isEmpty())
-            return;
-
-        VBox codeBox = (VBox) codePane.getChildren().get(0);
-        for (Node node : codeBox.getChildren()) {
-            if (node instanceof HBox) {
-                HBox lineBox = (HBox) node;
-                if (lineBox.getId() != null && lineBox.getId().equals("codeline_" + lineIndex)) {
-                    lineBox.setStyle("-fx-background-color: #FFD700; -fx-background-radius: 3;");
-                } else if (lineBox.getId() != null && lineBox.getId().startsWith("codeline_")) {
-                    lineBox.setStyle("-fx-background-color: transparent;");
-                }
-            }
-        }
-    }
+//    private void highlightCodeLine(int lineIndex) {
+//        highlightedLineIndex = lineIndex;
+//        if (codePane == null || codePane.getChildren().isEmpty())
+//            return;
+//
+//        VBox codeBox = (VBox) codePane.getChildren().get(0);
+//        for (Node node : codeBox.getChildren()) {
+//            if (node instanceof HBox) {
+//                HBox lineBox = (HBox) node;
+//                if (lineBox.getId() != null && lineBox.getId().equals("codeline_" + lineIndex)) {
+//                    lineBox.setStyle("-fx-background-color: #FFD700; -fx-background-radius: 3;");
+//                } else if (lineBox.getId() != null && lineBox.getId().startsWith("codeline_")) {
+//                    lineBox.setStyle("-fx-background-color: transparent;");
+//                }
+//            }
+//        }
+//    }
 
     private void renderCallStack() {
         if (callStackPane == null)
@@ -270,26 +318,39 @@ public class RecursionController extends ModuleController {
         speedSlider = new Slider(100, 1000, 500);
         speedSlider.setPrefWidth(250);
         speedSlider.setStyle("-fx-font-size: 12;");
+        speedSlider.setTooltip(new Tooltip("Higher value = Slower animation"));
 
-        Label speedLabel = new Label("Speed:");
+        Label speedLabel = new Label("Animation Speed:");
         speedLabel.setStyle("-fx-font-size: 15; -fx-font-weight: bold;");
 
-        controlsBox.getChildren().addAll(opLabel, opChoice, speedLabel, speedSlider);
+
+        HBox buttonRow = new HBox(10);
+        buttonRow.setAlignment(Pos.CENTER_LEFT);
+
+
+        controlsBox.getChildren().addAll(
+                opLabel,
+                opChoice,
+                speedLabel,
+                speedSlider,
+                buttonRow
+        );
 
         moduleControls.getChildren().add(controlsBox);
 
         pauseBtn.setDisable(true);
+        prevBtn.setDisable(true);
 
         player = new Timeline();
         player.setCycleCount(Timeline.INDEFINITE);
-        player.getKeyFrames().add(new KeyFrame(Duration.millis(speedSlider.getValue()), ev -> step()));
+        double initialDelay = 1100 - speedSlider.getValue();
+        player.getKeyFrames().add(new KeyFrame(Duration.millis(initialDelay), ev -> step()));
 
         speedSlider.valueProperty().addListener((obs, oldV, newV) -> {
             if (player != null) {
                 boolean wasRunning = player.getStatus() == Timeline.Status.RUNNING;
                 player.stop();
-                double speedFactor = newV.doubleValue();
-                double delay = 2000 / speedFactor;
+                double delay = 1100 - newV.doubleValue(); // Higher value = slower speed
                 player.getKeyFrames().setAll(new KeyFrame(Duration.millis(delay), ev -> step()));
                 if (wasRunning)
                     player.play();
@@ -301,35 +362,91 @@ public class RecursionController extends ModuleController {
         if (!prepareEvents())
             return;
         pauseBtn.setDisable(false);
+        pauseBtn.setText("Pause");
         startBtn.setDisable(true);
-        stepBtn.setDisable(true);
+        nextBtn.setDisable(true);
+        prevBtn.setDisable(true);
         clearBtn.setDisable(true);
+        finalAnswerLabel.setText("");
         player.play();
     }
 
     private void pause() {
-        player.stop();
-        pauseBtn.setDisable(true);
-        startBtn.setDisable(false);
-        stepBtn.setDisable(false);
-        clearBtn.setDisable(true);
+        if (player.getStatus() == Timeline.Status.RUNNING) {
+            player.pause();
+            pauseBtn.setText("Resume");
+            nextBtn.setDisable(false);
+            prevBtn.setDisable(eventIndex == 0);
+            clearBtn.setDisable(false);
+        } else {
+            player.play();
+            pauseBtn.setText("Pause");
+            nextBtn.setDisable(true);
+            prevBtn.setDisable(true);
+            clearBtn.setDisable(true);
+        }
+    }
+
+    private void next() {
+        if (events == null || events.isEmpty())
+            return;
+        if (eventIndex < events.size()) {
+            // Save current call stack and status before applying
+            Deque<String> currentStack = new ArrayDeque<>(callStack);
+            callStackHistory.add(currentStack);
+            statusHistory.add(statusLabel.getText());
+            Event ev = events.get(eventIndex++);
+            applyEvent(ev);
+            prevBtn.setDisable(false);
+            if (eventIndex == events.size()) {
+                nextBtn.setDisable(true);
+                startBtn.setDisable(false);
+                pauseBtn.setDisable(true);
+                showFinalAnswer();
+            }
+        }
+    }
+
+    private void prev() {
+        if (eventIndex > 0) {
+            eventIndex--;
+            // Restore previous call stack and status
+            if (!callStackHistory.isEmpty()) {
+                callStack = new ArrayDeque<>(callStackHistory.get(callStackHistory.size() - 1));
+                callStackHistory.remove(callStackHistory.size() - 1);
+                renderCallStack();
+            }
+            if (!statusHistory.isEmpty()) {
+                statusLabel.setText(statusHistory.get(statusHistory.size() - 1));
+                statusHistory.remove(statusHistory.size() - 1);
+            }
+            nextBtn.setDisable(false);
+            finalAnswerLabel.setText("");
+            if (eventIndex == 0) {
+                prevBtn.setDisable(true);
+            }
+        }
     }
 
     private void step() {
         if (events == null || events.isEmpty())
             return;
         if (eventIndex < events.size()) {
+            // Save current call stack and status before applying
+            Deque<String> currentStack = new ArrayDeque<>(callStack);
+            callStackHistory.add(currentStack);
+            statusHistory.add(statusLabel.getText());
             Event ev = events.get(eventIndex++);
             applyEvent(ev);
-        } else if (eventIndex == events.size()) {
-            showFinalAnswer();
-            pauseBtn.setDisable(true);
-            startBtn.setDisable(false);
-            stepBtn.setDisable(false);
-        } else {
-            stepBtn.setDisable(false);
-            Event lastEv = events.get(events.size() - 1);
-            applyEvent(lastEv);
+            if (eventIndex == events.size()) {
+                player.stop();
+                pauseBtn.setDisable(true);
+                pauseBtn.setText("Pause");
+                startBtn.setDisable(false);
+                nextBtn.setDisable(true);
+                prevBtn.setDisable(true);
+                showFinalAnswer();
+            }
         }
     }
 
@@ -337,12 +454,19 @@ public class RecursionController extends ModuleController {
         events.clear();
         eventIndex = 0;
         callStack.clear();
+        callStackHistory.clear();
+        statusHistory.clear();
         renderCallStack();
         startBtn.setDisable(false);
-        stepBtn.setDisable(false);
+        nextBtn.setDisable(true);
+        prevBtn.setDisable(true);
         pauseBtn.setDisable(true);
+        pauseBtn.setText("Pause");
         if (player != null)
             player.stop();
+        finalAnswerLabel.setText("");
+        statusLabel.setText("Recursion ready");
+        //returnLabel.setText("");
     }
 
 
@@ -375,7 +499,7 @@ public class RecursionController extends ModuleController {
 
             String[] nums = in.split(",");
             if (nums.length > 10) return false;
-            Node root = null;
+            TreeNode root = null;
 
             for (String s : nums) {
                 int val = Integer.parseInt(s.trim());
@@ -427,6 +551,10 @@ public class RecursionController extends ModuleController {
         }
 
         eventIndex = 0;
+        callStackHistory.clear();
+        callStackHistory.add(new ArrayDeque<>()); // initial empty stack
+        statusHistory.clear();
+        statusHistory.add("Recursion ready");
         return !events.isEmpty();
     }
 
@@ -435,7 +563,7 @@ public class RecursionController extends ModuleController {
             switch (ev.type) {
                 case ENTER:
                     callStack.push(ev.label);
-                    highlightCodeLine(ev.lineIndex);
+                    //highlightCodeLine(ev.lineIndex);
                     renderCallStack();
                     if (statusLabel != null) {
                         statusLabel.setText("Called: " + ev.label);
@@ -448,57 +576,64 @@ public class RecursionController extends ModuleController {
                     if (!callStack.isEmpty()) {
                         callStack.pop();
                     }
-                    highlightCodeLine(ev.lineIndex);
+                    //highlightCodeLine(ev.lineIndex);
                     renderCallStack();
                     if (statusLabel != null) {
                         statusLabel.setText("Returns: " + ev.result);
                     }
-                    if (returnLabel != null) {
-                        returnLabel.setText("Return: " + ev.result);
-                    }
+//                    if (returnLabel != null) {
+//                        returnLabel.setText("Return: " + ev.result);
+//                    }
                     if (callStack.isEmpty()) {
                         // Final result
-                        statusLabel.setText("Final Answer: " + ev.result);
+                        //statusLabel.setText("Final Answer: " + ev.result);
                     }
                     break;
                 case INFO:
                     callStack.clear();
                     renderCallStack();
-                    highlightCodeLine(-1); // clear highlight
-                    VBox infoBox = new VBox(10);
-                    infoBox.setPadding(new Insets(15));
-                    infoBox.setStyle(
-                            "-fx-background-color: #e6f0ff; -fx-border-color: #1976D2; -fx-border-radius: 4; -fx-background-radius: 4;");
-
-                    Label resultLabel = new Label("Final Result:");
-                    resultLabel.setStyle("-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #1976D2;");
-
-                    if (ev.result instanceof List) {
-                        @SuppressWarnings("unchecked")
-                        List<Object> list = (List<Object>) ev.result;
-                        HBox seqBox = new HBox(8);
-                        seqBox.setAlignment(Pos.CENTER_LEFT);
-                        seqBox.setPadding(new Insets(10));
-                        for (Object o : list) {
-                            Label v = new Label(String.valueOf(o));
-                            v.setFont(Font.font("Courier New", 14));
-                            v.setStyle("-fx-font-size: 14; -fx-border-color: #444; -fx-padding: 8 12; "
-                                    + "-fx-background-color: #FFE082; -fx-border-radius: 4; -fx-background-radius: 4; -fx-font-weight: bold;");
-                            seqBox.getChildren().add(v);
-                        }
-                        infoBox.getChildren().addAll(resultLabel, seqBox);
-                    } else {
-                        Label ansLabel = new Label(String.valueOf(ev.result));
-                        ansLabel.setFont(Font.font("Courier New", 18));
-                        ansLabel.setStyle("-fx-font-size: 18; -fx-text-fill: #1976D2; -fx-font-weight: bold;");
-                        infoBox.getChildren().addAll(resultLabel, ansLabel);
-                    }
-
+                    //highlightCodeLine(-1); // clear highlight
+//                    VBox infoBox = new VBox(10);
+//                    infoBox.setPadding(new Insets(15));
+//                    infoBox.setStyle(
+//                            "-fx-background-color: #e6f0ff; -fx-border-color: #1976D2; -fx-border-radius: 4; -fx-background-radius: 4;");
+//
+//                    Label resultLabel = new Label("Final Result:");
+//                    resultLabel.setStyle("-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #1976D2;");
+//
+//                    if (ev.result instanceof List) {
+//                        @SuppressWarnings("unchecked")
+//                        List<Object> list = (List<Object>) ev.result;
+//                        HBox seqBox = new HBox(8);
+//                        seqBox.setAlignment(Pos.CENTER_LEFT);
+//                        seqBox.setPadding(new Insets(10));
+//                        for (Object o : list) {
+//                            Label v = new Label(String.valueOf(o));
+//                            v.setFont(Font.font("Courier New", 14));
+//                            v.setStyle("-fx-font-size: 14; -fx-border-color: #444; -fx-padding: 8 12; "
+//                                    + "-fx-background-color: #FFE082; -fx-border-radius: 4; -fx-background-radius: 4; -fx-font-weight: bold;");
+//                            seqBox.getChildren().add(v);
+//                        }
+//                        infoBox.getChildren().addAll(resultLabel, seqBox);
+//                    } else {
+//                        Label ansLabel = new Label(String.valueOf(ev.result));
+//                        ansLabel.setFont(Font.font("Courier New", 18));
+//                        ansLabel.setStyle("-fx-font-size: 18; -fx-text-fill: #1976D2; -fx-font-weight: bold;");
+//                        infoBox.getChildren().addAll(resultLabel, ansLabel);
+//                    }
+//
+//                    if (statusLabel != null) {
+//                        statusLabel.setText("Complete!");
+//                    }
+//                    if (returnLabel != null) {
+//                        returnLabel.setText("");
+//                    }
                     if (statusLabel != null) {
-                        statusLabel.setText("Complete!");
-                    }
-                    if (returnLabel != null) {
-                        returnLabel.setText("");
+                        if ("sequence".equals(ev.label)) {
+                            statusLabel.setText("Sequence generated");
+                        } else {
+                            statusLabel.setText(ev.result.toString());
+                        }
                     }
                     break;
             }
@@ -532,6 +667,33 @@ public class RecursionController extends ModuleController {
             ev.add(new Event(EventType.RETURN, "fib(" + n + ")", res));
         }
         return res;
+    }
+
+    private int findFibIndexForValue(int value) {
+        int a = 0, b = 1;
+        int index = 0;
+
+        while (a <= value) {
+            if (a == value) return index;
+            int temp = a + b;
+            a = b;
+            b = temp;
+            index++;
+        }
+        return -1;
+    }
+
+    private int findPrevFibIndex(int value) {
+        int a = 0, b = 1;
+        int index = 0;
+
+        while (a <= value) {
+            int temp = a + b;
+            a = b;
+            b = temp;
+            index++;
+        }
+        return index - 1;
     }
 
     private String buildReverseEvents(String s, List<Event> ev) {
@@ -607,21 +769,21 @@ public class RecursionController extends ModuleController {
 
         return res;
     }
-    class Node{
+    class TreeNode{
         int val;
-        Node left,right;
+        TreeNode left,right;
 
-        Node(int v){
+       TreeNode(int v){
             val=v;
         }
     }
-    private Node insertBST(Node root,int val,List<Event> ev){
+    private TreeNode insertBST(TreeNode root,int val,List<Event> ev){
 
         ev.add(new Event(EventType.ENTER,"insert("+val+")"));
 
         if(root==null){
             ev.add(new Event(EventType.RETURN,"insert("+val+")","new node"));
-            return new Node(val);
+            return new TreeNode(val);
         }
 
         if(val<root.val)
@@ -635,7 +797,7 @@ public class RecursionController extends ModuleController {
     }
     private void showFinalAnswer() {
 
-        vizArea.getChildren().clear();
+        //vizArea.getChildren().clear();
 
         String op = opChoice.getValue();
         Event last = events.get(events.size() - 1);
@@ -644,16 +806,10 @@ public class RecursionController extends ModuleController {
                 || op.equals("Reverse String")
                 || op.equals("Sum of N")
                 || op.equals("Power")) {
-            Label finalLbl = new Label("Final Answer: " + last.result);
-            finalLbl.setStyle("-fx-font-size: 18; -fx-text-fill: navy; -fx-font-weight: bold; "
-                    + "-fx-padding: 10; -fx-background-color: #e6f0ff; "
-                    + "-fx-border-color:#333; -fx-border-radius:4; -fx-background-radius:4;");
-            vizArea.getChildren().add(finalLbl);
+            finalAnswerLabel.setText("Final Answer: " + last.result);
         }
         else if (op.equals("Tower of Hanoi")) {
-            Label done = new Label("Tower of Hanoi Completed!");
-            done.setStyle("-fx-font-size: 20; -fx-text-fill: darkgreen; -fx-font-weight: bold;");
-            vizArea.getChildren().add(done);
+            finalAnswerLabel.setText("Tower of Hanoi Completed!");
         }
         else if (op.equals("Fibonacci")) {
             Event infoEvent = null;
@@ -667,16 +823,11 @@ public class RecursionController extends ModuleController {
             if (infoEvent != null && infoEvent.result instanceof java.util.List) {
                 @SuppressWarnings("unchecked")
                 java.util.List<Object> list = (java.util.List<Object>) infoEvent.result;
-                HBox seqBox = new HBox(8);
-                seqBox.setPadding(new Insets(8));
+                StringBuilder sb = new StringBuilder("Fibonacci Sequence: ");
                 for (Object o : list) {
-                    Label v = new Label(String.valueOf(o));
-                    v.setStyle("-fx-font-size: 18; -fx-text-fill: navy; -fx-font-weight: bold; "
-                            + "-fx-border-color:#444; -fx-padding:6; -fx-background-color:#e6f0ff; "
-                            + "-fx-border-radius:4; -fx-background-radius:4;");
-                    seqBox.getChildren().add(v);
+                    sb.append(o).append(" ");
                 }
-                vizArea.getChildren().add(seqBox);
+                finalAnswerLabel.setText(sb.toString().trim());
             }
         }
 
