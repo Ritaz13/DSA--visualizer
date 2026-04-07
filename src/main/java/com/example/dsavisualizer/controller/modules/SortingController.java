@@ -60,10 +60,6 @@ public class SortingController extends ModuleController {
         super.initialize();
         titleLabel.setText("Sorting Algorithms");
         storyArea.setText("""
-                Sorting organizes data in ascending or descending order.
-                Watch the visualization as we compare and swap elements.
-                
-                Common Algorithms:
                 • Bubble Sort: Simple, O(n²)
                 • Selection Sort: Find minimum, O(n²)
                 • Insertion Sort: Build sorted array, O(n²)
@@ -168,7 +164,7 @@ public class SortingController extends ModuleController {
         isPaused = false;
         startBtn.setDisable(true);
         pauseBtn.setDisable(false);
-        prevBtn.setDisable(true);
+        prevBtn.setDisable(false);
         nextBtn.setDisable(false);
 
         animateSortSteps();

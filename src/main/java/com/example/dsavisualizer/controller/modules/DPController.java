@@ -37,8 +37,8 @@ public class DPController extends ModuleController {
     protected void initialize() {
         super.initialize();
         titleLabel.setText("Dynamic Programming");
-        storyArea.setText("Choose a dynamic programming problem from the list below.\n" +
-                "Each topic will let you explore recursive, memoized and table-based solutions.");
+        storyArea.setText("Choose a dynamic programming problem from the list .\n" +
+                "Each topic will let you explore memoized and table-based solutions.");
 
         knapsackBtn.setOnAction(e -> openTopic(Topic.KNAPSACK));
         changeBtn.setOnAction(e -> openTopic(Topic.CHANGE));

@@ -43,9 +43,9 @@
     <center>
         <HBox spacing="15" style="-fx-padding: 15;">
 
-            <!-- ═══════════════════════════════════════
+            <!--
                  LEFT PANEL — Controls
-            ════════════════════════════════════════ -->
+             -->
             <VBox spacing="10"
                   style="-fx-padding: 12;
                          -fx-min-width: 275; -fx-max-width: 310;
@@ -56,15 +56,21 @@
                 <Label text="📖 Story"
                        style="-fx-font-weight: bold; -fx-font-size: 13;"/>
                 <TextArea fx:id="storyArea"
-                          editable="false" wrapText="true" prefHeight="90"
-                          style="-fx-font-size: 12; -fx-font-family: 'Consolas';
+                          editable="false" wrapText="true" prefHeight="150"
+                          style="-fx-font-size: 18; -fx-font-family: 'Consolas';
                                  -fx-control-inner-background: #e7f5ff;"/>
 
                 <!-- Graph Type -->
                 <Label text="Graph Type"
                        style="-fx-font-weight: bold; -fx-padding: 6 0 0 0; -fx-font-size: 13;"/>
+                <HBox spacing="6">
                 <CheckBox fx:id="directedCheck" text="Directed Graph" selected="true"
                           style="-fx-font-size: 12;"/>
+                <Button fx:id="randomGraphBtn" text="🎲 Random Graph"
+                        style="-fx-font-size: 12; -fx-padding: 9 12;
+                               -fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-weight: bold;
+                               -fx-max-width: Infinity;"/>
+                </HBox>
 
                 <!-- Nodes -->
                 <Label text="Nodes"
@@ -142,8 +148,8 @@
                             style="-fx-font-size: 12; -fx-padding: 8 10;
                                    -fx-background-color: #F44336; -fx-text-fill: white; -fx-font-weight: bold;"
                             HBox.hgrow="ALWAYS"/>
-                </HBox>
-                <HBox spacing="6">
+<!--                </HBox>-->
+<!--                <HBox spacing="6">-->
                     <Button fx:id="prevBtn" text="◀ Prev"
                             style="-fx-font-size: 12; -fx-padding: 8 10;
                                    -fx-background-color: #607D8B; -fx-text-fill: white; -fx-font-weight: bold;"
@@ -155,10 +161,7 @@
                 </HBox>
 
                 <!-- Utilities -->
-                <Button fx:id="randomGraphBtn" text="🎲 Random Graph"
-                        style="-fx-font-size: 12; -fx-padding: 9 12;
-                               -fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-weight: bold;
-                               -fx-max-width: Infinity;"/>
+
 
                 <HBox spacing="8">
                     <Button fx:id="showCodeBtn" text="Show Code"
@@ -193,17 +196,15 @@
                     <Label text="Code"
                            style="-fx-font-weight: bold; -fx-font-size: 13;"/>
                     <TextArea fx:id="codeArea"
-                              editable="false" wrapText="false" prefHeight="185"
-                              style="-fx-control-inner-background: #1e1e1e;
-                                     -fx-text-fill: #d4d4d4;
-                                     -fx-font-family: 'Courier New';
-                                     -fx-font-size: 11; -fx-padding: 10;"/>
+                              editable="false"
+                              wrapText="false"
+                              prefHeight="220"
+                              style="-fx-control-inner-background: #e7f5ff;; -fx-text-fill: black; -fx-font-family:  'Consolas', monospace; -fx-font-size: 20; -fx-padding: 2; -fx-focus-color: transparent; -fx-border-color: #546e7a; -fx-border-width: 1; -fx-border-radius: 3;"/>
+
                 </VBox>
             </VBox>
 
-            <!-- ═══════════════════════════════════════
-                 RIGHT PANEL — Adjacency List + Info
-            ════════════════════════════════════════ -->
+
             <VBox spacing="10"
                   style="-fx-padding: 12;
                          -fx-min-width: 230; -fx-max-width: 280;
@@ -217,47 +218,48 @@
                           prefHeight="350"
                           style="-fx-control-inner-background: #ffffff;
                                  -fx-font-family: 'Courier New';
-                                 -fx-font-size: 13; -fx-padding: 8;"/>
+                                 -fx-font-size: 20; -fx-padding: 8;"/>
 
                 <Label text="Graph Info"
-                       style="-fx-font-weight: bold; -fx-font-size: 13; -fx-padding: 8 0 0 0;"/>
+                       style="-fx-font-weight: bold; -fx-font-size: 18; -fx-padding: 8 0 0 0;"/>
 
                 <HBox spacing="6">
-                    <Label text="Vertices:" style="-fx-font-size: 12;"/>
+                    <Label text="Vertices:" style="-fx-font-size: 15;"/>
                     <Label fx:id="verticesLabel" text="0" style="-fx-font-weight: bold;"/>
-                </HBox>
-                <HBox spacing="6">
-                    <Label text="Edges:" style="-fx-font-size: 12;"/>
+<!--                </HBox>-->
+<!--                <HBox spacing="6">-->
+                    <Label text="Edges:" style="-fx-font-size: 15;"/>
                     <Label fx:id="edgesLabel" text="0" style="-fx-font-weight: bold;"/>
                 </HBox>
                 <HBox spacing="6">
-                    <Label text="Is Tree:" style="-fx-font-size: 12;"/>
+                    <Label text="Is Tree:" style="-fx-font-size: 15;"/>
                     <Label fx:id="treeLabel" text="No" style="-fx-font-weight: bold;"/>
-                </HBox>
-                <HBox spacing="6">
-                    <Label text="Connected:" style="-fx-font-size: 12;"/>
+<!--                </HBox>-->
+<!--                <HBox spacing="6">-->
+                    <Label text="Connected:" style="-fx-font-size: 15;"/>
                     <Label fx:id="connectedLabel" text="No" style="-fx-font-weight: bold;"/>
                 </HBox>
 
                 <!-- Edge type legend -->
                 <Label text="Edge Legend"
-                       style="-fx-font-weight: bold; -fx-font-size: 13; -fx-padding: 10 0 0 0;"/>
-                <VBox spacing="4" style="-fx-font-size: 11;">
+                       style="-fx-font-weight: bold; -fx-font-size: 18; -fx-padding: 10 0 0 0;"/>
+                <VBox spacing="4" style="-fx-font-size: 16;">
                     <Label text="🟢  Tree edge"        style="-fx-text-fill: #27ae60;"/>
                     <Label text="🔴  Back edge (cycle)" style="-fx-text-fill: #e74c3c;"/>
                     <Label text="🔵  Forward edge"     style="-fx-text-fill: #2980b9;"/>
                     <Label text="🟠  Cross edge"       style="-fx-text-fill: #e67e22;"/>
                     <Label text="⚪  Normal"           style="-fx-text-fill: #7f8c8d;"/>
                 </VBox>
-
                 <Label text="Node Legend"
                        style="-fx-font-weight: bold; -fx-font-size: 13; -fx-padding: 8 0 0 0;"/>
-                <VBox spacing="4" style="-fx-font-size: 11;">
-                    <Label text="⬜  Unvisited (white)"/>
+                <VBox spacing="4" style="-fx-font-size: 18;">
+                    <Label text="⬜  Unvisited (white)     "/>
                     <Label text="🔷  In stack/queue (blue)"/>
                     <Label text="🟩  Finished (green)"/>
                     <Label text="🟧  Active now (orange)"/>
                 </VBox>
+
+
             </VBox>
 
         </HBox>

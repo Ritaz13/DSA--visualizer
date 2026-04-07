@@ -7,64 +7,79 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.example.dsavisualizer.controller.HomeController">
+            fx:controller="com.example.dsavisualizer.controller.HomeController"
+            style="-fx-background-color: #FFF8E1;"> <!-- Cream background -->
 
     <!-- TOP RIGHT THEME BUTTON -->
     <top>
-
-            <VBox spacing="20" alignment="CENTER">
-                <padding>
-                    <Insets top="20" right="10" bottom="20" left="10"/>
-                </padding>
-                <Label text="DSA -VISUALIZER"  style=" -fx-text-fill: black; -fx-font-size: 40px; -fx-font-weight: bold;" />
-
-
-        <HBox alignment="TOP_RIGHT">
+        <VBox spacing="20" alignment="CENTER" VBox.vgrow="ALWAYS">
             <padding>
-                <Insets top="10" right="10" bottom="10" left="10"/>
+                <Insets top="60" right="10" bottom="20" left="10"/>
             </padding>
-            <Button fx:id="themeBtn" text="Dark Mode" onAction="#toggleTheme"/>
-        </HBox>
-            </VBox>
-    </top>
 
+            <StackPane>
+                <!-- Region with slightly different shade -->
+                <Region style="
+                    -fx-background-color: linear-gradient(to bottom, #fffde7, #ffe082, #ffd54f);
+                    -fx-background-radius: 10;"
+                        prefHeight="30" maxWidth="700"
+                        translateY="0"/>
+
+                <Label fx:id="titleLabel" text="CODE CANVAS" StackPane.alignment="CENTER"
+                       style="
+           -fx-font-family: 'Segoe UI Semibold';
+           -fx-font-size: 80px;
+           -fx-font-weight: bold;
+           -fx-text-fill: linear-gradient(to bottom, #fff3e0 0%, #ffb74d 40%, #f57c00 100%);
+           -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0.5, 0, 2);
+     "/>
+            </StackPane>
+
+            <HBox alignment="TOP_RIGHT">
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="10"/>
+                </padding>
+                <Button fx:id="themeBtn" text="Dark Mode" onAction="#toggleTheme"/>
+            </HBox>
+        </VBox>
+    </top>
 
     <!-- CENTER GRID 2x4 -->
     <center>
-        <GridPane alignment="CENTER" hgap="30" vgap="30">
+        <GridPane alignment="CENTER" hgap="30" vgap="30" VBox.vgrow="ALWAYS">
 
             <!-- Row 1 -->
-            <Button fx:id="heapBtn" onAction="#openModule" prefWidth="300" prefHeight="260" GridPane.rowIndex="0" GridPane.columnIndex="0">
-                <graphic><ImageView fitWidth="300" fitHeight="260"><image><Image url="@/images/heap.png"/></image></ImageView></graphic>
+            <Button fx:id="heapBtn" onAction="#openModule" prefWidth="230" prefHeight="260" GridPane.rowIndex="0" GridPane.columnIndex="0">
+                <graphic><ImageView fitWidth="230" fitHeight="260"><image><Image url="@/images/heap.png"/></image></ImageView></graphic>
             </Button>
-
-            <Button fx:id="recursionBtn" onAction="#openModule" prefWidth="300" prefHeight="260" GridPane.rowIndex="0" GridPane.columnIndex="1">
-                <graphic><ImageView fitWidth="300" fitHeight="260"><image><Image url="@/images/recursion.png"/></image></ImageView></graphic>
+            <Button fx:id="sortingBtn" onAction="#openModule" prefWidth="230" prefHeight="260" GridPane.rowIndex="0" GridPane.columnIndex="1">
+                <graphic><ImageView fitWidth="230" fitHeight="260"><image><Image url="@/images/sorting.png"/></image></ImageView></graphic>
             </Button>
-
-            <Button fx:id="graphBtn" onAction="#openModule" prefWidth="300" prefHeight="260" GridPane.rowIndex="0" GridPane.columnIndex="2">
-                <graphic><ImageView fitWidth="300" fitHeight="260"><image><Image url="@/images/graph.png"/></image></ImageView></graphic>
+            <Button fx:id="recursionBtn" onAction="#openModule" prefWidth="230" prefHeight="260" GridPane.rowIndex="0" GridPane.columnIndex="2">
+                <graphic><ImageView fitWidth="230" fitHeight="260"><image><Image url="@/images/recursion.png"/></image></ImageView></graphic>
             </Button>
-
-            <Button fx:id="bstBtn" onAction="#openModule" prefWidth="300" prefHeight="260" GridPane.rowIndex="0" GridPane.columnIndex="3">
-                <graphic><ImageView fitWidth="300" fitHeight="260"><image><Image url="@/images/bst.png"/></image></ImageView></graphic>
+            <Button fx:id="graphBtn" onAction="#openModule" prefWidth="230" prefHeight="260" GridPane.rowIndex="0" GridPane.columnIndex="3">
+                <graphic><ImageView fitWidth="230" fitHeight="260"><image><Image url="@/images/graph.png"/></image></ImageView></graphic>
+            </Button>
+            <Button fx:id="bstBtn" onAction="#openModule" prefWidth="230" prefHeight="260" GridPane.rowIndex="0" GridPane.columnIndex="4">
+                <graphic><ImageView fitWidth="230" fitHeight="260"><image><Image url="@/images/bst.png"/></image></ImageView></graphic>
             </Button>
 
             <!-- Row 2 -->
-            <Button fx:id="dpBtn" onAction="#openModule" prefWidth="300" prefHeight="260" GridPane.rowIndex="1" GridPane.columnIndex="0">
-                <graphic><ImageView fitWidth="300" fitHeight="260"><image><Image url="@/images/dp.png"/></image></ImageView></graphic>
+            <Button fx:id="dpBtn" onAction="#openModule" prefWidth="230" prefHeight="260" GridPane.rowIndex="1" GridPane.columnIndex="0">
+                <graphic><ImageView fitWidth="230" fitHeight="260"><image><Image url="@/images/dp.png"/></image></ImageView></graphic>
             </Button>
-
-            <Button fx:id="stackBtn" onAction="#openModule" prefWidth="300" prefHeight="260" GridPane.rowIndex="1" GridPane.columnIndex="1">
-                <graphic><ImageView fitWidth="300" fitHeight="260"><image><Image url="@/images/stack.png"/></image></ImageView></graphic>
+            <Button fx:id="stackBtn" onAction="#openModule" prefWidth="230" prefHeight="260" GridPane.rowIndex="1" GridPane.columnIndex="1">
+                <graphic><ImageView fitWidth="230" fitHeight="260"><image><Image url="@/images/stack.png"/></image></ImageView></graphic>
             </Button>
-
-            <Button fx:id="queueBtn" onAction="#openModule" prefWidth="300" prefHeight="260" GridPane.rowIndex="1" GridPane.columnIndex="2">
-                <graphic><ImageView fitWidth="300" fitHeight="260"><image><Image url="@/images/queue.png"/></image></ImageView></graphic>
+            <Button fx:id="queueBtn" onAction="#openModule" prefWidth="230" prefHeight="260" GridPane.rowIndex="1" GridPane.columnIndex="2">
+                <graphic><ImageView fitWidth="230" fitHeight="260"><image><Image url="@/images/queue.png"/></image></ImageView></graphic>
             </Button>
-
-            <Button fx:id="sortingBtn" onAction="#openModule" prefWidth="300" prefHeight="260" GridPane.rowIndex="1" GridPane.columnIndex="3">
-                <graphic><ImageView fitWidth="300" fitHeight="260"><image><Image url="@/images/sorting.png"/></image></ImageView></graphic>
+            <Button fx:id="linkedBtn" onAction="#openModule" prefWidth="230" prefHeight="260" GridPane.rowIndex="1" GridPane.columnIndex="3">
+                <graphic><ImageView fitWidth="230" fitHeight="260"><image><Image url="@/images/linkedlist.png"/></image></ImageView></graphic>
+            </Button>
+            <Button fx:id="arrayBtn" onAction="#openModule" prefWidth="230" prefHeight="260" GridPane.rowIndex="1" GridPane.columnIndex="4">
+                <graphic><ImageView fitWidth="230" fitHeight="260"><image><Image url="@/images/array.png"/></image></ImageView></graphic>
             </Button>
 
         </GridPane>

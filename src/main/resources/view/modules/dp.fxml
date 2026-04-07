@@ -7,6 +7,8 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml"
             fx:id="moduleRoot"
@@ -38,20 +40,93 @@
                           editable="false"
                           wrapText="true"
                           prefHeight="400"
-                          style="-fx-control-inner-background: #ffffff; -fx-font-size: 12;"/>
+                          style="-fx-font-size: 20;-fx-font-family: 'Consolas'; -fx-control-inner-background: #e7f5ff;"/>
             </VBox>
 
             <!-- RIGHT PANEL: Problem Selection -->
             <VBox spacing="20" alignment="TOP_LEFT" style="-fx-padding: 10;">
                 <Label text="Select a problem to explore:" style="-fx-font-size: 20; -fx-font-weight: bold;"/>
-                <VBox spacing="12">
-                    <Button fx:id="knapsackBtn" text="0/1 Knapsack" prefWidth="200" style="-fx-font-size: 14; -fx-padding: 12; -fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-weight: bold;"/>
-                    <Button fx:id="changeBtn" text="Making Change" prefWidth="200" style="-fx-font-size: 14; -fx-padding: 12; -fx-background-color: #9C27B0; -fx-text-fill: white; -fx-font-weight: bold;"/>
-                    <Button fx:id="fibBtn" text="Nth Fibonacci" prefWidth="200" style="-fx-font-size: 14; -fx-padding: 12; -fx-background-color: #F44336; -fx-text-fill: white; -fx-font-weight: bold;"/>
-                    <Button fx:id="lcsBtn" text="Longest Common Subsequence" prefWidth="200" style="-fx-font-size: 14; -fx-padding: 12; -fx-background-color: #00BCD4; -fx-text-fill: white; -fx-font-weight: bold;"/>
-                    <Button fx:id="seqBtn" text="Sequence Alignment" prefWidth="200" style="-fx-font-size: 14; -fx-padding: 12; -fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"/>
-                </VBox>
+                <HBox spacing="20">
+                    <Button fx:id="knapsackBtn" text=""
+                            prefHeight="300" prefWidth="400"
+                            style="-fx-font-size: 28; -fx-padding: 12; -fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-weight: bold;">
+
+                        <graphic>
+                            <ImageView fitWidth="400" fitHeight="300">
+                                <image>
+                                    <Image url="@/images/dp1.png"/>
+                                </image>
+                            </ImageView>
+                        </graphic>
+
+                    </Button>
+                    <Button fx:id="changeBtn" text=""
+                            prefHeight="300" prefWidth="400"
+                            style="-fx-font-size: 28; -fx-padding: 12; -fx-background-color: #9C27B0; -fx-text-fill: white; -fx-font-weight: bold;">
+
+                        <graphic>
+                            <ImageView fitWidth="400" fitHeight="300">
+                                <image>
+                                    <Image url="@/images/change.png.jpeg"/>
+                                </image>
+                            </ImageView>
+                        </graphic>
+
+                    </Button>
+
+
+                    <Button fx:id="fibBtn" text=""
+                            contentDisplay="TOP"
+                            prefHeight="300" prefWidth="400"
+                            style="-fx-font-size: 20; -fx-padding: 12; -fx-background-color: #F44336; -fx-text-fill: white; -fx-font-weight: bold;">
+
+                        <graphic>
+                            <ImageView fitWidth="200" fitHeight="200">
+                                <image>
+                                    <Image url="@/images/dp2.png"/>
+                                </image>
+                            </ImageView>
+                        </graphic>
+
+                    </Button>
+
+                </HBox>
+
+                <HBox spacing="20">
+
+                    <Button fx:id="lcsBtn" text="Longest Common Subsequence"
+                            contentDisplay="TOP"
+                            prefHeight="300" prefWidth="450"
+                            style="-fx-font-size: 20; -fx-padding: 12; -fx-background-color: #00BCD4; -fx-text-fill: white; -fx-font-weight: bold;">
+
+                        <graphic>
+                            <ImageView fitWidth="220" fitHeight="200">
+                                <image>
+                                    <Image url="@/images/lcs.jpeg"/>
+                                </image>
+                            </ImageView>
+                        </graphic>
+
+                    </Button>
+
+                    <Button fx:id="seqBtn" text="Sequence Alignment"
+                            contentDisplay="TOP"
+                            prefHeight="300" prefWidth="400"
+                            style="-fx-font-size: 20; -fx-padding: 12; -fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;">
+
+                        <graphic>
+                            <ImageView fitWidth="200" fitHeight="200">
+                                <image>
+                                    <Image url="@/images/seq.jpeg"/>
+                                </image>
+                            </ImageView>
+                        </graphic>
+
+                    </Button>
+
+                </HBox>
             </VBox>
         </HBox>
     </center>
 </BorderPane>
+

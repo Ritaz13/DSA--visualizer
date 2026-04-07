@@ -826,11 +826,12 @@ private void highlightSingleNode(Node highlight) {
         traversalSteps.clear();
         inorderSteps(root);
         stepIndex = 0;
-        
-        // Display traversal type
-        if (traversalResult != null) {
-            traversalResult.setText("In-Order Traversal: " + getTraversalString());
-        }
+        showMessage(getTraversalString());
+
+//        // Display traversal type
+//        if (traversalResult != null) {
+//            traversalResult.setText("In-Order Traversal: " + getTraversalString());
+//        }
         redraw();
         startTraversalAuto();
     }
@@ -839,10 +840,11 @@ private void highlightSingleNode(Node highlight) {
         traversalSteps.clear();
         preorderSteps(root);
         stepIndex = 0;
-        
-        if (traversalResult != null) {
-            traversalResult.setText("Pre-Order Traversal: " + getTraversalString());
-        }
+        showMessage(getTraversalString());
+
+//        if (traversalResult != null) {
+//            traversalResult.setText("Pre-Order Traversal: " + getTraversalString());
+//        }
         redraw();
         startTraversalAuto();
     }
@@ -851,10 +853,11 @@ private void highlightSingleNode(Node highlight) {
         traversalSteps.clear();
         postorderSteps(root);
         stepIndex = 0;
-        
-        if (traversalResult != null) {
-            traversalResult.setText("Post-Order Traversal: " + getTraversalString());
-        }
+        showMessage(getTraversalString());
+
+//        if (traversalResult != null) {
+//            traversalResult.setText("Post-Order Traversal: " + getTraversalString());
+//        }
         redraw();
         startTraversalAuto();
     }
@@ -863,10 +866,10 @@ private void highlightSingleNode(Node highlight) {
         traversalSteps.clear();
         levelorderSteps(root);
         stepIndex = 0;
-        
-        if (traversalResult != null) {
-            traversalResult.setText("Level-Order Traversal: " + getTraversalString());
-        }
+        showMessage(getTraversalString());
+//        if (traversalResult != null) {
+//            traversalResult.setText("Level-Order Traversal: " + getTraversalString());
+//        }
         redraw();
         startTraversalAuto();
     }
@@ -877,7 +880,7 @@ private void highlightSingleNode(Node highlight) {
         for (int i = 0; i < traversalSteps.size(); i++) {
             if (i > 0) sb.append(", ");
             if (i == stepIndex) {
-                sb.append(">>> ").append(traversalSteps.get(i).val).append(" <<<");
+                sb.append(" ").append(traversalSteps.get(i).val).append(" ");
             } else {
                 sb.append(traversalSteps.get(i).val);
             }
@@ -1250,9 +1253,9 @@ private void highlightSingleNode(Node highlight) {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         drawTree(root, canvas.getWidth() / 2, 40, canvas.getWidth() / 4);
 
-        if (root != null) {
-            showMessage("Root height = " + treeHeight);
-        }
+//        if (root != null) {
+//            showMessage("Root height = " + treeHeight);
+//        }
     }
 
     // Helper method to draw an arrow from (x1,y1) to (x2,y2)

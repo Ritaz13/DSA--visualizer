@@ -86,6 +86,9 @@ public class AlgorithmController extends ModuleController {
     private TextField weightsField, valuesField, capacityField;
     private TextField amountField, coinsField, nField;
     private TextField str1Field, str2Field;
+    private TextField gapField;
+     private TextField mismatchField;
+    private TextField matchField;
 
     @Override
     protected void initialize() {
@@ -117,14 +120,45 @@ public class AlgorithmController extends ModuleController {
         codeArea = new VBox(4);
         codeArea.setStyle("-fx-font-family:'Courier New'; -fx-font-size:18;");
         layout.getChildren().add(codeArea);
+//        codeLinesLabels = new ArrayList<>();
+//        String[] lines = fullCodes.get(currentAlgorithm.name()).split("\n");
+//        for (int i = 0; i < lines.length; i++) {
+//            Label lbl = new Label(lines[i]);
+//            lbl.setStyle("-fx-font-family:'Courier New'; -fx-font-size:18;");
+//            codeArea.getChildren().add(lbl);
+//            codeLinesLabels.add(lbl);
+//        }
         codeLinesLabels = new ArrayList<>();
-        String[] lines = fullCodes.get(currentAlgorithm.name()).split("\n");
-        for (int i = 0; i < lines.length; i++) {
-            Label lbl = new Label(lines[i]);
-            lbl.setStyle("-fx-font-family:'Courier New'; -fx-font-size:18;");
-            codeArea.getChildren().add(lbl);
-            codeLinesLabels.add(lbl);
+
+        if (currentAlgorithm == Algorithm.SEQALIGN) {
+            if (mode.equals("Memoization")) {
+                String[] lines = fullCodes.get("SEQMEMO").split("\n");
+                for (int i = 0; i < lines.length; i++) {
+                    Label lbl = new Label(lines[i]);
+                    lbl.setStyle("-fx-font-family:'Courier New'; -fx-font-size:18;");
+                    codeArea.getChildren().add(lbl);
+                    codeLinesLabels.add(lbl);
+                }
+            } else {
+                String[] lines = fullCodes.get("SEQALIGN").split("\n");
+                for (int i = 0; i < lines.length; i++) {
+                    Label lbl = new Label(lines[i]);
+                    lbl.setStyle("-fx-font-family:'Courier New'; -fx-font-size:18;");
+                    codeArea.getChildren().add(lbl);
+                    codeLinesLabels.add(lbl);
+                }
+            }
+        } else {
+            // default for other algorithms
+            String[] lines = fullCodes.get(currentAlgorithm.name()).split("\n");
+            for (int i = 0; i < lines.length; i++) {
+                Label lbl = new Label(lines[i]);
+                lbl.setStyle("-fx-font-family:'Courier New'; -fx-font-size:18;");
+                codeArea.getChildren().add(lbl);
+                codeLinesLabels.add(lbl);
+            }
         }
+
 
         // Stack area
         if (!mode.equals("Table")) {
@@ -303,6 +337,7 @@ public class AlgorithmController extends ModuleController {
             for (int i = 0; i <= n; i++) {
                 if (i <= 1)
                     dp[i] = i;
+
                 else
                     dp[i] = dp[i - 1] + dp[i - 2];
 
@@ -313,7 +348,9 @@ public class AlgorithmController extends ModuleController {
                     deps.add(new int[] { 0, i - 2 });
 
                 // Record step to update this cell later
-                recordStep(0, i, deps, "dp[" + i + "] = " + dp[i], List.of(8), new ArrayList<>(callStack));
+                if(i<=1)   recordStep(0, i, deps, "dp[" + i + "] = " + dp[i], List.of(8,9,10), new ArrayList<>(callStack));
+
+                else recordStep(0, i, deps, "dp[" + i + "] = " + dp[i], List.of(8,11,12), new ArrayList<>(callStack));
             }
 
             tableAnswerLabel.setText("Fibonacci Number: " + dp[n]);
@@ -342,7 +379,7 @@ public class AlgorithmController extends ModuleController {
 
         int res = fibMemo(n - 1, memo) + fibMemo(n - 2, memo);
         memo[n] = res;
-        recordStep(0, n, null, "store memo[" + n + "] = " + res, Arrays.asList(5,6,7), new ArrayList<>(callStack));
+        recordStep(0, n, null, "store memo[" + n + "] = " + res, Arrays.asList(5,6), new ArrayList<>(callStack));
         callStack.pop();
         return res;
     }
@@ -364,13 +401,16 @@ public class AlgorithmController extends ModuleController {
         if (mode.equals("Memoization")) {
             callStack.clear();
             steps.clear();
-            int[][] memo = new int[n][cap + 1];
+            int[][] memo = new int[n+1][cap + 1];
             for (int[] row : memo)
                 Arrays.fill(row, -1);
 
             setupKnapsackTable(n, cap);
 
-            int res = knapMemo(w, v, cap, 0, memo);
+            int res = knapMemo(w, v,  n,cap, memo);
+            recordStep(n, cap, null,
+                    "Final Answer = " + res,
+                    Arrays.asList(7,8,9), new ArrayList<>(callStack));
             // Backtrack to find selected items
             List<Integer> selected = new ArrayList<>();
             int idx = 0, c = cap;
@@ -396,21 +436,43 @@ public class AlgorithmController extends ModuleController {
             int[][] dp = new int[n + 1][cap + 1];
             for (int j = 0; j <= cap; j++) {
                 dp[0][j] = 0;
-                recordStep(0, j, null, "dp[0][" + j + "] = 0", Arrays.asList(0), new ArrayList<>(callStack));
+                recordStep(0, j, null, "dp[0][" + j + "] = 0", Arrays.asList(11,12), new ArrayList<>(callStack));
             }
             for (int i = 1; i <= n; i++) {
                 for (int j = 0; j <= cap; j++) {
-                    if (w[i - 1] > j)
-                        dp[i][j] = dp[i - 1][j];
-                    else
-                        dp[i][j] = Math.max(dp[i - 1][j], v[i - 1] + dp[i - 1][j - w[i - 1]]);
+//                    if (w[i - 1] > j)
+//                        dp[i][j] = dp[i - 1][j];
+//                    else
+//                        dp[i][j] = Math.max(dp[i - 1][j], v[i - 1] + dp[i - 1][j - w[i - 1]]);
+//
+//                    List<int[]> deps = new ArrayList<>();
+//                    deps.add(new int[] { i - 1, j });
+//                    if (w[i - 1] <= j)
+//                        deps.add(new int[] { i - 1, j - w[i - 1] });
+
+
+//                    recordStep(i, j, deps, "dp[" + i + "][" + j + "] = " + dp[i][j], Arrays.asList(13,14,15,16,17,18), new ArrayList<>(callStack));
 
                     List<int[]> deps = new ArrayList<>();
-                    deps.add(new int[] { i - 1, j });
-                    if (w[i - 1] <= j)
-                        deps.add(new int[] { i - 1, j - w[i - 1] });
+                    if (w[i - 1] > j) {
+                                             dp[i][j] = dp[i - 1][j];
+                        deps.add(new int[]{i - 1, j});
+                        recordStep(i, j, deps,
+                                "dp[" + i + "][" + j + "] = " + dp[i][j],
+                                Arrays.asList(13,14,15,16),
+                                new ArrayList<>(callStack));
+                    } else {
+                        dp[i][j] = Math.max(dp[i - 1][j], v[i - 1] + dp[i - 1][j - w[i - 1]]);
+                        deps.add(new int[]{i - 1, j});
+                        deps.add(new int[]{i - 1, j - w[i - 1]});
+                        recordStep(i, j, deps,
+                                "dp[" + i + "][" + j + "] = " + dp[i][j],
+                                Arrays.asList(13,14,17,18),
+                                new ArrayList<>(callStack));
+                    }
 
-                    recordStep(i, j, deps, "dp[" + i + "][" + j + "] = " + dp[i][j], Arrays.asList(5,6,7,8), new ArrayList<>(callStack));
+
+
                 }
             }
 
@@ -426,7 +488,7 @@ public class AlgorithmController extends ModuleController {
                 }
             }
             Collections.reverse(selected);
-            String items = selected.stream().map(String::valueOf).collect(Collectors.joining(","));
+            String items = selected.stream().map(i->String.valueOf(i+1)).collect(Collectors.joining(","));
             tableAnswerLabel.setText("Selected Items: " + items);
             statusLabel.setText("Selected Items = " + items);
             startAnimation();
@@ -435,41 +497,63 @@ public class AlgorithmController extends ModuleController {
 
 
 
-    // Memoization Knapsack
-    private int knapMemo(int[] w, int[] v, int cap, int idx, int[][] memo) {
-        callStack.push("knap(" + idx + "," + cap + ")");
-        recordStep(-1, -1, null, "call knap memo idx=" + idx, Arrays.asList(0), new ArrayList<>(callStack));
+    private int knapMemo(int[] w, int[] v,  int i, int cap,int[][] memo) {
+        callStack.push("knap(" + i + "," + (cap) + ")");
+        recordStep(-1, -1, null,
+                "call knap(" + i + "," + (cap) + ")",
+                Arrays.asList(0), new ArrayList<>(callStack));
 
-        if (idx == w.length || cap == 0) {
-            recordStep(-1, -1, null, "return 0", Arrays.asList(1,2), new ArrayList<>(callStack));
+        // Base case
+        if (i == 0 || cap == 0) {
+            memo[i][cap] = 0;
+            recordStep(i, cap, null,
+                    "memo[" + i + "][" + (cap) + "] = 0",
+                    Arrays.asList(1,2), new ArrayList<>(callStack));
             callStack.pop();
             return 0;
         }
 
-        if (memo[idx][cap] != -1) {
-            recordStep(idx, cap, null, "use memo[" + idx + "][" + cap + "] = " + memo[idx][cap], Arrays.asList(3,4),
-                    new ArrayList<>(callStack));
+        // Memo check
+        if (memo[i-1][cap] != -1) {
+            recordStep(i, cap, null,
+                    "use memo[" + i + "][" + cap + "] = " + memo[i][cap],
+                    Arrays.asList(3,4), new ArrayList<>(callStack));
             callStack.pop();
-            return memo[idx][cap];
+            return memo[i][cap];
         }
 
-        if (w[idx] > cap) {
-            int res = knapMemo(w, v, cap, idx + 1, memo);
-            memo[idx][cap] = res;
-            recordStep(idx, cap, null, "store memo[" + idx + "][" + cap + "] = " + res, Arrays.asList(5,6), new ArrayList<>(callStack));
+        // If weight too large
+        if (w[i-1] > cap) {
+            int res = knapMemo(w, v, i-1, cap, memo);
+            memo[i][cap] = res;
+            recordStep(i, cap, List.of(new int[]{i-1, cap}),
+                    "memo[" + i + "][" + cap + "] = " + res,
+                    Arrays.asList(5,6), new ArrayList<>(callStack));
             callStack.pop();
             return res;
         }
 
-        int take = v[idx] + knapMemo(w, v, cap - w[idx], idx + 1, memo);
-        int skip = knapMemo(w, v, cap, idx + 1, memo);
-        int res = Math.max(take, skip);
-        memo[idx][cap] = res;
+        // Recursive case: take or skip
+        int skip = knapMemo(w, v, i-1, cap, memo);
+        int take = v[i-1] + knapMemo(w, v, i-1, cap - w[i-1], memo);
+        int res = Math.max(skip, take);
+        memo[i][cap] = res;
 
-        recordStep(idx, cap, null, "store memo[" + idx + "][" + cap + "] = " + res, Arrays.asList(7,8,9), new ArrayList<>(callStack));
+        List<int[]> deps = new ArrayList<>();
+        deps.add(new int[]{i-1, cap});          // skip dependency
+        if (cap - w[i-1] >= 0) {
+            deps.add(new int[]{i-1, cap - w[i-1]}); // take dependency
+        }
+
+        recordStep(i, cap, deps,
+                "memo[" + i + "][" + cap + "] = " + res,
+                Arrays.asList(7,8,9), new ArrayList<>(callStack));
         callStack.pop();
         return res;
     }
+
+
+
     // --- Coin Change Implementation ---
 
     private void computeChange(String mode) {
@@ -481,31 +565,60 @@ public class AlgorithmController extends ModuleController {
             coins[i] = Integer.parseInt(cs[i].trim());
 
         if (mode.equals("Memoization")) {
-            // ... keep your memoization
+            callStack.clear();
+            steps.clear();
+            int[] memo = new int[amt + 1];
+            Arrays.fill(memo, -1);
+
+            setupChangeTable(amt); // or setupChangeTable if you want same layout
+
+            int res = changeMemo(coins, amt, memo);
+            // Backtrack to reconstruct which coins were used
+            List<Integer> coinsUsed = new ArrayList<>();
+            int a = amt;
+            while (a > 0) {
+                for (int c : coins) {
+                    if (c <= a && memo[a] == memo[a - c] + 1) {
+                        coinsUsed.add(c);
+                        a -= c;
+                        break;
+                    }
+                }
+            }
+            String coinStr = coinsUsed.stream().map(String::valueOf).collect(Collectors.joining(","));
+            tableAnswerLabel.setText("Coins Used: " + coinStr);
+            statusLabel.setText("Coins Used = " + coinStr);
+            startAnimation();
         } else { // ✅ Table mode
             steps.clear();
             setupChangeTable(amt);
 
+//
             int[] dp = new int[amt + 1];
             Arrays.fill(dp, Integer.MAX_VALUE / 2);
             dp[0] = 0;
+            recordStep(0, 0, null, "dp[0] = 0", Arrays.asList(8), new ArrayList<>(callStack));
 
-            // Record steps instead of filling immediately
-            for (int a = 1; a <= amt; a++) {
-                for (int c : coins) {
-                    if (c <= a)
-                        dp[a] = Math.min(dp[a], 1 + dp[a - c]);
+            for (int i = 0; i < coins.length; i++) {
+                int c = coins[i];
+                for (int a = c; a <= amt; a++) {
+                    if (dp[a - c] + 1 < dp[a]) {
+                        dp[a] = dp[a - c] + 1;
+
+                        List<int[]> deps = new ArrayList<>();
+                        deps.add(new int[]{0, a - c});
+
+                        recordStep(0, a, deps,
+                                "Using coin " + c + ": dp[" + a + "] = " + dp[a],
+                                Arrays.asList(8), new ArrayList<>(callStack));
+                    }
                 }
-
-                List<int[]> deps = new ArrayList<>();
-                for (int c : coins) {
-                    if (c <= a)
-                        deps.add(new int[] { 0, a - c });
-                }
-
-                // Step will update cell later
-                recordStep(0, a, deps, "dp[" + a + "] = " + dp[a], Arrays.asList(8), new ArrayList<>(callStack));
             }
+// After filling dp[]
+            recordStep(0, amt, null,
+                    "Final Answer = " + dp[amt],
+                    Arrays.asList(8), new ArrayList<>(callStack));
+
 
             List<Integer> coinsUsed = new ArrayList<>();
             int aaa = amt;
@@ -526,23 +639,21 @@ public class AlgorithmController extends ModuleController {
     }
 
 
-
-    // Memoization Coin Change
     private int changeMemo(int[] coins, int amt, int[] memo) {
-        callStack.push("change(" + amt + ")");
-        recordStep(-1, -1, null, "call change memo amt=" + amt, Arrays.asList(0), new ArrayList<>(callStack));
-
+        // base case
         if (amt == 0) {
-            recordStep(-1, -1, null, "return 0", Arrays.asList(1,2), new ArrayList<>(callStack));
-            callStack.pop();
+            memo[0]=0;
+            recordStep(0, 0, null, "store memo[0] = 0", Arrays.asList(1,2), new ArrayList<>(callStack));
+
             return 0;
         }
 
-        if (memo[amt] != -1) {
-            recordStep(0, amt, null, "use memo[" + amt + "] = " + memo[amt], Arrays.asList(3,4), new ArrayList<>(callStack));
-            callStack.pop();
-            return memo[amt];
-        }
+        // memo check
+        if (memo[amt] != -1) return memo[amt];
+
+        // only record when computing
+        callStack.push("change(" + amt + ")");
+        recordStep(-1, -1, null, "call change memo amt=" + amt, Arrays.asList(0), new ArrayList<>(callStack));
 
         int res = Integer.MAX_VALUE / 2;
         for (int c : coins) {
@@ -550,12 +661,19 @@ public class AlgorithmController extends ModuleController {
                 res = Math.min(res, 1 + changeMemo(coins, amt - c, memo));
             }
         }
+
         memo[amt] = res;
 
-        recordStep(0, amt, null, "store memo[" + amt + "] = " + res, Arrays.asList(5,6), new ArrayList<>(callStack));
+        // ✅ limit visualization for small amounts
+        if (amt <= 20) {
+            recordStep(0, amt, null, "store memo[" + amt + "] = " + res,
+                    Arrays.asList(5,6), new ArrayList<>(callStack));
+        }
+
         callStack.pop();
         return res;
     }
+
     // --- LCS Implementation ---
 
     private void computeLCS(String mode) {
@@ -579,16 +697,20 @@ public class AlgorithmController extends ModuleController {
             while (iii > 0 && jjj > 0) {
                 if (a.charAt(iii - 1) == b.charAt(jjj - 1)) {
                     lcs.append(a.charAt(iii - 1));
+                    tableAnswerLabel.setText("LCS: " + lcs +" Length: "+lcs.length());
+
                     iii--;
                     jjj--;
                 } else if (iii > 0 && memo[iii - 1][jjj] > memo[iii][jjj - 1]) {
+
                     iii--;
                 } else {
+
                     jjj--;
                 }
             }
             lcs.reverse();
-            tableAnswerLabel.setText("LCS: " + lcs.toString());
+            tableAnswerLabel.setText("LCS: " + lcs +" Length: "+lcs.length());
             statusLabel.setText("LCS = " + lcs.toString());
             startAnimation();
         } else { // Table mode
@@ -626,16 +748,21 @@ public class AlgorithmController extends ModuleController {
             while (iii > 0 && jjj > 0) {
                 if (a.charAt(iii - 1) == b.charAt(jjj - 1)) {
                     lcs.append(a.charAt(iii - 1));
+                    recordStep(iii,jjj,null,"dp[" + iii + "][" + jjj + "] = " + a.charAt(iii - 1) , Arrays.asList(10), new ArrayList<>(callStack));
                     iii--;
                     jjj--;
                 } else if (dp[iii - 1][jjj] > dp[iii][jjj - 1]) {
+                    recordStep(iii,jjj,null,"dp[" + iii + "][" + jjj + "] = " + dp[iii][jjj], Arrays.asList(10), new ArrayList<>(callStack));
+
                     iii--;
                 } else {
+                    recordStep(iii,jjj,null,"dp[" + iii + "][" + jjj + "] = " + dp[iii][jjj], Arrays.asList(10), new ArrayList<>(callStack));
+
                     jjj--;
                 }
             }
             lcs.reverse();
-            tableAnswerLabel.setText("LCS: " + lcs.toString());
+            tableAnswerLabel.setText("LCS: "+ lcs +" Length: "+lcs.length());
             statusLabel.setText("LCS = " + lcs.toString());
             startAnimation();
         }
@@ -650,7 +777,7 @@ public class AlgorithmController extends ModuleController {
         recordStep(-1, -1, null, "call lcs memo(" + i + "," + j + ")", Arrays.asList(0), new ArrayList<>(callStack));
 
         if (i == 0 || j == 0) {
-            recordStep(-1, -1, null, "return 0", Arrays.asList(1,2), new ArrayList<>(callStack));
+            recordStep(i, j, null, "memo[" + i + "][" + j + "] = " + 0, Arrays.asList(1,2), new ArrayList<>(callStack));
             callStack.pop();
             return 0;
         }
@@ -738,7 +865,10 @@ public class AlgorithmController extends ModuleController {
         Label corner = new Label("");
         corner.setPrefSize(70, 70);
         tableOutput.add(corner, 0, 0);
-
+        Label gapHeader = new Label(" ");
+        gapHeader.setPrefSize(70, 70);
+        gapHeader.setStyle("-fx-font-weight:bold; -fx-font-size:20; -fx-alignment:center; -fx-background-color:lightgray;");
+        tableOutput.add(gapHeader, 1, 0);
         // Column headers (string b)
         for (int j = 0; j < m; j++) {
             Label header = new Label(String.valueOf(b.charAt(j)));
@@ -747,7 +877,10 @@ public class AlgorithmController extends ModuleController {
                     "-fx-font-weight:bold; -fx-font-size:20; -fx-alignment:center; -fx-background-color:lightgray;");
             tableOutput.add(header, j + 2, 0);
         }
-
+        Label gapRowHeader = new Label(" ");
+        gapRowHeader.setPrefSize(70, 70);
+        gapRowHeader.setStyle("-fx-font-weight:bold; -fx-font-size:20; -fx-alignment:center; -fx-background-color:lightgray;");
+        tableOutput.add(gapRowHeader, 0, 1);
         // Row headers (string a)
         for (int i = 0; i < n; i++) {
             Label header = new Label(String.valueOf(a.charAt(i)));
@@ -782,7 +915,7 @@ public class AlgorithmController extends ModuleController {
         tableOutput.add(rowHeader, 0, 1);
 
         // Column headers
-        for (int i = 0; i <= n; i++) {
+        for (int i = 0; i <=n; i++) {
             Label header = new Label(String.valueOf(i));
             header.setPrefSize(70, 70);
             header.setStyle(
@@ -791,7 +924,7 @@ public class AlgorithmController extends ModuleController {
         }
 
         // Initialize cells
-        for (int i = 0; i <= n; i++) {
+        for (int i = 0; i <=n; i++) {
             Label cell = new Label("");
             cell.setPrefSize(70, 70);
             cell.setStyle(
@@ -820,7 +953,7 @@ public class AlgorithmController extends ModuleController {
         }
 
         // Row headers (items)
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i <= n; i++) {
             Label header = new Label("Item " + i);
             header.setPrefSize(70, 70);
             header.setStyle(
@@ -829,7 +962,7 @@ public class AlgorithmController extends ModuleController {
         }
 
         // Initialize cells
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i <= n; i++) {
             for (int j = 0; j <= cap; j++) {
                 Label cell = new Label(" ");
                 cell.setPrefSize(70, 70);
@@ -923,148 +1056,181 @@ public class AlgorithmController extends ModuleController {
         }
     }
 
-    private void computeSeqAlign(String mode) {
-        String a = str1Field.getText();
-        String b = str2Field.getText();
-        int n = a.length(), m = b.length();
-
-        if (mode.equals("Memoization")) {
-            callStack.clear();
-            steps.clear();
-
-            int[][] memo = new int[n + 1][m + 1];
-            for (int[] row : memo)
-                Arrays.fill(row, Integer.MIN_VALUE / 2);
-
-            setupMemoTable(a, b);
 
 
-            int res = seqMemo(a, b, n, m, memo);
-            // Backtrack to build aligned sequences
-            StringBuilder alignA = new StringBuilder();
-            StringBuilder alignB = new StringBuilder();
-            int iiii = n, jjjj = m;
-            while (iiii > 0 || jjjj > 0) {
-                if (iiii > 0 && jjjj > 0 && memo[iiii][jjjj] == memo[iiii - 1][jjjj - 1]
-                        + (a.charAt(iiii - 1) == b.charAt(jjjj - 1) ? 1 : -1)) {
-                    alignA.append(a.charAt(iiii - 1));
-                    alignB.append(b.charAt(jjjj - 1));
-                    iiii--;
-                    jjjj--;
-                } else if (iiii > 0 && memo[iiii][jjjj] == memo[iiii - 1][jjjj] - 1) {
-                    alignA.append(a.charAt(iiii - 1));
-                    alignB.append('-');
-                    iiii--;
-                } else if (jjjj > 0) {
-                    alignA.append('-');
-                    alignB.append(b.charAt(jjjj - 1));
-                    jjjj--;
-                }
-            }
-            alignA.reverse();
-            alignB.reverse();
-            tableAnswerLabel.setText("Aligned Sequences:\n" + alignA + "\n" + alignB);
-            statusLabel.setText("Aligned Sequences = " + alignA + " / " + alignB);
-            startAnimation();
+private void computeSeqAlign(String mode) {
+    String a = str1Field.getText();
+    String b = str2Field.getText();
+
+    // Read user inputs
+    int gapPenalty = Integer.parseInt(gapField.getText().trim());
+    int mismatchPenalty = Integer.parseInt(mismatchField.getText().trim());
+    int matchScore = Integer.parseInt(matchField.getText().trim());
+
+    int n = a.length();
+    int m = b.length();
+
+    steps.clear();
+    setupSeqAlignTable(a, b);
+
+    if (mode.equals("Table")) {
+        int[][] dp = new int[n + 1][m + 1];
+
+        // Initialize first row/column with gap penalties
+        for (int i = 0; i <= n; i++) {
+            dp[i][0] = i * gapPenalty;
+            recordStep(i, 0, null, "dp[" + i + "][0] = " + dp[i][0],
+                    Arrays.asList(1,2), new ArrayList<>(callStack));
+        }
+        for (int j = 0; j <= m; j++) {
+            dp[0][j] = j * gapPenalty;
+            recordStep(0, j, null, "dp[0][" + j + "] = " + dp[0][j],
+                    Arrays.asList(1,2), new ArrayList<>(callStack));
         }
 
-        else {
-            steps.clear();
-            setupSeqAlignTable(a, b);
-
-            int[][] dp = new int[n + 1][m + 1];
-
-            // --- Fill first column ---
-            for (int i = 0; i <= n; i++) {
-                dp[i][0] = -i;
-                recordStep(i, 0, null, "dp[" + i + "][0] = " + dp[i][0], Arrays.asList(2,3), new ArrayList<>(callStack));
-            }
-
-            // --- Fill first row ---
-            for (int j = 0; j <= m; j++) {
-                dp[0][j] = -j;
-                recordStep(0, j, null, "dp[0][" + j + "] = " + dp[0][j], Arrays.asList(4,5), new ArrayList<>(callStack));
-            }
-
-            // --- Fill rest ---
-            for (int i = 1; i <= n; i++) {
-                for (int j = 1; j <= m; j++) {
-                    int match = dp[i - 1][j - 1] + (a.charAt(i - 1) == b.charAt(j - 1) ? 1 : -1);
-                    int del = dp[i - 1][j] - 1;
-                    int ins = dp[i][j - 1] - 1;
-                    dp[i][j] = Math.max(match, Math.max(del, ins));
-
-                    List<int[]> deps = Arrays.asList(
-                            new int[] { i - 1, j - 1 },
-                            new int[] { i - 1, j },
-                            new int[] { i, j - 1 });
-
-                    recordStep(i, j, deps, "dp[" + i + "][" + j + "] = " + dp[i][j], Arrays.asList(6,7,8,9,10,11), new ArrayList<>(callStack));
+        // Fill DP table
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= m; j++) {
+                if (a.charAt(i - 1) == b.charAt(j - 1)) {
+                    dp[i][j] = dp[i - 1][j - 1] + matchScore;
+                } else {
+                    dp[i][j] = Math.max(
+                            dp[i - 1][j - 1] + mismatchPenalty,
+                            Math.max(dp[i - 1][j] + gapPenalty, dp[i][j - 1] + gapPenalty)
+                    );
                 }
-            }
 
-            StringBuilder alignA = new StringBuilder();
-            StringBuilder alignB = new StringBuilder();
-            int iiii = n, jjjj = m;
-            while (iiii > 0 || jjjj > 0) {
-                if (iiii > 0 && jjjj > 0 && dp[iiii][jjjj] == dp[iiii - 1][jjjj - 1]
-                        + (a.charAt(iiii - 1) == b.charAt(jjjj - 1) ? 1 : -1)) {
-                    alignA.append(a.charAt(iiii - 1));
-                    alignB.append(b.charAt(jjjj - 1));
-                    iiii--;
-                    jjjj--;
-                } else if (iiii > 0 && dp[iiii][jjjj] == dp[iiii - 1][jjjj] - 1) {
-                    alignA.append(a.charAt(iiii - 1));
-                    alignB.append('-');
-                    iiii--;
-                } else if (jjjj > 0) {
-                    alignA.append('-');
-                    alignB.append(b.charAt(jjjj - 1));
-                    jjjj--;
-                }
+                List<int[]> deps = Arrays.asList(
+                        new int[]{i - 1, j},
+                        new int[]{i, j - 1},
+                        new int[]{i - 1, j - 1}
+                );
+
+                recordStep(i, j, deps,
+                        "dp[" + i + "][" + j + "] = " + dp[i][j],
+                        Arrays.asList(11), new ArrayList<>(callStack));
             }
-            alignA.reverse();
-            alignB.reverse();
-            tableAnswerLabel.setText("Aligned Sequences:\n" + alignA + "\n" + alignB);
-            statusLabel.setText("Aligned Sequences = " + alignA + " / " + alignB);
-            startAnimation();
         }
+
+        // ✅ Backtrack to reconstruct alignment
+        StringBuilder alignA = new StringBuilder();
+        StringBuilder alignB = new StringBuilder();
+        int i = n, j = m;
+        while (i > 0 || j > 0) {
+            if (i > 0 && j > 0 && a.charAt(i - 1) == b.charAt(j - 1)
+                    && dp[i][j] == dp[i - 1][j - 1] + matchScore) {
+                alignA.append(a.charAt(i - 1));
+                alignB.append(b.charAt(j - 1));
+                i--; j--;
+            } else if (i > 0 && j > 0 && dp[i][j] == dp[i - 1][j - 1] + mismatchPenalty) {
+                alignA.append(a.charAt(i - 1));
+                alignB.append(b.charAt(j - 1));
+                i--; j--;
+            } else if (i > 0 && dp[i][j] == dp[i - 1][j] + gapPenalty) {
+                alignA.append(a.charAt(i - 1));
+                alignB.append('-');
+                i--;
+            } else {
+                alignA.append('-');
+                alignB.append(b.charAt(j - 1));
+                j--;
+            }
+        }
+        alignA.reverse();
+        alignB.reverse();
+
+        tableAnswerLabel.setText("Alignment Score: " + dp[n][m] +
+                "\nA: " + alignA.toString() +
+                "\nB: " + alignB.toString());
+        statusLabel.setText("Alignment complete");
+        startAnimation();
+
+    } else { // Memoization mode
+        callStack.clear();
+        int[][] memo = new int[n + 1][m + 1];
+        for (int[] row : memo) Arrays.fill(row, Integer.MIN_VALUE);
+        for (int i = 0; i <= n; i++) {
+            memo[i][0] = i * gapPenalty;
+            recordStep(i, 0, null, "memo[" + i + "][0] = " + memo[i][0],
+                    Arrays.asList(5,6), new ArrayList<>(callStack));
+        }
+        for (int j = 0; j <= m; j++) {
+            memo[0][j] = j * gapPenalty;
+            recordStep(0, j, null, "memo[0][" + j + "] = " + memo[0][j],
+                    Arrays.asList(3,4), new ArrayList<>(callStack));
+        }
+        int res = seqAlignMemo(a, b, n, m, memo, gapPenalty, mismatchPenalty, matchScore);
+
+        // ✅ Backtrack using memo table
+        StringBuilder alignA = new StringBuilder();
+        StringBuilder alignB = new StringBuilder();
+        int i = n, j = m;
+        while (i > 0 || j > 0) {
+            if (i > 0 && j > 0 && a.charAt(i - 1) == b.charAt(j - 1)
+                    && memo[i][j] == memo[i - 1][j - 1] + matchScore) {
+                alignA.append(a.charAt(i - 1));
+                alignB.append(b.charAt(j - 1));
+                i--; j--;
+            } else if (i > 0 && j > 0 && memo[i][j] == memo[i - 1][j - 1] + mismatchPenalty) {
+                alignA.append(a.charAt(i - 1));
+                alignB.append(b.charAt(j - 1));
+                i--; j--;
+            } else if (i > 0 && memo[i][j] == memo[i - 1][j] + gapPenalty) {
+                alignA.append(a.charAt(i - 1));
+                alignB.append('-');
+                i--;
+            } else {
+                alignA.append('-');
+                alignB.append(b.charAt(j - 1));
+                j--;
+            }
+        }
+        alignA.reverse();
+        alignB.reverse();
+
+        tableAnswerLabel.setText("Alignment Score: " + res +
+                "\nA: " + alignA.toString() +
+                "\nB: " + alignB.toString());
+        statusLabel.setText("Alignment complete");
+        startAnimation();
     }
+}
+
 
     // Memoization Sequence Alignment
-    private int seqMemo(String a, String b, int i, int j, int[][] memo) {
-        callStack.push("seq(" + i + "," + j + ")");
-        recordStep(-1, -1, null, "call seq memo(" + i + "," + j + ")", Arrays.asList(0), new ArrayList<>(callStack));
 
-        if (memo[i][j] != Integer.MIN_VALUE / 2) {
-            recordStep(i, j, null, "use memo[" + i + "][" + j + "] = " + memo[i][j],Arrays.asList(1,2) , new ArrayList<>(callStack));
-            callStack.pop();
-            return memo[i][j];
+    private int seqAlignMemo(String a, String b, int i, int j,
+                             int[][] memo, int gapPenalty, int mismatchPenalty, int matchScore) {
+        if (i == 0) return j * gapPenalty;
+        if (j == 0) return i * gapPenalty;
+
+        if (memo[i][j] != Integer.MIN_VALUE) return memo[i][j];
+
+        callStack.push("seqAlign(" + i + "," + j + ")");
+        recordStep(-1, -1, null, "call seqAlign(" + i + "," + j + ")",
+                Arrays.asList(9,10,11,12,13), new ArrayList<>(callStack));
+
+        int res;
+        if (a.charAt(i - 1) == b.charAt(j - 1)) {
+            res = seqAlignMemo(a, b, i - 1, j - 1, memo, gapPenalty, mismatchPenalty, matchScore) + matchScore;
+        } else {
+            res = Math.max(
+                    seqAlignMemo(a, b, i - 1, j - 1, memo, gapPenalty, mismatchPenalty, matchScore) + mismatchPenalty,
+                    Math.max(
+                            seqAlignMemo(a, b, i - 1, j, memo, gapPenalty, mismatchPenalty, matchScore) + gapPenalty,
+                            seqAlignMemo(a, b, i, j - 1, memo, gapPenalty, mismatchPenalty, matchScore) + gapPenalty
+                    )
+            );
         }
 
-        if (i == 0) {
-            memo[i][j] = -j;
-            recordStep(i, j, null, "store memo[" + i + "][" + j + "] = " + memo[i][j], Arrays.asList(3,4), new ArrayList<>(callStack));
-            callStack.pop();
-            return memo[i][j];
-        }
-        if (j == 0) {
-            memo[i][j] = -i;
-            recordStep(i, j, null, "store memo[" + i + "][" + j + "] = " + memo[i][j], Arrays.asList(5,6), new ArrayList<>(callStack));
-            callStack.pop();
-            return memo[i][j];
-        }
-
-        int match = seqMemo(a, b, i - 1, j - 1, memo) + (a.charAt(i - 1) == b.charAt(j - 1) ? 1 : -1);
-        int del = seqMemo(a, b, i - 1, j, memo) - 1;
-        int ins = seqMemo(a, b, i, j - 1, memo) - 1;
-        int res = Math.max(match, Math.max(del, ins));
         memo[i][j] = res;
+        recordStep(i, j, null, "store memo[" + i + "][" + j + "] = " + res,
+                Arrays.asList(13), new ArrayList<>(callStack));
 
-        recordStep(i, j, null, "store memo[" + i + "][" + j + "] = " + res, Arrays.asList(10,11,12,13), new ArrayList<>(callStack));
         callStack.pop();
         return res;
     }
+
     // --- Utility Methods ---
 
     private String getStackText() {
@@ -1112,7 +1278,9 @@ public class AlgorithmController extends ModuleController {
             case SEQALIGN -> {
                 titleLabel.setText("Sequence Alignment");
                 storyArea.setText("Align two strings to maximize matches and penalize mismatches/gaps.");
-                buildTwoStringInputs();
+                //buildTwoStringInputs();
+                buildseqinputs();
+
             }
         }
         randomize(); // auto-fill inputs with random values
@@ -1245,6 +1413,21 @@ loadFullCode();
                 new Label("String 1"), str1Field,
                 new Label("String 2"), str2Field);
     }
+    private void buildseqinputs(){
+        inputBox.getChildren().clear();
+        str1Field = new TextField();
+        str1Field.setPromptText("string 1");
+        str2Field = new TextField();
+        str2Field.setPromptText("string 2");
+        gapField=new TextField();
+        mismatchField=new TextField();
+        matchField=new TextField();
+
+        inputBox.getChildren().addAll(
+                new Label("String 1"), str1Field,
+                new Label("String 2"), str2Field,new Label("Gap Penalty "),gapField,new Label("Mismatch penalty"),mismatchField,new Label("Match Score"),matchField);
+
+    }
 
     private String join(List<Integer> list) {
         StringBuilder sb = new StringBuilder();
@@ -1307,7 +1490,11 @@ loadFullCode();
                         "    return memo[n]\n" +        // line 6
 
                         "    // table mode update\n" +  // line 7
-                        "    dp[i] = dp[i-1] + dp[i-2]");//line 8
+                        "    for (int i = 0; i <= n; i++) {\n" +
+                        "                if (i <= 1)\n" +
+                        "                    dp[i] = i;\n" +
+                        "                else\n" +
+                        "                    dp[i] = dp[i - 1] + dp[i - 2];");//line 8
 
 
         fullCodes.put("KNAPSACK",
@@ -1327,7 +1514,14 @@ loadFullCode();
                         "    return memo[idx][cap]\n" + // line 9
 
                         "    // table mode update\n" +  // line 10
-                        "    dp[i][j] = max(dp[i-1][j], v[i-1] + dp[i-1][j-w[i-1]])");//line 11
+                        "    for (int j = 0; j <= cap; j++) \n" +
+                        "                dp[0][j] = 0;\n" +
+                        "       for (int i = 1; i <= n; i++) {\n" +
+                        "                for (int j = 0; j <= cap; j++) {\n" +
+                        "                    if (w[i - 1] > j)\n" +
+                        "                        dp[i][j] = dp[i - 1][j];\n" +
+                        "                    else\n" +
+                        "                        dp[i][j] = Math.max(dp[i - 1][j], v[i - 1] + dp[i - 1][j - w[i - 1]])}};");//line 11
 
         fullCodes.put("CHANGE",
                 "function change(amt):\n" +     // line 0
@@ -1375,7 +1569,7 @@ loadFullCode();
                         fullCodes.put("SEQMEMO", String.join("\n",
                                 "function seqMemo(i, j):",                        // line 0
                                 "    if i == 0 and j == 0:",                      // line 1
-                                "        return 0" +// line 2
+                                "        return 0" ,
                                 "    if i == 0:",                                 // line 3
                                 "        return j * gap",                         // line 4
                                 "    if j == 0:",                                 // line 5

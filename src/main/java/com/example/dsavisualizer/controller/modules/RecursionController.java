@@ -37,13 +37,13 @@ public class RecursionController extends ModuleController {
     private Slider speedSlider;
     @FXML
     private Pane callStackPane;
-//    @FXML
+    //    @FXML
 //    private Pane codePane;
     @FXML
     private Label returnLabel;
     @FXML
     private TextArea codeArea;
-//    @FXML
+    //    @FXML
 //    private Pane vizArea;
     @FXML
     private Label statusLabel;
@@ -185,10 +185,10 @@ public class RecursionController extends ModuleController {
     }
 
 //    private void renderCode() {
-////        if (codePane == null)
-////            return;
-////
-////        codePane.getChildren().clear();
+    ////        if (codePane == null)
+    ////            return;
+    ////
+    ////        codePane.getChildren().clear();
 //        VBox codeBox = new VBox(0);
 //        codeBox.setPadding(new Insets(10));
 //        codeBox.setStyle("-fx-background-color: #1e1e1e;");
@@ -773,7 +773,7 @@ public class RecursionController extends ModuleController {
         int val;
         TreeNode left,right;
 
-       TreeNode(int v){
+        TreeNode(int v){
             val=v;
         }
     }

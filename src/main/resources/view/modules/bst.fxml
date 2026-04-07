@@ -166,24 +166,33 @@
 
                     </StackPane>
                     <Label fx:id="statusLabel" text=""
-                           style="-fx-font-size:  14; -fx-text-fill: darkred; -fx-padding: 6;"/>
+                           style="-fx-font-size: 18; -fx-text-fill: darkred; -fx-padding: 6;"/>
                 </VBox>
 
-                <!-- Traversal Results -->
-                <VBox spacing="5">
-                    <Label text="Current Traversal" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
-                    <TextArea fx:id="traversalResult" editable="false" wrapText="true" prefHeight="80"
-                              style="-fx-control-inner-background: #fff9c4; -fx-font-family: 'Courier New'; -fx-font-size: 12; -fx-padding: 10; -fx-border-color: #f57f17; -fx-border-width: 1; -fx-border-radius: 3;"/>
-                </VBox>
+<!--                &lt;!&ndash; Traversal Results &ndash;&gt;-->
+<!--                <VBox spacing="5">-->
+<!--                    <Label text="Current Traversal" style="-fx-font-weight: bold; -fx-font-size: 24;"/>-->
+<!--                    <TextArea fx:id="traversalResult" editable="false" wrapText="true" prefHeight="80"-->
+<!--                              style="-fx-control-inner-background: #fff9c4; -fx-font-family: 'Courier New'; -fx-font-size: 18; -fx-padding: 10; -fx-border-color: #f57f17; -fx-border-width: 1; -fx-border-radius: 3;"/>-->
+<!--                </VBox>-->
 
                 <!-- Code Box -->
+<!--                <VBox spacing="5">-->
+<!--                    <Label text="Code" style="-fx-font-weight: bold; -fx-font-size: 14;"/>-->
+<!--                    <TextArea fx:id="codeArea"-->
+<!--                              editable="false"-->
+<!--                              wrapText="false"-->
+<!--                              prefHeight="200"-->
+<!--                              style="-fx-control-inner-background: #2d3748; -fx-text-fill: #e2e8f0; -fx-font-family: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', 'Courier New', monospace; -fx-font-size: 13; -fx-padding: 15; -fx-background-color: #2d3748; -fx-border-color: #4a5568; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-highlight-fill: #4299e1; -fx-highlight-text-fill: white;"/>-->
+<!--                </VBox>-->
+
                 <VBox spacing="5">
-                    <Label text="Code" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+                    <Label text="Code" style="-fx-font-weight: bold; -fx-font-size: 24;"/>
                     <TextArea fx:id="codeArea"
                               editable="false"
                               wrapText="false"
                               prefHeight="200"
-                              style="-fx-control-inner-background: #2d3748; -fx-text-fill: #e2e8f0; -fx-font-family: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', 'Courier New', monospace; -fx-font-size: 13; -fx-padding: 15; -fx-background-color: #2d3748; -fx-border-color: #4a5568; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-highlight-fill: #4299e1; -fx-highlight-text-fill: white;"/>
+                              style="-fx-control-inner-background: #e7f5ff;; -fx-text-fill: black; -fx-font-family:  'Consolas', monospace; -fx-font-size: 20; -fx-padding: 2; -fx-focus-color: transparent; -fx-border-color: #546e7a; -fx-border-width: 1; -fx-border-radius: 3;"/>
                 </VBox>
             </VBox>
         </HBox>

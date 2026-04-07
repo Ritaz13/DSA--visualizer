@@ -52,7 +52,7 @@
             <!-- Queue Type -->
             <Label text="Queue Type" style="-fx-font-weight: bold; -fx-padding: 8 0 0 0; -fx-font-size: 13;"/>
             <VBox spacing="4">
-                <CheckBox fx:id="circularCheck" text="Circular Queue (8 slots)" style="-fx-font-size: 12;" selected="false"/>
+                <CheckBox fx:id="circularCheck" text="Circular Queue" style="-fx-font-size: 12;" selected="false"/>
             </VBox>
 
             <!-- Input Section -->
@@ -119,14 +119,14 @@
                            style="-fx-font-size: 14; -fx-text-fill: darkblue; -fx-padding: 6;"/>
                 </VBox>
 
-                <!-- Code Box -->
+
                 <VBox spacing="5">
-                    <Label text="Code" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+                    <Label text="Code" style="-fx-font-weight: bold; -fx-font-size: 24;"/>
                     <TextArea fx:id="codeArea"
                               editable="false"
                               wrapText="false"
-                              prefHeight="200"
-                              style="-fx-control-inner-background: #2d3748; -fx-text-fill: #e2e8f0; -fx-font-family: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', 'Courier New', monospace; -fx-font-size: 13; -fx-padding: 15; -fx-background-color: #2d3748; -fx-border-color: #4a5568; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-highlight-fill: #4299e1; -fx-highlight-text-fill: white;"/>
+                              prefHeight="300"
+                              style="-fx-control-inner-background: #e7f5ff;; -fx-text-fill: black; -fx-font-family:  'Consolas', monospace; -fx-font-size: 20; -fx-padding: 2; -fx-focus-color: transparent; -fx-border-color: #546e7a; -fx-border-width: 1; -fx-border-radius: 3;"/>
                 </VBox>
             </VBox>
         </HBox>

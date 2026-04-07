@@ -57,8 +57,6 @@ public class QueueController extends ModuleController {
     private int capacity = 0;
     private int size = 0;
     private int[] resizePreview; // shown when resizing occurs
-    private int[] resizePreviewFrom;
-    private int[] resizePreviewTo;
 
     @Override
     protected void initialize() {
@@ -90,7 +88,7 @@ public class QueueController extends ModuleController {
             }
             render();
         });
-
+        
         // on startup ensure proper circular state
         if (circularCheck.isSelected()) {
             initCircular(2);
@@ -220,7 +218,7 @@ public class QueueController extends ModuleController {
             initCircular(2);
         }
         // resize if more than 50% full
-        if (size == capacity) {
+        if (size ==capacity ) {
             // show old array before resize
             resizePreview = Arrays.copyOf(circularQueue, capacity);
             resize(capacity * 2);
@@ -241,7 +239,7 @@ public class QueueController extends ModuleController {
             return;
         }
         int val = circularQueue[front];
-        circularQueue[front] = 0;
+        circularQueue[front]=0;
         front = (front + 1) % capacity;
         size--;
         if (size == 0) {
@@ -317,53 +315,32 @@ public class QueueController extends ModuleController {
             vizArea.getChildren().add(queueContainer);
 
             // Show resize preview if exists
-           /* if (resizePreview != null) {
+            if (resizePreview != null) {
                 HBox previewContainer = new HBox();
                 previewContainer.setStyle("-fx-spacing:5; -fx-alignment:center; -fx-padding:10;");
 
                 Label previewLabel = new Label("Resizing to:");
                 previewLabel.setStyle("-fx-font-weight:bold; -fx-padding:10;");
-                previewContainer.getChildren().add(previewLabel);*/
-            resizeArea.getChildren().clear(); // always clear first
-
-            if (resizePreviewFrom != null) {
-                HBox fromContainer = new HBox();
-                fromContainer.setStyle("-fx-spacing:5; -fx-alignment:center; -fx-padding:10;");
-
-                Label fromLabel = new Label("Resizing From:");
-                fromLabel.setStyle("-fx-font-weight:bold; -fx-padding:10;");
-                fromContainer.getChildren().add(fromLabel);
-
-                for (int val : resizePreviewFrom) {
-                    Label lbl = new Label(String.valueOf(val));
-                    lbl.setStyle("-fx-border-color:#999; -fx-padding:10;");
-                    fromContainer.getChildren().add(lbl);
-                }
-
-                resizeArea.getChildren().add(fromContainer);
-            }
-
-            if (resizePreviewTo != null) {
-                HBox toContainer = new HBox();
-                toContainer.setStyle("-fx-spacing:5; -fx-alignment:center; -fx-padding:10;");
-
-                Label toLabel = new Label("Resizing To:");
-                toLabel.setStyle("-fx-font-weight:bold; -fx-padding:10;");
-                toContainer.getChildren().add(toLabel);
-
-                for (int val : resizePreviewTo) {
-                    Label lbl = new Label(String.valueOf(val));
-                    lbl.setStyle("-fx-border-color:#999; -fx-padding:10;");
-                    toContainer.getChildren().add(lbl);
-                }
-
-                resizeArea.getChildren().add(toContainer);
+                previewContainer.getChildren().add(previewLabel);
+                
+                // Show elements in logical order after resize
+                for (int i = 0; i < size; i++) {
+                    int idx = (front + i) % capacity;
+                    Label lbl = new Label(String.valueOf(circularQueue[idx]));
+                    lbl.setStyle("-fx-border-color:#999; -fx-border-width:1; -fx-padding:10; "
+                            + "-fx-background-color:#eee; -fx-font-weight:bold; -fx-font-size:12; "
+                            + "-fx-min-width:40; -fx-alignment:center;");
+                    previewContainer.getChildren().add(lbl);}
+                resizeArea.getChildren().clear();
+                resizeArea.getChildren().add(previewContainer);
+            } else {
+                resizeArea.getChildren().clear();
             }
 
             if (queueSizeLabel != null) {
                 queueSizeLabel.setText("Size: " + getCircularQueueSize() + "/" + capacity +
-                        " | Front: " + (size > 0 ? front : "-") +
-                        " | Rear: " + (size > 0 ? rear : "-"));
+                                     " | Front: " + (size > 0 ? front : "-") +
+                                     " | Rear: " + (size > 0 ? rear : "-"));
             }
         } else {
             // Regular queue visualization
@@ -405,7 +382,7 @@ public class QueueController extends ModuleController {
     }
 
     // initialize circular buffer with given capacity
-    private void initCircular(int cap) {
+     private void initCircular(int cap) {
         capacity = cap;
         circularQueue = new int[capacity];
         front = -1;
@@ -415,32 +392,11 @@ public class QueueController extends ModuleController {
     }
 
     // resize underlying array to new capacity, reordering elements
-   /* private void resize(int newCap) {
-        int[] newArr = new int[newCap];
-        for (int i = 0; i < size; i++) {
-            newArr[i] = circularQueue[(front + i) % capacity];
-        }
-        circularQueue = newArr;
-        capacity = newCap;
-        front = 0;
-        rear = size - 1;
-    }
-}*/
     private void resize(int newCap) {
-        // পুরানো array ধরে রাখো
-        int[] oldArr = Arrays.copyOf(circularQueue, capacity);
-
-        // নতুন array বানাও
         int[] newArr = new int[newCap];
         for (int i = 0; i < size; i++) {
             newArr[i] = circularQueue[(front + i) % capacity];
         }
-
-        // snapshot সেট করো
-        resizePreviewFrom = oldArr;
-        resizePreviewTo = newArr;
-
-        // queue আপডেট করো
         circularQueue = newArr;
         capacity = newCap;
         front = 0;
