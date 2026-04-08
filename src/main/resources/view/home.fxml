@@ -81,6 +81,7 @@
             <Button fx:id="arrayBtn" onAction="#openModule" prefWidth="230" prefHeight="260" GridPane.rowIndex="1" GridPane.columnIndex="4">
                 <graphic><ImageView fitWidth="230" fitHeight="260"><image><Image url="@/images/array.png"/></image></ImageView></graphic>
             </Button>
+           
 
         </GridPane>
     </center>

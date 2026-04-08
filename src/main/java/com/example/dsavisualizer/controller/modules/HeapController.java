@@ -44,7 +44,7 @@ public class HeapController extends ModuleController {
     private boolean isOperationRunning = false;
     private boolean isCurrentHeapsort = false;
 
-    // ---------------- Step Classes ----------------
+
     private static class HeapStep {
         int idx1, idx2;
         boolean swapped;
@@ -106,7 +106,7 @@ public class HeapController extends ModuleController {
         redraw();
     }
 
-    // ---------------- Heap Operations ----------------
+
     private void insert() {
         try {
             int val = Integer.parseInt(inputField.getText().trim());
@@ -160,7 +160,7 @@ public class HeapController extends ModuleController {
         playCurrentOperation();
     }
 
-    // ---------------- Heapify ----------------
+
     private void heapifyUp(int index) {
         while (index > 0) {
             int parentIdx = (index - 1)/2;
@@ -224,7 +224,7 @@ public class HeapController extends ModuleController {
         return steps;
     }
 
-    // ---------------- Animation ----------------
+
     private void animateHeapSteps(List<HeapStep> steps) {
         Timeline timeline = new Timeline();
         int delay = 1000; // ms per step
@@ -554,17 +554,7 @@ public class HeapController extends ModuleController {
         }
         currentTimeline.setOnFinished(e -> stopCurrentOperation());
         currentTimeline.play();
-//        currentTimeline.setOnFinished(e -> {
-//            if (isCurrentHeapsort && !currentHeapsortSteps.isEmpty()) {
-//                HeapsortStep last = currentHeapsortSteps.get(currentHeapsortSteps.size() - 1);
-//                redrawHeapsort(currentHeapsortSteps.size() - 1);
-//            } else if (!isCurrentHeapsort && !currentSteps.isEmpty()) {
-//                HeapStep last = currentSteps.get(currentSteps.size() - 1);
-//                redrawSnapshot(last.snapshot, null);
-//            }
-//            isOperationRunning = false;
-//            if (startBtn != null) startBtn.setDisable(false);
-//        });
+
 
     }
 
@@ -605,7 +595,7 @@ public class HeapController extends ModuleController {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
         gc.setFill(Color.BLACK); gc.setFont(new Font("Arial", 20));
-        gc.fillText("Current Heap:", 2, 60);
+        gc.fillText("Current Heap:", 2, 30);
         drawHeapArrayBoxesHeapsort(step.heapSnapshot, step.highlightIdx);
         drawHeapTreeHeapsort(step.heapSnapshot, step.highlightIdx);
 

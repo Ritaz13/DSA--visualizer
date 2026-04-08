@@ -79,7 +79,7 @@ public class arrayController extends ModuleController {
         copyCodeBtn.setOnAction(e -> copyCode());
     }
 
-    // --- Code Area Features ---
+
     protected void toggleCode() {
         codeArea.setVisible(!codeArea.isVisible());
     }
@@ -110,7 +110,7 @@ public class arrayController extends ModuleController {
         }
     }
 
-    // --- Visualization ---
+
     private void setupArrayGrid() {
         arrayGrid = new GridPane();
         arrayGrid.setPadding(new Insets(10));
@@ -154,7 +154,7 @@ public class arrayController extends ModuleController {
         }
     }
 
-    // --- Animation Controls ---
+
     private void startAnimation() {
         currentStep = 0;
         redrawCurrentStep();

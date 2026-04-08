@@ -25,15 +25,15 @@
 
 #storyArea {
     -fx-control-inner-background: #0A1F44;
-    -fx-text-fill: #fff3e0;
+    -fx-text-fill: #000000;
     -fx-font-size: 13;
 }
 
 /* additional dark theme elements */
 .text-area, .text-field {
-    -fx-control-inner-background: #1e1e1e;
-    -fx-text-fill: #ffffff;
-}
+    -fx-control-inner-background: #1e1e1e;-fx-text-fill: #ffffff;
+                                                       }
+
 
 .label, .label * {
     -fx-text-fill: #e0e0e0;
@@ -44,5 +44,27 @@
 }
 
 .hbox, .vbox, .stack-pane {
+    -fx-background-color: transparent;
+    
+
+}
+
+#vizArea {
+    -fx-background-color: #1e1e1e;
+}
+
+#vizContainer {
+    -fx-background-color: #1e1e1e;
+}
+
+#vizPanel {
     -fx-background-color: #2b2b2b;
+}
+
+#callStackPane {
+    -fx-background-color: #1e1e1e;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: #1e1e1e;
 }

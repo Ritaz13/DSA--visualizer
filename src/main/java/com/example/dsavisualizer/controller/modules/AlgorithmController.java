@@ -111,7 +111,7 @@ public class AlgorithmController extends ModuleController {
         goBackBtn.setOnAction(e -> SceneManager.switchScene("modules/dp.fxml"));
     }
 
-    // --- Visualization Layout ---
+
     private void createVisualizationLayout(String mode) {
         VBox layout = new VBox(20);
         layout.setStyle("-fx-padding:20; -fx-background-color:white;");
@@ -120,14 +120,6 @@ public class AlgorithmController extends ModuleController {
         codeArea = new VBox(4);
         codeArea.setStyle("-fx-font-family:'Courier New'; -fx-font-size:18;");
         layout.getChildren().add(codeArea);
-//        codeLinesLabels = new ArrayList<>();
-//        String[] lines = fullCodes.get(currentAlgorithm.name()).split("\n");
-//        for (int i = 0; i < lines.length; i++) {
-//            Label lbl = new Label(lines[i]);
-//            lbl.setStyle("-fx-font-family:'Courier New'; -fx-font-size:18;");
-//            codeArea.getChildren().add(lbl);
-//            codeLinesLabels.add(lbl);
-//        }
         codeLinesLabels = new ArrayList<>();
 
         if (currentAlgorithm == Algorithm.SEQALIGN) {
@@ -149,7 +141,7 @@ public class AlgorithmController extends ModuleController {
                 }
             }
         } else {
-            // default for other algorithms
+
             String[] lines = fullCodes.get(currentAlgorithm.name()).split("\n");
             for (int i = 0; i < lines.length; i++) {
                 Label lbl = new Label(lines[i]);
@@ -160,7 +152,7 @@ public class AlgorithmController extends ModuleController {
         }
 
 
-        // Stack area
+
         if (!mode.equals("Table")) {
             stackPanel = new VBox(6);
             stackPanel.setStyle("-fx-font-family:'Courier New'; -fx-font-size:18;");
@@ -176,7 +168,7 @@ public class AlgorithmController extends ModuleController {
             tableAnswerLabel = new Label();
             tableAnswerLabel.setStyle("-fx-font-size:20; -fx-font-weight:bold;");
 
-            // ✅ Wrap tableOutput in a ScrollPane
+
             ScrollPane tableScroll = new ScrollPane(tableOutput);
             tableScroll.setFitToWidth(true);
             tableScroll.setFitToHeight(true);
@@ -211,7 +203,7 @@ public class AlgorithmController extends ModuleController {
                 }
             }
         }
-        // Reset all cells to white
+
         for (Label cell : tableCellMap.values()) {
             cell.setStyle(
                     "-fx-background-color:white; -fx-border-color:black; -fx-font-size:18; -fx-alignment:center;");
@@ -240,7 +232,7 @@ public class AlgorithmController extends ModuleController {
                     "-fx-background-color:yellow; -fx-border-color:black; -fx-font-size:18; -fx-alignment:center;");
         }
 
-        // ✅ Highlight row header
+
         Node rowHeader = getNodeByRowColumnIndex(step.row + 1, 0, tableOutput);
         if (rowHeader instanceof Label) {
             ((Label) rowHeader).setStyle(
@@ -330,7 +322,7 @@ public class AlgorithmController extends ModuleController {
             tableAnswerLabel.setText("Fibonacci Number: " + res);
             statusLabel.setText("Fibonacci Number = " + res);
             startAnimation();
-        } else { // ✅ Table mode
+        } else {
             steps.clear();
             setupFibTable(n);
             int[] dp = new int[n + 1];
@@ -412,24 +404,42 @@ public class AlgorithmController extends ModuleController {
                     "Final Answer = " + res,
                     Arrays.asList(7,8,9), new ArrayList<>(callStack));
             // Backtrack to find selected items
+//            List<Integer> selected = new ArrayList<>();
+//            int idx = 0, c = cap;
+//            while (idx < n && c > 0) {
+//                if (idx < n - 1 && memo[idx][c] == memo[idx + 1][c]) {
+//                    idx++;
+//                } else if (w[idx] <= c) {
+//                    selected.add(idx);
+//                    c -= w[idx];
+//                    idx++;
+//                } else {
+//                    idx++;
+//                }
+//            }
+//            String items = selected.stream().map(String::valueOf).collect(Collectors.joining(","));
+//            tableAnswerLabel.setText("Selected Items: " + items);
+//            statusLabel.setText("Selected Items = " + items);
+//            startAnimation();
+
             List<Integer> selected = new ArrayList<>();
-            int idx = 0, c = cap;
-            while (idx < n && c > 0) {
-                if (idx < n - 1 && memo[idx][c] == memo[idx + 1][c]) {
-                    idx++;
-                } else if (w[idx] <= c) {
-                    selected.add(idx);
-                    c -= w[idx];
-                    idx++;
+            int i = n, c = cap;
+            while (i > 0 && c > 0) {
+
+                if (memo[i][c] == memo[i - 1][c]) {
+                    i--;
                 } else {
-                    idx++;
+
+                    selected.add(i - 1);
+                    c -= w[i - 1];
+                    i--;
                 }
             }
-            String items = selected.stream().map(String::valueOf).collect(Collectors.joining(","));
+            Collections.reverse(selected);
+            String items = selected.stream().map(x -> String.valueOf(x + 1)).collect(Collectors.joining(","));
             tableAnswerLabel.setText("Selected Items: " + items);
             statusLabel.setText("Selected Items = " + items);
-            startAnimation();
-        } else { // ✅ Table mode
+        } else {
             steps.clear();
             setupKnapsackTable(n, cap);
 
@@ -664,7 +674,7 @@ public class AlgorithmController extends ModuleController {
 
         memo[amt] = res;
 
-        // ✅ limit visualization for small amounts
+
         if (amt <= 20) {
             recordStep(0, amt, null, "store memo[" + amt + "] = " + res,
                     Arrays.asList(5,6), new ArrayList<>(callStack));
@@ -674,7 +684,7 @@ public class AlgorithmController extends ModuleController {
         return res;
     }
 
-    // --- LCS Implementation ---
+
 
     private void computeLCS(String mode) {
         String a = str1Field.getText();
@@ -691,7 +701,7 @@ public class AlgorithmController extends ModuleController {
             setupLCSTable(a, b);
 
             int res = lcsMemo(a, b, n, m, memo);
-            // Backtrack to build LCS
+
             StringBuilder lcs = new StringBuilder();
             int iii = n, jjj = m;
             while (iii > 0 && jjj > 0) {
@@ -713,7 +723,7 @@ public class AlgorithmController extends ModuleController {
             tableAnswerLabel.setText("LCS: " + lcs +" Length: "+lcs.length());
             statusLabel.setText("LCS = " + lcs.toString());
             startAnimation();
-        } else { // Table mode
+        } else {
             steps.clear();
             setupLCSTable(a, b);
             int[][] dp = new int[n + 1][m + 1];
@@ -771,7 +781,7 @@ public class AlgorithmController extends ModuleController {
 
 
 
-    // Memoization LCS
+
     private int lcsMemo(String a, String b, int i, int j, int[][] memo) {
         callStack.push("lcs(" + i + "," + j + ")");
         recordStep(-1, -1, null, "call lcs memo(" + i + "," + j + ")", Arrays.asList(0), new ArrayList<>(callStack));
@@ -800,7 +810,6 @@ public class AlgorithmController extends ModuleController {
         callStack.pop();
         return res;
     }
-    // --- Sequence Alignment Implementation ---
 
     private void setupSeqAlignTable(String a, String b) {
         tableOutput.getChildren().clear();
@@ -809,12 +818,12 @@ public class AlgorithmController extends ModuleController {
         int n = a.length();
         int m = b.length();
 
-        // Empty corner
+
         Label corner = new Label("");
         corner.setPrefSize(70, 70);
         tableOutput.add(corner, 0, 0);
 
-        // Column headers (string b)
+
         Label gapHeader = new Label(" ");
         gapHeader.setPrefSize(70, 70);
         gapHeader.setStyle("-fx-font-weight:bold; -fx-font-size:20; -fx-alignment:center; -fx-background-color:lightgray;");
@@ -827,7 +836,7 @@ public class AlgorithmController extends ModuleController {
             tableOutput.add(header, j + 2, 0);
         }
 
-        // Row headers (string a)
+
         Label gapRowHeader = new Label(" ");
         gapRowHeader.setPrefSize(70, 70);
         gapRowHeader.setStyle("-fx-font-weight:bold; -fx-font-size:20; -fx-alignment:center; -fx-background-color:lightgray;");
@@ -841,7 +850,7 @@ public class AlgorithmController extends ModuleController {
             tableOutput.add(header, 0, i + 2);
         }
 
-        // Initialize DP cells
+
         for (int i = 0; i <= n; i++) {
             for (int j = 0; j <= m; j++) {
                 Label cell = new Label("");
@@ -1112,7 +1121,6 @@ private void computeSeqAlign(String mode) {
             }
         }
 
-        // ✅ Backtrack to reconstruct alignment
         StringBuilder alignA = new StringBuilder();
         StringBuilder alignB = new StringBuilder();
         int i = n, j = m;
@@ -1161,7 +1169,7 @@ private void computeSeqAlign(String mode) {
         }
         int res = seqAlignMemo(a, b, n, m, memo, gapPenalty, mismatchPenalty, matchScore);
 
-        // ✅ Backtrack using memo table
+        //  Backtrack using memo table
         StringBuilder alignA = new StringBuilder();
         StringBuilder alignB = new StringBuilder();
         int i = n, j = m;
@@ -1197,7 +1205,7 @@ private void computeSeqAlign(String mode) {
 }
 
 
-    // Memoization Sequence Alignment
+
 
     private int seqAlignMemo(String a, String b, int i, int j,
                              int[][] memo, int gapPenalty, int mismatchPenalty, int matchScore) {
@@ -1231,15 +1239,15 @@ private void computeSeqAlign(String mode) {
         return res;
     }
 
-    // --- Utility Methods ---
-
-    private String getStackText() {
-        StringBuilder sb = new StringBuilder();
-        for (String s : callStack) {
-            sb.append(s).append("\n");
-        }
-        return sb.toString();
-    }
+//    // --- Utility Methods ---
+//
+//    private String getStackText() {
+//        StringBuilder sb = new StringBuilder();
+//        for (String s : callStack) {
+//            sb.append(s).append("\n");
+//        }
+//        return sb.toString();
+//    }
 
     private void updateControls() {
         startBtn.setDisable(false);
@@ -1347,7 +1355,7 @@ private void computeSeqAlign(String mode) {
 
         String mode = modeCombo.getValue();
         createVisualizationLayout(mode);
-        //loadCodeForAlgorithm();
+        
 loadFullCode();
         if (currentAlgorithm == null)
             return;

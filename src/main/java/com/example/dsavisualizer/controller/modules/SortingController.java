@@ -689,10 +689,7 @@ public class SortingController extends ModuleController {
         }
     }
 
-    //    private void showAlert(String msg) {
-//        Alert a = new Alert(Alert.AlertType.INFORMATION, msg, ButtonType.OK);
-//        a.showAndWait();
-//    }
+
     protected void showAlert(String msg) {
         if (statusLabel != null) {
             statusLabel.setText(msg);

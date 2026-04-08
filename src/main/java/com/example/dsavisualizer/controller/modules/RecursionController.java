@@ -1,3 +1,4 @@
+
 package com.example.dsavisualizer.controller.modules;
 
 import com.example.dsavisualizer.controller.ModuleController;
@@ -184,55 +185,6 @@ public class RecursionController extends ModuleController {
         // Code is always shown in codePane
     }
 
-//    private void renderCode() {
-    ////        if (codePane == null)
-    ////            return;
-    ////
-    ////        codePane.getChildren().clear();
-//        VBox codeBox = new VBox(0);
-//        codeBox.setPadding(new Insets(10));
-//        codeBox.setStyle("-fx-background-color: #1e1e1e;");
-//
-//        String[] lines = codeContent.trim().split("\n");
-//        for (int i = 0; i < lines.length; i++) {
-//            HBox lineBox = new HBox(4);
-//            lineBox.setAlignment(Pos.TOP_LEFT);
-//            lineBox.setPadding(new Insets(2, 0, 2, 0));
-//            lineBox.setId("codeline_" + i);
-//
-//            Text lineNum = new Text(String.format("%2d ", i + 1));
-//            lineNum.setFont(Font.font("Courier New", 13));
-//            lineNum.setFill(Color.web("#666666"));
-//
-//            Text lineText = new Text(lines[i]);
-//            lineText.setFont(Font.font("Courier New", 13));
-//            lineText.setFill(Color.web("#d4d4d4"));
-//            lineText.setId("line_" + i);
-//
-//            lineBox.getChildren().addAll(lineNum, lineText);
-//            codeBox.getChildren().add(lineBox);
-//        }
-//
-//        codePane.getChildren().add(codeBox);
-//    }
-
-//    private void highlightCodeLine(int lineIndex) {
-//        highlightedLineIndex = lineIndex;
-//        if (codePane == null || codePane.getChildren().isEmpty())
-//            return;
-//
-//        VBox codeBox = (VBox) codePane.getChildren().get(0);
-//        for (Node node : codeBox.getChildren()) {
-//            if (node instanceof HBox) {
-//                HBox lineBox = (HBox) node;
-//                if (lineBox.getId() != null && lineBox.getId().equals("codeline_" + lineIndex)) {
-//                    lineBox.setStyle("-fx-background-color: #FFD700; -fx-background-radius: 3;");
-//                } else if (lineBox.getId() != null && lineBox.getId().startsWith("codeline_")) {
-//                    lineBox.setStyle("-fx-background-color: transparent;");
-//                }
-//            }
-//        }
-//    }
 
     private void renderCallStack() {
         if (callStackPane == null)
@@ -592,42 +544,7 @@ public class RecursionController extends ModuleController {
                 case INFO:
                     callStack.clear();
                     renderCallStack();
-                    //highlightCodeLine(-1); // clear highlight
-//                    VBox infoBox = new VBox(10);
-//                    infoBox.setPadding(new Insets(15));
-//                    infoBox.setStyle(
-//                            "-fx-background-color: #e6f0ff; -fx-border-color: #1976D2; -fx-border-radius: 4; -fx-background-radius: 4;");
-//
-//                    Label resultLabel = new Label("Final Result:");
-//                    resultLabel.setStyle("-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #1976D2;");
-//
-//                    if (ev.result instanceof List) {
-//                        @SuppressWarnings("unchecked")
-//                        List<Object> list = (List<Object>) ev.result;
-//                        HBox seqBox = new HBox(8);
-//                        seqBox.setAlignment(Pos.CENTER_LEFT);
-//                        seqBox.setPadding(new Insets(10));
-//                        for (Object o : list) {
-//                            Label v = new Label(String.valueOf(o));
-//                            v.setFont(Font.font("Courier New", 14));
-//                            v.setStyle("-fx-font-size: 14; -fx-border-color: #444; -fx-padding: 8 12; "
-//                                    + "-fx-background-color: #FFE082; -fx-border-radius: 4; -fx-background-radius: 4; -fx-font-weight: bold;");
-//                            seqBox.getChildren().add(v);
-//                        }
-//                        infoBox.getChildren().addAll(resultLabel, seqBox);
-//                    } else {
-//                        Label ansLabel = new Label(String.valueOf(ev.result));
-//                        ansLabel.setFont(Font.font("Courier New", 18));
-//                        ansLabel.setStyle("-fx-font-size: 18; -fx-text-fill: #1976D2; -fx-font-weight: bold;");
-//                        infoBox.getChildren().addAll(resultLabel, ansLabel);
-//                    }
-//
-//                    if (statusLabel != null) {
-//                        statusLabel.setText("Complete!");
-//                    }
-//                    if (returnLabel != null) {
-//                        returnLabel.setText("");
-//                    }
+                    
                     if (statusLabel != null) {
                         if ("sequence".equals(ev.label)) {
                             statusLabel.setText("Sequence generated");

@@ -70,11 +70,7 @@ public class ModuleController {
     }
 
 
-    /*protected void setContent(String title, String desc, String story) {
-        titleLabel.setText(title);
-        descArea.setText(desc);
-        storyArea.setText(story);
-    }*/
+
 
     @FXML
     protected void toggleCode() {

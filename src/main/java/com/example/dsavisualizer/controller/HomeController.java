@@ -43,8 +43,11 @@ public class HomeController {
             SceneManager.switchScene("modules/array.fxml");
         else if ("linkedBtn".equals(id))
             SceneManager.switchScene("modules/linkedlist.fxml");
-    }
+         
 
+       
+    }
+  
     @FXML
     private void toggleTheme() {
 
@@ -55,4 +58,5 @@ public class HomeController {
         themeBtn.setText(
                 ThemeManager.isDark() ? "Light Mode" : "Dark Mode");
     }
+
 }
