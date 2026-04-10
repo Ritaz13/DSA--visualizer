@@ -54,7 +54,7 @@
                         <graphic>
                             <ImageView fitWidth="400" fitHeight="300">
                                 <image>
-                                    <Image url="@/images/dp1.png"/>
+                                    <Image url="@../../images/dp1.png"/>
                                 </image>
                             </ImageView>
                         </graphic>
@@ -67,7 +67,7 @@
                         <graphic>
                             <ImageView fitWidth="400" fitHeight="300">
                                 <image>
-                                    <Image url="@/images/change.png.jpeg"/>
+                                    <Image url="@../../images/change.png.jpeg"/>
                                 </image>
                             </ImageView>
                         </graphic>
@@ -83,7 +83,7 @@
                         <graphic>
                             <ImageView fitWidth="200" fitHeight="200">
                                 <image>
-                                    <Image url="@/images/dp2.png"/>
+                                    <Image url="@../../images/dp2.png"/>
                                 </image>
                             </ImageView>
                         </graphic>
@@ -102,7 +102,7 @@
                         <graphic>
                             <ImageView fitWidth="220" fitHeight="200">
                                 <image>
-                                    <Image url="@/images/lcs.jpeg"/>
+                                    <Image url="@../../images/lcs.jpeg"/>
                                 </image>
                             </ImageView>
                         </graphic>
@@ -117,7 +117,7 @@
                         <graphic>
                             <ImageView fitWidth="200" fitHeight="200">
                                 <image>
-                                    <Image url="@/images/seq.jpeg"/>
+                                    <Image url="@../../images/seq.jpeg"/>
                                 </image>
                             </ImageView>
                         </graphic>
@@ -129,4 +129,3 @@
         </HBox>
     </center>
 </BorderPane>
-
